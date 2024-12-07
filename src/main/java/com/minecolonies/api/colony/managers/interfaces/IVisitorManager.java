@@ -13,7 +13,7 @@ public interface IVisitorManager extends IEntityManager<IVisitorData>
     /**
      * Tick the visitor data of all active citizens.
      */
-    boolean tickVisitorData();
+    boolean tickVisitorData(int tickRate);
 
     /**
      * Spawns a civilian with the specific civilian data.

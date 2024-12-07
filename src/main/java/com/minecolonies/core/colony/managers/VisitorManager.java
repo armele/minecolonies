@@ -261,11 +261,11 @@ public class VisitorManager implements IVisitorManager
     }
 
     @Override
-    public boolean tickVisitorData()
+    public boolean tickVisitorData(int tickRate)
     {
         for (IVisitorData visitorData : this.getCivilianDataMap().values())
         {
-            visitorData.update();
+            visitorData.update(tickRate);
         }
         return false;
     }

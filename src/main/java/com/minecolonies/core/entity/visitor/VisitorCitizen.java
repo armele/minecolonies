@@ -5,7 +5,6 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.location.ILocation;
-import com.minecolonies.api.entity.CustomGoalSelector;
 import com.minecolonies.api.entity.citizen.citizenhandlers.*;
 import com.minecolonies.api.entity.pathfinding.proxy.IWalkToProxy;
 import com.minecolonies.api.entity.visitor.AbstractEntityVisitor;
@@ -23,7 +22,6 @@ import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.entity.ai.minimal.EntityAIInteractToggleAble;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityGoal;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityInteractGoal;
-import com.minecolonies.core.entity.ai.visitor.EntityAIVisitor;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.citizen.citizenhandlers.*;
 import com.minecolonies.core.entity.pathfinding.navigation.MovementHandler;
@@ -120,11 +118,6 @@ public class VisitorCitizen extends AbstractEntityVisitor
      * The citizen experience handler
      */
     private ICitizenExperienceHandler citizenExperienceHandler;
-
-    /**
-     * The citizen disease handler.
-     */
-    private ILocation              location = null;
 
     /**
      * Constructor for a new citizen typed entity.
@@ -230,7 +223,7 @@ public class VisitorCitizen extends AbstractEntityVisitor
             final ItemStack itemstack = getCitizenData().getInventory().getStackInSlot(i);
             if (ItemStackUtils.getSize(itemstack) > 0)
             {
-                citizenItemHandler.entityDropItem(itemstack);
+                CitizenItemUtils.entityDropItem(this, itemstack);
             }
         }
     }
@@ -516,8 +509,6 @@ public class VisitorCitizen extends AbstractEntityVisitor
         {
             compound.putInt(TAG_CITIZEN, visitorData.getId());
         }
-
-        citizenDiseaseHandler.write(compound);
     }
 
     @Override
@@ -534,8 +525,6 @@ public class VisitorCitizen extends AbstractEntityVisitor
                 citizenColonyHandler.registerWithColony(citizenColonyHandler.getColonyId(), citizenId);
             }
         }
-
-        citizenDiseaseHandler.read(compound);
     }
 
     /**

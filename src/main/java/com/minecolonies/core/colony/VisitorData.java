@@ -156,9 +156,9 @@ public class VisitorData extends CitizenData implements IVisitorData
     }
 
     @Override
-    public void update()
+    public void update(int tickRate)
     {
-        super.update();
+        super.update(tickRate);
         visitorType.update(this);
     }
 
