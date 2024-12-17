@@ -3,11 +3,12 @@ package com.minecolonies.core.entity.ai.minimal;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.modules.IPatientModule;
 import com.minecolonies.api.entity.ai.IStateAI;
 import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
+import com.minecolonies.core.entity.ai.workers.util.Patient;
+import com.minecolonies.core.entity.ai.workers.util.Patient.PatientType;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.core.BlockPos;
 
@@ -80,7 +81,7 @@ public abstract class EntityAIBeAtHospitalTask implements IStateAI
     /**
      * @return
      */
-    protected abstract IPatientModule createPatientModule();
+    protected abstract PatientType getPatientType();
 
     /**
      * Search for a placeToPath within the colony of the citizen.
@@ -130,7 +131,7 @@ public abstract class EntityAIBeAtHospitalTask implements IStateAI
 
         if (building instanceof BuildingHospital hospital)
         {
-            hospital.addPatient(createPatientModule());
+            hospital.addPatient(citizen.getId(), getPatientType());
             return WAIT_IN_HOSPITAL;
         }
 
@@ -144,7 +145,8 @@ public abstract class EntityAIBeAtHospitalTask implements IStateAI
 
         if (building instanceof BuildingHospital hospital)
         {
-            if (hospital.isPatientFinished(citizenData.getId()))
+            final Patient patientType = hospital.getPatient(citizenData.getId());
+            if (patientType != null)
             {
                 reset();
                 return IDLE;

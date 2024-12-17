@@ -1,8 +1,6 @@
 package com.minecolonies.core.entity.ai.minimal;
 
-import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.modules.IPatientModule;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.IStateAI;
@@ -13,17 +11,17 @@ import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
-import com.minecolonies.core.colony.buildings.workerbuildings.hospital.modules.SickPatientModule;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.datalistener.model.Disease;
+import com.minecolonies.core.entity.ai.workers.util.Patient.PatientType;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.client.CircleParticleEffectMessage;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -51,6 +49,8 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
      */
     private static final int CHANCE_FOR_RANDOM_CURE = 10;
 
+    private int cureTicks = 0;
+
     /**
      * Instantiates this task.
      *
@@ -63,10 +63,8 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
         citizen.getCitizenAI().addTransition(new TickingTransition<>(CitizenAIState.SICK, this::isSick, () -> GO_TO_HUT, 20));
         citizen.getCitizenAI().addTransition(new TickingTransition<>(GO_TO_HUT, () -> true, this::goToHut, 20));
         citizen.getCitizenAI().addTransition(new TickingTransition<>(CHECK_FOR_CURE, () -> true, this::checkForCure, 20));
-        citizen.getCitizenAI().addTransition(new TickingTransition<>(WANDER, () -> true, this::wander, 200));
-
-        citizen.getCitizenAI().addTransition(new TickingTransition<>(WAIT_FOR_CURE, () -> true, this::waitForCure, 20));
         citizen.getCitizenAI().addTransition(new TickingTransition<>(APPLY_CURE, () -> true, this::applyCure, 20));
+        citizen.getCitizenAI().addTransition(new TickingTransition<>(WANDER, () -> true, this::wander, 200));
     }
 
     private boolean isSick()
@@ -101,18 +99,11 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
         final Disease disease = citizen.getCitizenData().getCitizenDiseaseHandler().getDisease();
         if (disease == null)
         {
+            reset();
             return CitizenAIState.IDLE;
         }
-        for (final ItemStorage cure : disease.cureItems())
-        {
-            final int slot = InventoryUtils.findFirstSlotInProviderNotEmptyWith(citizen, Disease.hasCureItem(cure));
-            if (slot == -1)
-            {
-                reset();
-                return requiresHospital();
-            }
-        }
-        return APPLY_CURE;
+
+        return hasCureItems(disease) ? APPLY_CURE : requiresHospital();
     }
 
     /**
@@ -122,15 +113,15 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
      */
     private IState applyCure()
     {
-        if (checkForCure() != APPLY_CURE)
-        {
-            return CHECK_FOR_CURE;
-        }
-
         final Disease disease = citizen.getCitizenData().getCitizenDiseaseHandler().getDisease();
         if (disease == null)
         {
             return CitizenAIState.IDLE;
+        }
+
+        if (!hasCureItems(disease))
+        {
+            return CHECK_FOR_CURE;
         }
 
         final List<ItemStorage> list = disease.cureItems();
@@ -146,8 +137,8 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
             citizen.position().add(0, 2, 0),
             ParticleTypes.HAPPY_VILLAGER, 1), citizen);
 
-        waitingTicks++;
-        if (waitingTicks < REQUIRED_TIME_TO_CURE)
+        cureTicks++;
+        if (cureTicks < REQUIRED_TIME_TO_CURE)
         {
             return APPLY_CURE;
         }
@@ -174,59 +165,8 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
             }
         }
 
-        if (usedBed != null)
-        {
-            final BlockPos hospitalPos = citizen.getCitizenColonyHandler().getColonyOrRegister().getBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
-            final IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
-            final IBuilding hospital = colony.getBuildingManager().getBuilding(hospitalPos);
-            ((BuildingHospital) hospital).registerPatient(usedBed, 0);
-            usedBed = null;
-            citizen.getCitizenData().setBedPos(BlockPos.ZERO);
-        }
         citizen.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         citizen.getCitizenData().getCitizenDiseaseHandler().cure();
-        reset();
-    }
-
-    /**
-     * Stay in bed while waiting to be cured.
-     *
-     * @return the next state to go to.
-     */
-    private IState waitForCure()
-    {
-        final IColony colony = citizenData.getColony();
-        final IState state = checkForCure();
-        if (state == APPLY_CURE)
-        {
-            return APPLY_CURE;
-        }
-        else if (state == CitizenAIState.IDLE)
-        {
-            reset();
-            return CitizenAIState.IDLE;
-        }
-
-        if (citizen.getRandom().nextInt(10000) < CHANCE_FOR_RANDOM_CURE)
-        {
-            cure();
-            return CitizenAIState.IDLE;
-        }
-
-        if (citizen.getCitizenSleepHandler().isAsleep())
-        {
-            final BlockPos hospital = colony.getBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
-            if (hospital != null)
-            {
-                final IBuilding building = colony.getBuildingManager().getBuilding(hospital);
-                if (building instanceof BuildingHospital && !((BuildingHospital) building).getBedList().contains(citizen.getCitizenSleepHandler().getBedLocation()))
-                {
-                    citizen.getCitizenSleepHandler().onWakeUp();
-                }
-            }
-        }
-
-        return WAIT_FOR_CURE;
     }
 
     /**
@@ -252,6 +192,18 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
     @Override
     protected void performActionsInHospital(final BuildingHospital hospital)
     {
+        final Disease disease = citizen.getCitizenData().getCitizenDiseaseHandler().getDisease();
+        if (disease == null)
+        {
+            return;
+        }
+
+        if (citizen.getRandom().nextInt(10000) < CHANCE_FOR_RANDOM_CURE)
+        {
+            cure();
+            return;
+        }
+
         applyCure();
     }
 
@@ -269,9 +221,35 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
     }
 
     @Override
-    protected IPatientModule createPatientModule()
+    protected PatientType getPatientType()
     {
-        return new SickPatientModule(citizenData.getId());
+        return PatientType.SICK;
+    }
+
+    @Override
+    protected void reset()
+    {
+        super.reset();
+        cureTicks = 0;
+    }
+
+    /**
+     * Check if the citizen has all required items to cure the disease in their inventory.
+     *
+     * @param disease the input disease.
+     * @return true if all cure items are found in the citizen inventory.
+     */
+    private boolean hasCureItems(final @NotNull Disease disease)
+    {
+        for (final ItemStorage cure : disease.cureItems())
+        {
+            final int slot = InventoryUtils.findFirstSlotInProviderNotEmptyWith(citizen, Disease.hasCureItem(cure));
+            if (slot == -1)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -279,9 +257,8 @@ public class EntityAISickTask extends EntityAIBeAtHospitalTask implements IState
      */
     public enum DiseaseState implements IState
     {
-        CHECK_FOR_CURE,
         GO_TO_HUT,
-        WAIT_FOR_CURE,
+        CHECK_FOR_CURE,
         APPLY_CURE,
         WANDER
     }

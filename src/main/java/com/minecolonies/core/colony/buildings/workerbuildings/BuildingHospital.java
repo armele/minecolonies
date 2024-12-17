@@ -5,15 +5,14 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.PatientModuleDataManager;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.modules.IPatientModule;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.registry.PatientTypeRegistries;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.datalistener.DiseasesListener;
+import com.minecolonies.core.entity.ai.workers.util.Patient;
+import com.minecolonies.core.entity.ai.workers.util.Patient.PatientType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -40,11 +40,6 @@ import static com.minecolonies.api.util.constant.Suppression.OVERRIDE_EQUALS;
 @SuppressWarnings(OVERRIDE_EQUALS)
 public class BuildingHospital extends AbstractBuilding
 {
-    /**
-     * NBT tags.
-     */
-    private static final String TAG_PATIENT = "patient";
-
     /**
      * The hospital string.
      */
@@ -65,7 +60,7 @@ public class BuildingHospital extends AbstractBuilding
      * Map of patients of this hospital.
      */
     @NotNull
-    private final Map<Integer, PatientModuleNode> patients = new TreeMap<>();
+    private final Map<Integer, Patient> patients = new TreeMap<>();
 
     /**
      * Instantiates a new hospital building.
@@ -95,31 +90,29 @@ public class BuildingHospital extends AbstractBuilding
     public void deserializeNBT(final CompoundTag compound)
     {
         super.deserializeNBT(compound);
-        final Map<Integer, PatientModuleNode> patientModules = new TreeMap<>();
+        final Map<Integer, Patient> patients = new TreeMap<>();
         final ListTag patientTagList = compound.getList(TAG_PATIENTS, Tag.TAG_COMPOUND);
         for (int i = 0; i < patientTagList.size(); ++i)
         {
             final CompoundTag patientCompound = patientTagList.getCompound(i);
             if (compound.contains(TAG_PATIENTS))
             {
-                if (patientCompound.contains(TAG_ID))
+                if (patientCompound.contains(TAG_PATIENT_TYPE))
                 {
-                    // TODO: 1.22 Remove NBT migration
-                    final int patientId = patientCompound.getInt(TAG_ID);
-                    patientModules.put(patientId, new PatientModuleNode(PatientTypeRegistries.sick.get().producePatientModule(patientCompound)));
+                    final int patientId = compound.getInt(TAG_ID);
+                    final PatientType type = PatientType.valueOf(compound.getString(TAG_PATIENT_TYPE));
+                    patients.put(patientId, type);
                 }
                 else
                 {
-                    final IPatientModule patientModule = PatientModuleDataManager.readPatientModule(patientCompound, TAG_PATIENT);
-                    if (patientModule != null)
-                    {
-                        patientModules.put(patientModule.getCitizenId(), new PatientModuleNode(patientModule));
-                    }
+                    // TODO: 1.22 Remove NBT migration
+                    final int patientId = patientCompound.getInt(TAG_ID);
+                    patients.put(patientId, PatientType.SICK);
                 }
             }
         }
-        patients.clear();
-        patients.putAll(patientModules);
+        this.patients.clear();
+        this.patients.putAll(patients);
 
         final Map<BlockPos, Integer> beds = new TreeMap<>();
         final ListTag bedTagList = compound.getList(TAG_BEDS, Tag.TAG_COMPOUND);
@@ -128,7 +121,7 @@ public class BuildingHospital extends AbstractBuilding
             final CompoundTag bedCompound = bedTagList.getCompound(i);
             final BlockPos bedPos = BlockPosUtil.read(bedCompound, TAG_POS);
             final int citizenId = bedCompound.getInt(TAG_ID);
-            if (patientModules.containsKey(citizenId))
+            if (patients.containsKey(citizenId))
             {
                 beds.put(bedPos, citizenId);
             }
@@ -152,10 +145,11 @@ public class BuildingHospital extends AbstractBuilding
         compound.put(TAG_BEDS, bedTagList);
 
         @NotNull final ListTag patientTagList = new ListTag();
-        for (final PatientModuleNode patient : patients.values())
+        for (final Entry<Integer, PatientType> patient : patients.entrySet())
         {
             final CompoundTag patientCompound = new CompoundTag();
-            PatientModuleDataManager.writePatientModule(patientCompound, TAG_PATIENT, patient.module);
+            patientCompound.putInt(TAG_ID, patient.getKey());
+            patientCompound.putString(TAG_PATIENT_TYPE, patient.getValue().name());
             patientTagList.add(patientCompound);
         }
         compound.put(TAG_PATIENTS, patientTagList);
@@ -188,52 +182,50 @@ public class BuildingHospital extends AbstractBuilding
     }
 
     /**
-     * Get the list of patient files.
+     * Get the list of patients.
      *
      * @return immutable copy.
      */
-    public List<IPatientModule> getPatients()
+    public List<Patient> getPatients()
     {
-        return ImmutableList.copyOf(patients.values().stream().map(m -> m.module).toList());
+        return ImmutableList.copyOf(patients.values());
+    }
+
+    public @Nullable Patient getPatient(final int citizenId)
+    {
+        return patients.get(citizenId);
     }
 
     /**
      * Register a patient to the hospital.
-
-     * @param module the patient module.
+     *
+     * @param citizenId the id of the citizen.
+     * @param type      the patient type.
      */
-    public void addPatient(final IPatientModule module)
+    public void addPatient(final int citizenId, final PatientType type)
     {
-        patients.put(module.getCitizenId(), new PatientModuleNode(module));
-        assignBed(module);
+        patients.put(citizenId, type);
+        assignBed(citizenId);
     }
 
     /**
      * Remove a patient from the list.
      *
-     * @param patient the patient to remove.
-     */
-    public void finishPatient(final IPatientModule patient)
-    {
-        finishPatient(patient.getCitizenId());
-    }
-
-    /**
-     * Remove a patient from the list.
-     *
-     * @param citizenId the citizen id.
+     * @param citizenId the id of the citizen.
      */
     public void finishPatient(final int citizenId)
     {
-        final PatientModuleNode remove = patients.remove(citizenId);
-        if (remove != null)
-        {
-            remove.module.onFinish(this);
-        }
+        patients.remove(citizenId);
         final BlockPos bedPos = bedMap.inverse().get(citizenId);
         if (bedPos != null)
         {
             setBedOccupation(bedPos, false);
+
+            final ICitizenData citizen = colony.getCitizenManager().getCivilian(citizenId);
+            if (citizen != null && citizen.getEntity().isPresent())
+            {
+                citizen.getEntity().get().getCitizenSleepHandler().onWakeUp();
+            }
         }
     }
 
@@ -273,9 +265,9 @@ public class BuildingHospital extends AbstractBuilding
     /**
      * Attempt to assign a bed to a single patient.
      *
-     * @param patient the patient.
+     * @param citizenId the id of the citizen.
      */
-    private void assignBed(final IPatientModule patient)
+    private void assignBed(final int citizenId)
     {
         BlockPos bedToOccupy = null;
         for (final Entry<BlockPos, Integer> bedEntry : bedMap.entrySet())
@@ -289,19 +281,24 @@ public class BuildingHospital extends AbstractBuilding
 
         if (bedToOccupy != null)
         {
-            bedMap.forcePut(bedToOccupy, patient.getCitizenId());
+            bedMap.forcePut(bedToOccupy, citizenId);
             setBedOccupation(bedToOccupy, false);
-            patient.onEnterBed(this, bedToOccupy);
+
+            final ICitizenData citizen = colony.getCitizenManager().getCivilian(citizenId);
+            if (citizen != null && citizen.getEntity().isPresent())
+            {
+                citizen.getEntity().get().getCitizenSleepHandler().trySleep(bedToOccupy);
+            }
         }
     }
 
     private void assignBeds()
     {
-        for (final PatientModuleNode patient : patients.values())
+        for (final int patient : patients.keySet())
         {
-            if (!bedMap.containsValue(patient.module.getCitizenId()))
+            if (!bedMap.containsValue(patient))
             {
-                assignBed(patient.module);
+                assignBed(patient);
             }
         }
     }
@@ -384,24 +381,5 @@ public class BuildingHospital extends AbstractBuilding
         }
 
         return super.canEat(stack);
-    }
-
-    public boolean isPatientFinished(final int citizenId)
-    {
-        return !patients.containsKey(citizenId);
-    }
-
-    private record PatientModuleNode(IPatientModule module) implements Comparable<PatientModuleNode>
-    {
-        @Override
-        public int compareTo(@NotNull final BuildingHospital.PatientModuleNode o)
-        {
-            if (module.getClass() != o.module.getClass())
-            {
-                return -1;
-            }
-
-            return module.compareTo(o.module);
-        }
     }
 }

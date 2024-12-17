@@ -1,14 +1,13 @@
 package com.minecolonies.core.entity.ai.minimal;
 
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.modules.IPatientModule;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.entity.ai.IStateAI;
 import com.minecolonies.api.entity.ai.statemachine.states.CitizenAIState;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
-import com.minecolonies.core.colony.buildings.workerbuildings.hospital.modules.HurtPatientModule;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
+import com.minecolonies.core.entity.ai.workers.util.Patient.PatientType;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.network.chat.Component;
 
@@ -47,8 +46,8 @@ public class EntityAIHurtTask extends EntityAIBeAtHospitalTask implements IState
     }
 
     @Override
-    protected IPatientModule createPatientModule()
+    protected PatientType getPatientType()
     {
-        return new HurtPatientModule(citizenData.getId());
+        return PatientType.HURT;
     }
 }

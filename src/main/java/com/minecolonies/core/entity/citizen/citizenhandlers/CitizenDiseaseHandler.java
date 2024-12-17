@@ -142,6 +142,12 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
     }
 
     @Override
+    public boolean sleepsAtHospital()
+    {
+        return false;
+    }
+
+    @Override
     public boolean isSick()
     {
         return disease != null;

@@ -5,7 +5,6 @@ import com.minecolonies.api.colony.ICitizenDataManager;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.buildings.registry.IBuildingDataManager;
-import com.minecolonies.api.colony.buildings.workerbuildings.hospital.registry.PatientTypeRegistries;
 import com.minecolonies.api.colony.colonyEvents.registry.ColonyEventDescriptionTypeRegistryEntry;
 import com.minecolonies.api.colony.colonyEvents.registry.ColonyEventTypeRegistryEntry;
 import com.minecolonies.api.colony.fields.registry.FieldRegistries;
@@ -102,6 +101,4 @@ public interface IMinecoloniesAPI
     void onRegistryNewRegistry(NewRegistryEvent event);
 
     IForgeRegistry<EquipmentTypeEntry> getEquipmentTypeRegistry();
-
-    IForgeRegistry<PatientTypeRegistries.PatientTypeEntry> getPatientTypeRegistry();
 }

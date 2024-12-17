@@ -590,15 +590,13 @@ public enum AIWorkerState implements IAIState
     /*
 ### Healer ###
    */
-    REQUEST_CURE(true),
-
-    CURE(true),
-
     WANDER(true),
 
-    FREE_CURE(true),
+    REQUEST_ITEMS(true),
 
-    CURE_PLAYER(true),
+    BRING_ITEMS(true),
+
+    HEAL_PLAYER(true),
 
     /*
 ### School related ###
