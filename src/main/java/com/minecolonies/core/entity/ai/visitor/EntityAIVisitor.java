@@ -7,12 +7,12 @@ import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRat
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.DamageSourceKeys;
-import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.colony.buildings.DefaultBuildingInstance;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.entity.other.SittingEntity;
+import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.visitor.VisitorCitizen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -122,7 +122,7 @@ public class EntityAIVisitor implements IState
             return true;
         }
 
-        if (citizen.isWorkerAtSiteWithMove(target.blockPosition(), 2) && citizen.hasLineOfSight(target))
+        if (EntityNavigationUtils.walkToPos(citizen, target.blockPosition(), 2, false) && citizen.hasLineOfSight(target))
         {
             citizen.swing(InteractionHand.MAIN_HAND);
             target.hurt(target.level.damageSources().source(DamageSourceKeys.VISITOR), 10.0f);
@@ -143,7 +143,7 @@ public class EntityAIVisitor implements IState
             return true;
         }
 
-        citizen.getNavigation().moveToRandomPos(10, 0.6D);
+        EntityNavigationUtils.walkToRandomPos(citizen, 10, 0.6D);
         return false;
     }
 
@@ -175,15 +175,15 @@ public class EntityAIVisitor implements IState
             final BlockPos pos = tavern.getModule(BuildingModules.TAVERN_VISITOR).getFreeSitPosition();
             if (pos != null)
             {
-                citizen.getCitizenData().setExtraDataValue(EXTRA_DATA_SITTING_POSITION, pos);
-                citizen.isWorkerAtSiteWithMove(pos, 1);
+                citizen.getCitizenData().setSittingPosition(pos);
+                EntityNavigationUtils.walkToPosInBuilding(citizen, pos, tavern, 3);
                 actionTimeoutCounter = citizen.getRandom().nextInt(2500) + 3000;
                 return VisitorState.SITTING;
             }
         }
         else if (random == 2)
         {
-            citizen.getNavigation().moveToRandomPos(10, 0.6D);
+            EntityNavigationUtils.walkToRandomPos(citizen, 10, 0.6D);
             actionTimeoutCounter = citizen.getCitizenColonyHandler().getColonyOrRegister().isDay() ? citizen.getRandom().nextInt(1000) + 1000 : 300;
             return VisitorState.WANDERING;
         }
@@ -210,7 +210,7 @@ public class EntityAIVisitor implements IState
         }
 
         final BlockPos moveTo = citizen.getCitizenData().getExtraDataValue(EXTRA_DATA_SITTING_POSITION);
-        if (citizen.isWorkerAtSiteWithMove(moveTo, 1))
+        if (EntityNavigationUtils.walkToPosInBuilding(citizen, moveTo, tavern, 3))
         {
             SittingEntity.sitDown(moveTo, citizen, actionTimeoutCounter);
         }
@@ -256,16 +256,6 @@ public class EntityAIVisitor implements IState
             }
         }
         return target;
-    }
-
-    /**
-     * Handles any exceptions for this AI.
-     *
-     * @param e exception to handle
-     */
-    private void onException(final RuntimeException e)
-    {
-        Log.getLogger().warn("Visitor AI of:" + citizen.getName() + " threw an Exception:", e);
     }
 
     /**

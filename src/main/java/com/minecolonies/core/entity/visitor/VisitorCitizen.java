@@ -5,6 +5,7 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.location.ILocation;
+import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.citizenhandlers.*;
 import com.minecolonies.api.entity.pathfinding.proxy.IWalkToProxy;
 import com.minecolonies.api.entity.visitor.AbstractEntityVisitor;
@@ -23,8 +24,12 @@ import com.minecolonies.core.entity.ai.minimal.EntityAIInteractToggleAble;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityGoal;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityInteractGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import com.minecolonies.core.entity.citizen.citizenhandlers.*;
+import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenExperienceHandler;
+import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenInventoryHandler;
+import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenJobHandler;
+import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSleepHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.MovementHandler;
+import com.minecolonies.core.network.messages.client.ItemParticleEffectMessage;
 import com.minecolonies.core.entity.pathfinding.proxy.EntityCitizenWalkToProxy;
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
@@ -72,16 +77,6 @@ public class VisitorCitizen extends AbstractEntityVisitor
      * The citizen id.
      */
     private int citizenId = 0;
-
-    /**
-     * The Walk to proxy (Shortest path through intermediate blocks).
-     */
-    private IWalkToProxy proxy;
-
-    /**
-     * The location used for requests
-     */
-    private ILocation location = null;
 
     /**
      * Reference to the data representation inside the colony.
@@ -204,137 +199,17 @@ public class VisitorCitizen extends AbstractEntityVisitor
         return false;
     }
 
-    @Override
-    public void die(DamageSource cause)
-    {
-        super.die(cause);
-        if (!level.isClientSide())
-        {
-            visitorType.onDied(this, cause);
-        }
-    }
-
-    @Override
-    protected void dropEquipment()
-    {
-        //Drop actual inventory
-        for (int i = 0; i < getInventoryCitizen().getSlots(); i++)
-        {
-            final ItemStack itemstack = getCitizenData().getInventory().getStackInSlot(i);
-            if (ItemStackUtils.getSize(itemstack) > 0)
-            {
-                CitizenItemUtils.entityDropItem(this, itemstack);
-            }
-        }
-    }
-
-    @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor)
-    {
-        super.onSyncedDataUpdated(dataAccessor);
-        if (citizenColonyHandler != null)
-        {
-            citizenColonyHandler.onSyncDataUpdate(dataAccessor);
-        }
-    }
-
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(final int id, final Inventory playerInventory, final Player playerEntity)
+    public ICitizenData getCitizenData()
     {
-        return new ContainerCitizenInventory(id, playerInventory, citizenColonyHandler.getColonyId(), citizenId);
+        return citizenData;
     }
 
     @Override
-    public ICitizenDataView getCitizenDataView()
+    public ICivilianData getCivilianData()
     {
-        if (this.citizenDataView == null)
-        {
-            citizenColonyHandler.updateColonyClient();
-            if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0)
-            {
-                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), level.dimension());
-                if (colonyView != null)
-                {
-                    this.citizenDataView = colonyView.getVisitor(citizenId);
-                    return this.citizenDataView;
-                }
-            }
-        }
-        else
-        {
-            return this.citizenDataView;
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void defineSynchedData()
-    {
-        super.defineSynchedData();
-        entityData.define(DATA_COLONY_ID, citizenColonyHandler == null ? 0 : citizenColonyHandler.getColonyId());
-        entityData.define(DATA_CITIZEN_ID, citizenId);
-    }
-
-    @Override
-    public void aiStep()
-    {
-        super.aiStep();
-
-        if (lastHurtByPlayerTime > 0)
-        {
-            markDirty(0);
-        }
-
-        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
-        {
-            citizenColonyHandler.updateColonyClient();
-            if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0 && getOffsetTicks() % TICKS_20 == 0)
-            {
-                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), level.dimension());
-                if (colonyView != null)
-                {
-                    this.citizenDataView = colonyView.getVisitor(citizenId);
-                    getEntityData().set(DATA_STYLE, colonyView.getTextureStyleId());
-                }
-            }
-        }
-        else
-        {
-            citizenColonyHandler.registerWithColony(citizenColonyHandler.getColonyId(), citizenId);
-            if (tickCount % 500 == 0)
-            {
-                this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
-            }
-        }
-    }
-
-    @Override
-    public ILocation getLocation()
-    {
-        if (location == null)
-        {
-            location = StandardFactoryController.getInstance().getNewInstance(TypeConstants.ILOCATION, this);
-        }
-        return location;
-    }
-
-    /**
-     * Checks if a worker is at his working site. If he isn't, sets it's path to the location
-     *
-     * @param site  the place where he should walk to
-     * @param range Range to check in
-     * @return True if worker is at site, otherwise false.
-     */
-    @Override
-    public boolean isWorkerAtSiteWithMove(@NotNull final BlockPos site, final int range)
-    {
-        if (proxy == null)
-        {
-            proxy = new EntityCitizenWalkToProxy(this);
-        }
-        return proxy.walkToBlock(site, range, true);
+        return citizenData;
     }
 
     @Override
@@ -372,12 +247,6 @@ public class VisitorCitizen extends AbstractEntityVisitor
     public void playMoveAwaySound()
     {
 
-    }
-
-    @Override
-    public IWalkToProxy getProxy()
-    {
-        return proxy;
     }
 
     @Override

@@ -2043,7 +2043,7 @@ public class CitizenData implements ICitizenData
         @Nullable final IBuilding homeBuilding = getHomeBuilding();
         if (homeBuilding != null)
         {
-            return homeBuilding.getStandingPosition();
+            return homeBuilding.getPosition();
         }
 
         if (colony != null)
@@ -2051,7 +2051,7 @@ public class CitizenData implements ICitizenData
             final IBuilding tavern = colony.getBuildingManager().getFirstBuildingMatching(b -> b.getBuildingType() == ModBuildings.tavern.get());
             if (tavern != null)
             {
-                return tavern.getStandingPosition();
+                return tavern.getPosition();
             }
             else if (colony.getBuildingManager().getTownHall() != null)
             {
