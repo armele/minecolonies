@@ -308,14 +308,16 @@ public class ExpeditionInteraction extends ServerCitizenInteraction
 
         // Find in which slot a valid expedition sheet is located.
         final int slot = InventoryUtils.findFirstSlotInItemHandlerWith(new InvWrapper(player.getInventory()), stack -> IS_FINISHED_EXPEDITION_SHEET.test(stack, colony));
-        final ItemStack expeditionSheet = player.getInventory().getItem(slot);
-        if (expeditionSheet.isEmpty())
+        if (slot == -1)
         {
+            MessageUtils.format(EXPEDITION_START_FAIL_MESSAGE, visitorData.getName())
+              .withPriority(MessagePriority.DANGER)
+              .sendTo(player);
             return;
         }
 
         // Create all the data needed for creating an expedition
-        final ExpeditionSheetContainerManager expeditionSheetContainerManager = new ExpeditionSheetContainerManager(expeditionSheet);
+        final ExpeditionSheetContainerManager expeditionSheetContainerManager = new ExpeditionSheetContainerManager(player.getInventory().getItem(slot));
 
         final ColonyExpeditionBuilder colonyExpeditionBuilder = new ColonyExpeditionBuilder(new ExpeditionVisitorMember(visitorData));
         expeditionSheetContainerManager.getMembers()
@@ -346,8 +348,7 @@ public class ExpeditionInteraction extends ServerCitizenInteraction
         // Send expedition start message
         MessageUtils.format(EXPEDITION_START_MESSAGE, visitorData.getName())
           .withPriority(MessagePriority.IMPORTANT)
-          .sendTo(colony)
-          .forManagers();
+          .sendTo(player);
 
         // Add all members to the travelling manager and de-spawn them.
         final BlockPos townHallReturnPosition =

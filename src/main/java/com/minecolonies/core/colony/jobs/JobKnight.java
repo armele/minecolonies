@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.jobs;
 
+import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.resources.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
@@ -17,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.CitizenConstants.GUARD_HEALTH_MOD_LEVEL_NAME;
@@ -49,6 +52,13 @@ public class JobKnight extends AbstractJobGuard<JobKnight>
     public EntityAIKnight generateGuardAI()
     {
         return new EntityAIKnight(this);
+    }
+
+    @Override
+    @Nullable
+    public EquipmentTypeEntry getPrimaryWeaponType()
+    {
+        return ModEquipmentTypes.sword.get();
     }
 
     @Override

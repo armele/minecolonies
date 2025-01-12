@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.expeditions.colony.requirements;
 
+import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.network.chat.Component;
@@ -74,9 +75,10 @@ public class ColonyExpeditionItemRequirement extends ColonyExpeditionRequirement
     public RequirementHandler createHandler(final IItemHandler inventory)
     {
         return new ItemRequirementHandler(new RequirementHandlerOptions(inventory, (builder, stack) -> {
+            builder.addEquipment(stack);
             if (!shouldConsumeOnStart)
             {
-                builder.addEquipment(stack);
+                InventoryUtils.addItemStackToItemHandler(builder.getLeader().getInventory(), stack);
             }
         }));
     }

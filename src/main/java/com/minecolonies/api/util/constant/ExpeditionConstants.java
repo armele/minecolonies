@@ -71,6 +71,8 @@ public class ExpeditionConstants
     @NonNls
     public static final String EXPEDITION_START_MESSAGE            = "com.minecolonies.core.expedition.start";
     @NonNls
+    public static final String EXPEDITION_START_FAIL_MESSAGE       = "com.minecolonies.core.expedition.start.fail";
+    @NonNls
     public static final String EXPEDITION_FINISH_MESSAGE           = "com.minecolonies.core.expedition.finish";
     @NonNls
     public static final String EXPEDITION_FINISHED_LEAVING_MESSAGE = "com.minecolonies.core.expedition.finished.leaving";

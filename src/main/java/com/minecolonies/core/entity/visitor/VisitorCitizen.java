@@ -9,8 +9,8 @@ import com.minecolonies.api.entity.citizen.citizenhandlers.*;
 import com.minecolonies.api.entity.visitor.AbstractEntityVisitor;
 import com.minecolonies.api.entity.visitor.IVisitorType;
 import com.minecolonies.api.inventory.InventoryCitizen;
-import com.minecolonies.api.util.CompatibilityUtils;
-import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.inventory.container.ContainerCitizenInventory;
+import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.Network;
@@ -20,17 +20,22 @@ import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.entity.ai.minimal.EntityAIInteractToggleAble;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityGoal;
 import com.minecolonies.core.entity.ai.minimal.LookAtEntityInteractGoal;
+import com.minecolonies.core.entity.ai.visitor.EntityAIVisitor;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenExperienceHandler;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenInventoryHandler;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenJobHandler;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSleepHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.MovementHandler;
+import com.minecolonies.core.network.messages.client.ItemParticleEffectMessage;
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
+import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -43,15 +48,19 @@ import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.NameTagItem;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.minecolonies.api.util.ItemStackUtils.ISFOOD;
+import static com.minecolonies.api.util.constant.CitizenConstants.TICKS_20;
 import static com.minecolonies.api.util.constant.Constants.*;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_CITIZEN;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_COLONY_ID;
+import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_INTERACTION_VISITOR_FOOD;
 import static com.minecolonies.core.entity.ai.minimal.EntityAIInteractToggleAble.*;
 
 /**
@@ -65,25 +74,19 @@ public class VisitorCitizen extends AbstractEntityVisitor
     private final IVisitorType visitorType;
 
     /**
-     * The citizen id.
+     * The citizen experience handler
      */
-    private int citizenId = 0;
+    private ICitizenExperienceHandler citizenExperienceHandler;
 
     /**
-     * The location used for requests
+     * It's citizen Id.
      */
-    private ILocation location = null;
-
+    private int          citizenId = 0;
     /**
      * Reference to the data representation inside the colony.
      */
     @Nullable
     private IVisitorData visitorData;
-
-    /**
-     * Citizen data view.
-     */
-    private ICitizenDataView citizenDataView;
 
     /**
      * The citizen inv handler.
@@ -94,11 +97,10 @@ public class VisitorCitizen extends AbstractEntityVisitor
      * The citizen colony handler.
      */
     private ICitizenColonyHandler citizenColonyHandler;
-
     /**
      * The citizen job handler.
      */
-    private ICitizenJobHandler citizenJobHandler;
+    private ICitizenJobHandler    citizenJobHandler;
 
     /**
      * The citizen sleep handler.
@@ -106,9 +108,14 @@ public class VisitorCitizen extends AbstractEntityVisitor
     private ICitizenSleepHandler citizenSleepHandler;
 
     /**
-     * The citizen experience handler
+     * Citizen data view.
      */
-    private ICitizenExperienceHandler citizenExperienceHandler;
+    private ICitizenDataView citizenDataView;
+
+    /**
+     * The location used for requests
+     */
+    private ILocation              location = null;
 
     /**
      * Constructor for a new citizen typed entity.
@@ -156,11 +163,21 @@ public class VisitorCitizen extends AbstractEntityVisitor
     }
 
     @Override
+    public ILocation getLocation()
+    {
+        if (location == null)
+        {
+            location = StandardFactoryController.getInstance().getNewInstance(TypeConstants.ILOCATION, this);
+        }
+        return location;
+    }
+
+    @Override
     public boolean hurt(@NotNull final DamageSource damageSource, final float damage)
     {
         if (!(damageSource.getEntity() instanceof EntityCitizen) && super.hurt(damageSource, damage))
         {
-            if (damageSource.getEntity() instanceof LivingEntity livingEntity && damage > 1.01F)
+            if (damageSource.getEntity() instanceof LivingEntity && damage > 1.01f)
             {
                 final IBuilding home = getCitizenData().getHomeBuilding();
                 if (home != null && home.hasModule(BuildingModules.TAVERN_VISITOR))
@@ -171,7 +188,7 @@ public class VisitorCitizen extends AbstractEntityVisitor
                         ICitizenData data = citizenColonyHandler.getColonyOrRegister().getVisitorManager().getCivilian(id);
                         if (data != null && data.getEntity().isPresent() && data.getEntity().get().getLastHurtByMob() == null)
                         {
-                            data.getEntity().get().setLastHurtByMob(livingEntity);
+                            data.getEntity().get().setLastHurtByMob((LivingEntity) damageSource.getEntity());
                         }
                     }
                 }
@@ -195,50 +212,27 @@ public class VisitorCitizen extends AbstractEntityVisitor
         return false;
     }
 
-    @Override
-    public int getTeamId()
-    {
-        return citizenColonyHandler.getColonyId();
-    }
-
-    @Override
-    public ICitizenDataView getCitizenDataView()
-    {
-        if (this.citizenDataView == null)
-        {
-            citizenColonyHandler.updateColonyClient();
-            if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0)
-            {
-                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), level.dimension());
-                if (colonyView != null)
-                {
-                    this.citizenDataView = colonyView.getVisitor(citizenId);
-                    return this.citizenDataView;
-                }
-            }
-        }
-        else
-        {
-            return this.citizenDataView;
-        }
-
-        return null;
-    }
-
-    @Override
-    public ILocation getLocation()
-    {
-        if (location == null)
-        {
-            location = StandardFactoryController.getInstance().getNewInstance(TypeConstants.ILOCATION, this);
-        }
-        return location;
-    }
-
+    @Nullable
     @Override
     public IVisitorData getCitizenData()
     {
         return visitorData;
+    }
+
+    @Override
+    public ICivilianData getCivilianData()
+    {
+        return visitorData;
+    }
+
+    @Override
+    public void setCivilianData(@Nullable final ICivilianData data)
+    {
+        if (data instanceof IVisitorData newVisitorData)
+        {
+            this.visitorData = newVisitorData;
+            data.initEntityValues();
+        }
     }
 
     /**
@@ -258,6 +252,18 @@ public class VisitorCitizen extends AbstractEntityVisitor
     public IItemHandler getItemHandlerCitizen()
     {
         return getInventoryCitizen();
+    }
+
+    /**
+     * Mark the citizen dirty to synch the data with the client.
+     */
+    @Override
+    public void markDirty(final int time)
+    {
+        if (visitorData != null)
+        {
+            visitorData.markDirty(time);
+        }
     }
 
     @Override
@@ -293,6 +299,28 @@ public class VisitorCitizen extends AbstractEntityVisitor
             visitorData.decreaseSaturation(citizenColonyHandler.getPerBuildingFoodCost() / 100.0);
             visitorData.markDirty(20 * 60 * 2);
         }
+    }
+
+    /**
+     * Getter for the citizen id.
+     *
+     * @return the id.
+     */
+    @Override
+    public int getCivilianID()
+    {
+        return citizenId;
+    }
+
+    /**
+     * Setter for the citizen id.
+     *
+     * @param id the id to set.
+     */
+    @Override
+    public void setCitizenId(final int id)
+    {
+        this.citizenId = id;
     }
 
     @Override
@@ -379,40 +407,11 @@ public class VisitorCitizen extends AbstractEntityVisitor
 
     }
 
+    @Nullable
     @Override
-    public void addAdditionalSaveData(final CompoundTag compound)
+    public AbstractContainerMenu createMenu(final int id, final Inventory playerInventory, final Player playerEntity)
     {
-        super.addAdditionalSaveData(compound);
-
-        compound.putInt(TAG_COLONY_ID, citizenColonyHandler.getColonyId());
-        if (visitorData != null)
-        {
-            compound.putInt(TAG_CITIZEN, visitorData.getId());
-        }
-    }
-
-    @Override
-    public void readAdditionalSaveData(final CompoundTag compound)
-    {
-        super.readAdditionalSaveData(compound);
-
-        if (compound.contains(TAG_COLONY_ID))
-        {
-            citizenColonyHandler.setColonyId(compound.getInt(TAG_COLONY_ID));
-            if (compound.contains(TAG_CITIZEN))
-            {
-                citizenId = compound.getInt(TAG_CITIZEN);
-                citizenColonyHandler.registerWithColony(citizenColonyHandler.getColonyId(), citizenId);
-            }
-        }
-    }
-
-    @Override
-    protected void defineSynchedData()
-    {
-        super.defineSynchedData();
-        entityData.define(DATA_COLONY_ID, citizenColonyHandler == null ? 0 : citizenColonyHandler.getColonyId());
-        entityData.define(DATA_CITIZEN_ID, citizenId);
+        return new ContainerCitizenInventory(id, playerInventory, citizenColonyHandler.getColonyId(), citizenId);
     }
 
     /**
@@ -460,17 +459,119 @@ public class VisitorCitizen extends AbstractEntityVisitor
     }
 
     @Override
-    public void setRemoved(final RemovalReason reason)
+    public ICitizenDataView getCitizenDataView()
     {
-        citizenColonyHandler.onCitizenRemoved();
-        super.setRemoved(reason);
+        if (this.citizenDataView == null)
+        {
+            citizenColonyHandler.updateColonyClient();
+            if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0)
+            {
+                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), level.dimension());
+                if (colonyView != null)
+                {
+                    this.citizenDataView = colonyView.getVisitor(citizenId);
+                    return this.citizenDataView;
+                }
+            }
+        }
+        else
+        {
+            return this.citizenDataView;
+        }
+
+        return null;
     }
 
     @Override
-    @Nullable
-    public AbstractContainerMenu createMenu(final int i, final Inventory inventory, final Player player)
+    protected void defineSynchedData()
     {
-        return null;
+        super.defineSynchedData();
+        entityData.define(DATA_COLONY_ID, citizenColonyHandler == null ? 0 : citizenColonyHandler.getColonyId());
+        entityData.define(DATA_CITIZEN_ID, citizenId);
+    }
+
+    @Override
+    public void aiStep()
+    {
+        super.aiStep();
+
+        if (lastHurtByPlayerTime > 0)
+        {
+            markDirty(0);
+        }
+
+        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
+        {
+            citizenColonyHandler.updateColonyClient();
+            if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0 && getOffsetTicks() % TICKS_20 == 0)
+            {
+                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), level.dimension());
+                if (colonyView != null)
+                {
+                    this.citizenDataView = colonyView.getVisitor(citizenId);
+                    getEntityData().set(DATA_STYLE, colonyView.getTextureStyleId());
+                }
+            }
+        }
+        else
+        {
+            citizenColonyHandler.registerWithColony(citizenColonyHandler.getColonyId(), citizenId);
+            if (tickCount % 500 == 0)
+            {
+                this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
+            }
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(final CompoundTag compound)
+    {
+        super.addAdditionalSaveData(compound);
+
+        compound.putInt(TAG_COLONY_ID, citizenColonyHandler.getColonyId());
+        if (visitorData != null)
+        {
+            compound.putInt(TAG_CITIZEN, visitorData.getId());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(final CompoundTag compound)
+    {
+        super.readAdditionalSaveData(compound);
+
+        if (compound.contains(TAG_COLONY_ID))
+        {
+            citizenColonyHandler.setColonyId(compound.getInt(TAG_COLONY_ID));
+            if (compound.contains(TAG_CITIZEN))
+            {
+                citizenId = compound.getInt(TAG_CITIZEN);
+            }
+        }
+    }
+
+    @Override
+    public void die(DamageSource cause)
+    {
+        super.die(cause);
+        if (!level.isClientSide())
+        {
+            visitorType.onDied(this, cause);
+        }
+    }
+
+    @Override
+    protected void dropEquipment()
+    {
+        //Drop actual inventory
+        for (int i = 0; i < getInventoryCitizen().getSlots(); i++)
+        {
+            final ItemStack itemstack = getCitizenData().getInventory().getStackInSlot(i);
+            if (ItemStackUtils.getSize(itemstack) > 0)
+            {
+                CitizenItemUtils.entityDropItem(this, itemstack);
+            }
+        }
     }
 
     @Override
@@ -486,52 +587,25 @@ public class VisitorCitizen extends AbstractEntityVisitor
     }
 
     @Override
-    public IVisitorData getCivilianData()
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor)
     {
-        return visitorData;
-    }
-
-    @Override
-    public void setCivilianData(@Nullable final ICivilianData data)
-    {
-        if (data instanceof IVisitorData newVisitorData)
+        super.onSyncedDataUpdated(dataAccessor);
+        if (citizenColonyHandler != null)
         {
-            this.visitorData = newVisitorData;
-            data.initEntityValues();
+            citizenColonyHandler.onSyncDataUpdate(dataAccessor);
         }
     }
 
-    /**
-     * Mark the citizen dirty to synch the data with the client.
-     */
     @Override
-    public void markDirty(final int time)
+    public void setRemoved(final RemovalReason reason)
     {
-        if (visitorData != null)
-        {
-            visitorData.markDirty(time);
-        }
+        citizenColonyHandler.onCitizenRemoved();
+        super.setRemoved(reason);
     }
 
-    /**
-     * Getter for the citizen id.
-     *
-     * @return the id.
-     */
     @Override
-    public int getCivilianID()
+    public int getTeamId()
     {
-        return citizenId;
-    }
-
-    /**
-     * Setter for the citizen id.
-     *
-     * @param id the id to set.
-     */
-    @Override
-    public void setCitizenId(final int id)
-    {
-        this.citizenId = id;
+        return citizenColonyHandler.getColonyId();
     }
 }

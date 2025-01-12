@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.events;
 
+import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IVisitorData;
 import com.minecolonies.api.colony.colonyEvents.EventStatus;
@@ -44,7 +45,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootParams.Builder;
 import net.minecraftforge.common.extensions.IForgeItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -54,7 +54,6 @@ import java.util.stream.Collectors;
 
 import static com.minecolonies.api.util.constant.ExpeditionConstants.*;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ID;
-import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_INVENTORY;
 import static com.minecolonies.core.entity.visitor.ExpeditionaryVisitorType.DEFAULT_DESPAWN_TIME;
 import static com.minecolonies.core.entity.visitor.ExpeditionaryVisitorType.EXTRA_DATA_DESPAWN_TIME;
 import static com.minecolonies.core.generation.ExpeditionResourceManager.getStructureId;
@@ -120,11 +119,6 @@ public class ColonyExpeditionEvent implements IColonyEvent
      * Random instance.
      */
     private final RandomSource random;
-
-    /**
-     * The inventory for the expedition.
-     */
-    private ItemStackHandler inventory = new ItemStackHandler(EXPEDITION_INVENTORY_SIZE);
 
     /**
      * Contains a set of items that still have yet to be found.
@@ -203,7 +197,6 @@ public class ColonyExpeditionEvent implements IColonyEvent
         final CompoundTag compound = new CompoundTag();
         compound.putInt(TAG_ID, id);
         compound.putInt(TAG_EXPEDITION_ID, expeditionId);
-        compound.put(TAG_INVENTORY, inventory.serializeNBT());
         compound.put(TAG_REMAINING_ITEMS, remainingItems.stream().map(IForgeItemStack::serializeNBT).collect(NBTUtils.toListNBT()));
         compound.putLong(TAG_END_TIME, endTime);
         return compound;
@@ -212,7 +205,6 @@ public class ColonyExpeditionEvent implements IColonyEvent
     @Override
     public void deserializeNBT(final CompoundTag compoundTag)
     {
-        inventory.deserializeNBT(compoundTag.getCompound(TAG_INVENTORY));
         remainingItems = NBTUtils.streamCompound(compoundTag.getList(TAG_REMAINING_ITEMS, Tag.TAG_COMPOUND)).map(ItemStack::of).collect(Collectors.toCollection(ArrayDeque::new));
         endTime = compoundTag.getLong(TAG_END_TIME);
     }
@@ -276,7 +268,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
                 encounterHealth -= CombatRules.getDamageAfterAbsorb(getWeaponDamage(weapon, mobType), encounter.armor(), 0);
                 if (weapon.hurt(1, random, null))
                 {
-                    attacker.setPrimaryWeapon(ItemStack.EMPTY);
+                    InventoryUtils.removeStackFromItemHandler(attacker.getInventory(), weapon, weapon.getMaxStackSize());
                 }
 
                 if (encounterHealth > 0)
@@ -461,9 +453,6 @@ public class ColonyExpeditionEvent implements IColonyEvent
 
             endTime = world.getGameTime() + 1; // TODO: expeditionType.getDifficulty().getBaseTime() + randomTime;
 
-            // Move the equipment into the temporary event storage for inventory simulation.
-            inventory = new ItemStackHandler(EXPEDITION_INVENTORY_SIZE - expedition.getEquipment().size());
-
             // Generate the loot table
             remainingItems = new ArrayDeque<>(processLootTable(expeditionType.lootTable(), expeditionType));
         }
@@ -503,7 +492,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
             MessageUtils.format(EXPEDITION_FAILURE_MESSAGE, expedition.getLeader().getName()).withPriority(MessagePriority.DANGER).sendTo(colony).forManagers();
         }
 
-        // Remove all members to the travelling manager and respawn them.
+        // Remove all members to the travelling manager and respawn them and update their inventories.
         for (final IExpeditionMember<?> member : expedition.getMembers())
         {
             colony.getTravelingManager().finishTravellingFor(member.getId());
@@ -518,21 +507,20 @@ public class ColonyExpeditionEvent implements IColonyEvent
                 final ArmorList armor = getArmor(member);
                 damageArmor(armor,
                   armor.getTotalArmor() * Mth.randomBetween(random, MIN_PERCENTAGE_USAGE_DAMAGE, MAX_PERCENTAGE_USAGE_DAMAGE),
-                  slot -> member.setArmor(slot, ItemStack.EMPTY));
+                  slot -> member.getInventory().forceArmorStackToSlot(slot, ItemStack.EMPTY));
             }
+
+            final CompoundTag inventoryTag = new CompoundTag();
+            member.getInventory().write(inventoryTag);
+            final ICivilianData data = member.resolveCivilianData(colony);
+            data.getInventory().read(inventoryTag);
+            data.getInventory().markDirty();
         }
 
-        // Add all the loot to the leader inventory
+        // Update the respawn time for the leader
         final IVisitorData leaderData = expedition.getLeader().resolveCivilianData(colony);
         if (leaderData != null)
         {
-            InventoryUtils.clearItemHandler(leaderData.getInventory());
-            InventoryUtils.addItemStackToItemHandler(inventory, expedition.getLeader().getPrimaryWeapon());
-            for (final EquipmentSlot slot : EquipmentSlot.values())
-            {
-                InventoryUtils.addItemStackToItemHandler(inventory, expedition.getLeader().getArmor(slot));
-            }
-            InventoryUtils.transferAllItemHandler(inventory, leaderData.getInventory());
             leaderData.setExtraDataValue(EXTRA_DATA_DESPAWN_TIME, DespawnTime.fromNow(colony.getWorld(), DEFAULT_DESPAWN_TIME));
         }
     }
@@ -544,7 +532,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
      */
     private void processReward(final ItemStack itemStack)
     {
-        if (InventoryUtils.addItemStackToItemHandler(inventory, itemStack))
+        if (InventoryUtils.addItemStackToItemHandler(getExpedition().getLeader().getInventory(), itemStack))
         {
             getExpedition().rewardFound(itemStack);
         }
@@ -590,11 +578,12 @@ public class ColonyExpeditionEvent implements IColonyEvent
         {
             if (member.getHealth() < member.getMaxHealth())
             {
-                final int slot = InventoryUtils.findFirstSlotInItemHandlerNotEmptyWith(inventory, ItemStackUtils.ISFOOD);
+                final int slot = InventoryUtils.findFirstSlotInItemHandlerNotEmptyWith(getExpedition().getLeader().getInventory(), ItemStackUtils.ISFOOD);
                 if (slot >= 0)
                 {
-                    final FoodProperties foodStack = inventory.getStackInSlot(slot).getFoodProperties(null);
+                    final FoodProperties foodStack = getExpedition().getLeader().getInventory().getStackInSlot(slot).getFoodProperties(null);
                     member.setHealth(Mth.clamp(member.getHealth() + foodStack.getNutrition(), 0, member.getMaxHealth()));
+                    getExpedition().getLeader().getInventory().extractItem(slot, 1, false);
                 }
                 else
                 {
@@ -661,7 +650,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
                 finalDamage = CombatRules.getDamageAfterAbsorb(finalDamage, armorItem.getDefense(), armorItem.getToughness());
             }
 
-            damageArmor(getArmor(expeditionMember), finalDamage, slot -> expeditionMember.setArmor(slot, ItemStack.EMPTY));
+            damageArmor(getArmor(expeditionMember), finalDamage, slot -> expeditionMember.getInventory().forceArmorStackToSlot(slot, ItemStack.EMPTY));
             return finalDamage;
         }
 
@@ -713,7 +702,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
     private Function<EquipmentSlot, Tuple<ItemStack, ArmorItem>> getArmorPiece(final IExpeditionMember<?> member)
     {
         return (slot) -> {
-            final ItemStack armor = member.getArmor(slot);
+            final ItemStack armor = member.getInventory().getArmorInSlot(slot);
             if (armor.getItem() instanceof ArmorItem armorItem)
             {
                 return new Tuple<>(armor, armorItem);
@@ -731,8 +720,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
      */
     private List<ItemStack> processLootTable(final ResourceLocation lootTableId, final ColonyExpeditionType expeditionType)
     {
-        final LootParams lootParams = new Builder((ServerLevel) colony.getWorld())
-                                        .withParameter(ModLootConditions.EXPEDITION_DIFFICULTY_PARAM, expeditionType.difficulty())
+        final LootParams lootParams = new Builder((ServerLevel) colony.getWorld()).withParameter(ModLootConditions.EXPEDITION_DIFFICULTY_PARAM, expeditionType.difficulty())
                                         .create(ModLootConditions.EXPEDITION_PARAMS);
 
         return colony.getWorld().getServer().getLootData().getLootTable(lootTableId).getRandomItems(lootParams);

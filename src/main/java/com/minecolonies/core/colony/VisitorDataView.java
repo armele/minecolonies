@@ -8,13 +8,14 @@ import com.minecolonies.api.entity.visitor.IVisitorType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import static com.minecolonies.core.colony.VisitorData.TAG_EXTRA_DATA;
 import static com.minecolonies.core.colony.VisitorData.TAG_VISITOR_TYPE;
-import java.util.Map;
 
 /**
  * View data for visitors
@@ -62,7 +63,8 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
     }
 
     @Override
-    public @NotNull IVisitorType getVisitorType()
+    @NotNull
+    public IVisitorType getVisitorType()
     {
         return visitorType;
     }
@@ -76,5 +78,11 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
                  .map(m -> (T) m.getValue())
                  .findFirst()
                  .orElseThrow();
+    }
+
+    @Override
+    public ItemStack getDisplayArmor(final EquipmentSlot equipmentSlot)
+    {
+        return ItemStack.EMPTY;
     }
 }

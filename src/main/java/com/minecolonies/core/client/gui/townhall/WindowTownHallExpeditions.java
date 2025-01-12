@@ -229,7 +229,7 @@ public class WindowTownHallExpeditions extends AbstractWindowSkeleton implements
                         @Override
                         public boolean shouldUpdate()
                         {
-                            return false;
+                            return true;
                         }
 
                         @Override

@@ -13,7 +13,7 @@ import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.managers.interfaces.expeditions.ColonyExpedition.GuardsComparator;
-import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
@@ -34,7 +34,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -149,29 +148,6 @@ public class WindowExpeditionSheet extends AbstractWindowSkeleton
 
         registerButton(RESOURCE_ADD, this::transferItems);
         registerButton(ID_EXPEDITION_ITEMS_INVENTORY, this::openVisitorInventory);
-    }
-
-    /**
-     * Find the first possible weapon in the inventory (swords or bows)
-     *
-     * @param inventory the target inventory.
-     * @return the item stack containing the weapon or empty.
-     */
-    public static ItemStack getFirstWeapon(final IItemHandler inventory)
-    {
-        final int swordSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(inventory, ModEquipmentTypes.sword.get(), 0, 5);
-        if (swordSlot != -1)
-        {
-            return inventory.getStackInSlot(swordSlot);
-        }
-
-        final int bowSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(inventory, ModEquipmentTypes.bow.get(), 0, 5);
-        if (bowSlot != -1)
-        {
-            return inventory.getStackInSlot(bowSlot);
-        }
-
-        return ItemStack.EMPTY;
     }
 
     /**
@@ -318,7 +294,16 @@ public class WindowExpeditionSheet extends AbstractWindowSkeleton
 
                 rowPane.findPaneOfTypeByID(ID_EXPEDITION_GUARDS_NAME, Text.class).setText(guard.getJobComponent().append(": ").append(Component.literal(guard.getName())));
 
-                renderGuardEquipment(getFirstWeapon(guard.getInventory()), ID_EXPEDITION_GUARDS_WEAPON, rowPane);
+                final EquipmentTypeEntry primaryWeapon = guard.getJobView().getPrimaryWeapon();
+                if (primaryWeapon != null)
+                {
+                    final int weaponSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(guard.getInventory(), guard.getJobView().getPrimaryWeapon(), 0, 5);
+                    renderGuardEquipment(guard.getInventory().getStackInSlot(weaponSlot), ID_EXPEDITION_GUARDS_WEAPON, rowPane);
+                }
+                else
+                {
+                    renderGuardEquipment(ItemStack.EMPTY, ID_EXPEDITION_GUARDS_WEAPON, rowPane);
+                }
                 renderGuardEquipment(guard.getInventory().getArmorInSlot(EquipmentSlot.HEAD), ID_EXPEDITION_GUARDS_HELMET, rowPane);
                 renderGuardEquipment(guard.getInventory().getArmorInSlot(EquipmentSlot.CHEST), ID_EXPEDITION_GUARDS_CHESTPLATE, rowPane);
                 renderGuardEquipment(guard.getInventory().getArmorInSlot(EquipmentSlot.LEGS), ID_EXPEDITION_GUARDS_LEGGINGS, rowPane);

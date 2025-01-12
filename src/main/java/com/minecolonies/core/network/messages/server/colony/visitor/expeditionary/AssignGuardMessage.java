@@ -7,7 +7,6 @@ import com.minecolonies.core.items.ItemExpeditionSheet.ExpeditionSheetContainerM
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 /**
@@ -73,8 +72,7 @@ public class AssignGuardMessage extends AbstractColonyServerMessage
             return;
         }
 
-        final ItemStack itemInHand = ctxIn.getSender().getItemInHand(hand);
-        final ExpeditionSheetContainerManager expeditionSheetContainerManager = new ExpeditionSheetContainerManager(itemInHand);
+        final ExpeditionSheetContainerManager expeditionSheetContainerManager = new ExpeditionSheetContainerManager(ctxIn.getSender().getItemInHand(hand));
         expeditionSheetContainerManager.toggleMember(guard.getId(), assign);
     }
 

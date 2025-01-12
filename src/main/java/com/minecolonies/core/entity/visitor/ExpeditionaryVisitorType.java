@@ -13,12 +13,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.ExpeditionConstants.EXPEDITION_FINISHED_LEAVING_MESSAGE;
@@ -94,7 +96,8 @@ public class ExpeditionaryVisitorType implements IVisitorType
             }
         }
 
-        if (expeditionStatus == ExpeditionStatus.FINISHED && entity.get().getInventoryCitizen().isEmpty())
+        if (expeditionStatus == ExpeditionStatus.FINISHED && StreamSupport.stream(entity.get().getInventoryCitizen().getIterableArmorAndHandInv().spliterator(), false)
+                                                               .allMatch(ItemStack::isEmpty))
         {
             visitor.getColony().getVisitorManager().removeCivilian(visitor);
             MessageUtils.format(EXPEDITION_FINISHED_LEAVING_MESSAGE, visitor.getName()).sendTo(visitor.getColony()).forManagers();

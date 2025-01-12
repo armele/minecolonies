@@ -11,15 +11,15 @@ import com.minecolonies.api.colony.jobs.registry.IJobRegistry;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
-import com.minecolonies.api.colony.requestsystem.requestable.IDeliverable;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.ai.ITickingStateAI;
 import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
+import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.NBTUtils;
-import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.api.util.constant.translation.RequestSystemTranslationConstants;
 import com.minecolonies.core.colony.interactionhandling.RequestBasedInteraction;
 import com.minecolonies.core.entity.ai.workers.AbstractAISkeleton;
@@ -238,6 +238,12 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         buffer.writeRegistryId(IJobRegistry.getInstance(), getJobRegistryEntry());
         buffer.writeBoolean(isGuard());
         buffer.writeBoolean(isCombatGuard());
+        final EquipmentTypeEntry primaryWeaponType = getPrimaryWeaponType();
+        buffer.writeBoolean(primaryWeaponType != null);
+        if (primaryWeaponType != null)
+        {
+            buffer.writeRegistryId(ModEquipmentTypes.getRegistry(), primaryWeaponType);
+        }
     }
 
     /**

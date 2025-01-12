@@ -2,6 +2,7 @@ package com.minecolonies.core.colony.expeditions.colony.requirements;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
+import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -62,13 +63,18 @@ public class ColonyExpeditionEquipmentRequirement extends ColonyExpeditionRequir
     public EquipmentRequirementHandler createHandler(final IItemHandler inventorySupplier)
     {
         return new EquipmentRequirementHandler(new RequirementHandlerOptions(inventorySupplier, (builder, stack) -> {
-            if (stack.getItem() instanceof ArmorItem armorItem)
-            {
-                builder.getLeader().setArmor(armorItem.getEquipmentSlot(), stack);
-            }
-            else
+            if (equipmentType.checkIsEquipment(stack))
             {
                 builder.addEquipment(stack);
+
+                if (stack.getItem() instanceof ArmorItem armorItem)
+                {
+                    builder.getLeader().getInventory().forceArmorStackToSlot(armorItem.getEquipmentSlot(), stack);
+                }
+                else
+                {
+                    InventoryUtils.addItemStackToItemHandler(builder.getLeader().getInventory(), stack);
+                }
             }
         }));
     }

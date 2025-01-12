@@ -1,9 +1,12 @@
 package com.minecolonies.core.colony.jobs;
 
+import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import net.minecraft.resources.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.guard.EntityAIRanger;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The Ranger's Job class
@@ -32,6 +35,13 @@ public class JobRanger extends AbstractJobGuard<JobRanger>
     public EntityAIRanger generateGuardAI()
     {
         return new EntityAIRanger(this);
+    }
+
+    @Override
+    @Nullable
+    public EquipmentTypeEntry getPrimaryWeaponType()
+    {
+        return ModEquipmentTypes.bow.get();
     }
 
     @Override

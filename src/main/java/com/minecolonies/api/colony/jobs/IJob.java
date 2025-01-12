@@ -8,6 +8,7 @@ import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.ai.ITickingStateAI;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,6 +17,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -299,6 +301,18 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
     default boolean isCombatGuard()
     {
         return false;
+    }
+
+    /**
+     * Whether the job is a guard that actively engages in combat.
+     * Only useful for jobs that have {@link IJob#isGuard()} return true.
+     *
+     * @return the equipment type used.
+     */
+    @Nullable
+    default EquipmentTypeEntry getPrimaryWeaponType()
+    {
+        return null;
     }
 
     /**

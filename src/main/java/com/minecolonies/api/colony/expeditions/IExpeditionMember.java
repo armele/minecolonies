@@ -2,10 +2,9 @@ package com.minecolonies.api.colony.expeditions;
 
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.inventory.InventoryCitizen;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -63,27 +62,11 @@ public interface IExpeditionMember<T extends ICivilianData>
     ItemStack getPrimaryWeapon();
 
     /**
-     * Set the weapon this member is carrying.
+     * Get the inventory for this expedition member.
      *
-     * @param itemStack the weapon item stack.
+     * @return the inventory.
      */
-    void setPrimaryWeapon(final ItemStack itemStack);
-
-    /**
-     * Get the armor pieces this member is wearing.
-     *
-     * @return the armor piece.
-     */
-    @NotNull
-    ItemStack getArmor(final EquipmentSlot slot);
-
-    /**
-     * Set the armor in a given slot.
-     *
-     * @param slot      which slow to set the armor for.
-     * @param itemStack the item stack to set it to.
-     */
-    void setArmor(final EquipmentSlot slot, final @NotNull ItemStack itemStack);
+    InventoryCitizen getInventory();
 
     /**
      * Attempt to resolve the civilian data for this expedition member.

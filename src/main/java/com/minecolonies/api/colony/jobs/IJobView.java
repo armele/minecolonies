@@ -2,7 +2,9 @@ package com.minecolonies.api.colony.jobs;
 
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -43,6 +45,12 @@ public interface IJobView
      * Get whether this job is a guard job that actively engages in combat.
      */
     boolean isCombatGuard();
+
+    /**
+     * The equipment type that the guard will use for their primary weapon.
+     */
+    @Nullable
+    EquipmentTypeEntry getPrimaryWeapon();
 
     /**
      * Set the job entry of the view.
