@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 
 import static com.minecolonies.api.util.ItemStackUtils.*;
 import static com.minecolonies.api.util.constant.Constants.DEFAULT_TAB_KEY;
-import static com.minecolonies.api.util.constant.Constants.ONE_HUNDRED_PERCENT;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_SAP_LEAF;
 
 /**
@@ -113,16 +112,6 @@ public class CompatibilityManager implements ICompatibilityManager
     private ImmutableSet<ItemStorage> beekeeperflowers = ImmutableSet.of();
 
     /**
-     * Set of all possible diseases.
-     */
-    private final Map<String, Disease> diseases = new HashMap<>();
-
-    /**
-     * List of diseases including the random factor.
-     */
-    private final List<String> diseaseList = new ArrayList<>();
-
-    /**
      * List of lucky oreBlocks which get dropped by the miner.
      */
     private final Map<Integer, List<ItemStorage>> luckyOres = new HashMap<>();
@@ -175,10 +164,7 @@ public class CompatibilityManager implements ICompatibilityManager
         fuel.clear();
         compostRecipes.clear();
 
-        luckyOres.clear();
         recruitmentCostsWeights.clear();
-        diseases.clear();
-        diseaseList.clear();
         monsters = ImmutableSet.of();
         creativeModeTabMap.clear();
     }
@@ -194,9 +180,7 @@ public class CompatibilityManager implements ICompatibilityManager
         clear();
         discoverAllItems(level);
 
-        discoverLuckyOres();
         discoverRecruitCosts();
-        discoverDiseases();
         discoverModCompat();
 
         discoverCompostRecipes(recipeManager);
@@ -250,9 +234,7 @@ public class CompatibilityManager implements ICompatibilityManager
         discoverCompostRecipes(deserializeCompostRecipes(buf));
 
         // the below are loaded from config files, which have been synched already by this point
-        discoverLuckyOres();
         discoverRecruitCosts();
-        discoverDiseases();
         discoverModCompat();
     }
 
@@ -470,24 +452,6 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public String getRandomDisease()
-    {
-        return diseaseList.get(random.nextInt(diseaseList.size()));
-    }
-
-    @Override
-    public Disease getDisease(final String disease)
-    {
-        return diseases.get(disease);
-    }
-
-    @Override
-    public List<Disease> getDiseases()
-    {
-        return new ArrayList<>(diseases.values());
-    }
-
-    @Override
     public List<Tuple<Item, Integer>> getRecruitmentCostsWeights()
     {
         return Collections.unmodifiableList(recruitmentCostsWeights);
@@ -550,24 +514,6 @@ public class CompatibilityManager implements ICompatibilityManager
         {
             leavesToSaplingMap.put(leaf, new ItemStorage(stack, false, true));
         }
-    }
-
-    @Override
-    public ItemStack getRandomLuckyOre(final double chanceBonus, final int buildingLevel)
-    {
-        if (random.nextDouble() * ONE_HUNDRED_PERCENT <= MinecoloniesAPIProxy.getInstance().getConfig().getServer().luckyBlockChance.get() * chanceBonus)
-        {
-            // fetch default config for all level
-            // override it if specific config for this level is available.
-            List<ItemStorage> luckyOresInLevel = luckyOres.get(0);
-            if (luckyOres.containsKey(buildingLevel))
-            {
-                luckyOresInLevel = luckyOres.get(buildingLevel);
-            }
-
-            return luckyOresInLevel.get(random.nextInt(luckyOresInLevel.size())).getItemStack().copy();
-        }
-        return ItemStack.EMPTY;
     }
 
     @Override
@@ -793,74 +739,6 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     /**
-     * Run through all blocks and check if they match one of our lucky oreBlocks.
-     */
-    private void discoverLuckyOres()
-    {
-        if (luckyOres.isEmpty())
-        {
-            for (final String ore : MinecoloniesAPIProxy.getInstance().getConfig().getServer().luckyOres.get())
-            {
-                final String[] split = ore.split("!");
-                if (split.length < 2)
-                {
-                    Log.getLogger().warn("Wrong configured ore: " + ore);
-                    continue;
-                }
-
-                final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(split[0]));
-                if (item == null || item == Items.AIR)
-                {
-                    Log.getLogger().warn("Invalid lucky block: " + ore);
-                    continue;
-                }
-
-                final int defaultMineLevel = 0;
-                int buildingLevel = defaultMineLevel;
-                final ItemStack stack = new ItemStack(item, 1);
-                try
-                {
-                    if (split.length == 3)
-                    {
-                        buildingLevel = Integer.parseInt(split[2]);
-                    }
-
-                    final int rarity = Integer.parseInt(split[1]);
-
-                    luckyOres.putIfAbsent(buildingLevel, new ArrayList<>());
-
-                    for (int i = 0; i < rarity; i++)
-                    {
-                        List<ItemStorage> luckyOreOnLevel = luckyOres.get(buildingLevel);
-                        luckyOreOnLevel.add(new ItemStorage(stack));
-                    }
-                }
-                catch (final NumberFormatException ex)
-                {
-                    Log.getLogger().warn("Ore has invalid rarity or building level: " + ore);
-                }
-            }
-
-            List<ItemStorage> alternative = null;
-            int mineMaxLevel = 5;
-            for (int levelToTest = 0; levelToTest <= mineMaxLevel; levelToTest++)
-            {
-                if (luckyOres.containsKey(levelToTest) && !luckyOres.get(levelToTest).isEmpty())
-                {
-                    alternative = luckyOres.get(levelToTest);
-                    break;
-                }
-            }
-
-            for (int levelToReplace = 0; levelToReplace <= mineMaxLevel; levelToReplace++)
-            {
-                luckyOres.putIfAbsent(levelToReplace, alternative);
-            }
-        }
-        Log.getLogger().info("Finished discovering lucky oreBlocks " + luckyOres.size());
-    }
-
-    /**
      * Parses recruitment costs from config
      */
     private void discoverRecruitCosts()
@@ -895,57 +773,6 @@ public class CompatibilityManager implements ICompatibilityManager
             }
         }
         Log.getLogger().info("Finished discovering recruitment costs");
-    }
-
-    /**
-     * Go through the disease config and setup all possible diseases.
-     */
-    private void discoverDiseases()
-    {
-        if (diseases.isEmpty())
-        {
-            for (final String disease : MinecoloniesAPIProxy.getInstance().getConfig().getServer().diseases.get())
-            {
-                final String[] split = disease.split(",");
-                if (split.length < 3)
-                {
-                    Log.getLogger().warn("Wrongly configured disease: " + disease);
-                    continue;
-                }
-
-                try
-                {
-                    final String name = split[0];
-                    final int rarity = Integer.parseInt(split[1]);
-
-                    final List<ItemStack> cure = new ArrayList<>();
-
-                    for (int i = 2; i < split.length; i++)
-                    {
-                        final String[] theItem = split[i].split(":");
-                        final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(theItem[0], theItem[1]));
-                        if (item == null || item == Items.AIR)
-                        {
-                            Log.getLogger().warn("Invalid cure item: " + disease);
-                            continue;
-                        }
-
-                        final ItemStack stack = new ItemStack(item, 1);
-                        cure.add(stack);
-                    }
-                    diseases.put(name, new Disease(name, rarity, cure));
-                    for (int i = 0; i < rarity; i++)
-                    {
-                        diseaseList.add(name);
-                    }
-                }
-                catch (final NumberFormatException e)
-                {
-                    Log.getLogger().warn("Wrongly configured disease: " + disease);
-                }
-            }
-        }
-        Log.getLogger().info("Finished discovering diseases");
     }
 
     private static CompoundTag writeLeafSaplingEntryToNBT(final BlockState state, final ItemStorage storage)
