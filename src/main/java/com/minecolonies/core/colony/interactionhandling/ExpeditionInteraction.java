@@ -353,7 +353,7 @@ public class ExpeditionInteraction extends ServerCitizenInteraction
         // Add all members to the travelling manager and de-spawn them.
         final BlockPos townHallReturnPosition =
           BlockPosUtil.findSpawnPosAround(colony.getWorld(), colony.getBuildingManager().getTownHall().getPosition());
-        for (final IExpeditionMember<?> member : expedition.getMembers())
+        for (final IExpeditionMember<?> member : expedition.getActiveMembers())
         {
             colony.getTravelingManager().startTravellingTo(member.getId(), townHallReturnPosition, TICKS_HOUR, false);
 

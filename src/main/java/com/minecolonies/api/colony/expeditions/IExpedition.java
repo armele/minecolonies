@@ -16,6 +16,14 @@ import java.util.Collection;
 public interface IExpedition
 {
     /**
+     * Get all the leader of the expedition.
+     *
+     * @return the expedition leader.
+     */
+    @NotNull
+    IExpeditionMember<?> getLeader();
+
+    /**
      * Get all the members of the expedition.
      *
      * @return the expedition members.

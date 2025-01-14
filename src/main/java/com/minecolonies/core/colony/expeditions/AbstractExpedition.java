@@ -158,6 +158,13 @@ public abstract class AbstractExpedition implements IExpedition
 
     @Override
     @NotNull
+    public IExpeditionMember<?> getLeader()
+    {
+        return leader;
+    }
+
+    @Override
+    @NotNull
     public List<IExpeditionMember<?>> getMembers()
     {
         return this.members.values().stream().toList();

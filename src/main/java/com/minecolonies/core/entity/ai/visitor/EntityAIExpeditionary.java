@@ -58,7 +58,7 @@ public class EntityAIExpeditionary implements IState
      */
     private VisitorState wander()
     {
-        EntityNavigationUtils.walkToRandomPos(this.visitor, 10, DEFAULT_SPEED);
+        EntityNavigationUtils.walkToRandomPosWithin(this.visitor, 10, DEFAULT_SPEED, visitor.getCitizenColonyHandler().getColony().getBuildingManager().getTownHall().getCorners());
 
         return VisitorState.WANDERING;
     }

@@ -2879,7 +2879,7 @@
 	"com.minecolonies.core.expedition.gui.guards.subheader.met": "Enough guards",
 	"com.minecolonies.core.expedition.gui.guards.subheader.not_met": "Guards needed: %d",
 	"com.minecolonies.core.expedition.start": "[%s]: Thanks for the help, we will be leaving soon to start the expedition!",
-	"com.minecolonies.core.expedition.start.fail": "[%s]: You don't have all of the required items yet, please gather all the items and come back!",
+	"com.minecolonies.core.expedition.start.fail": "[%s]: You don't have all of the required items or enough guards, please make sure all requirements are met and come back to me!",
 	"com.minecolonies.core.expedition.finish": "[%s]: We've returned from our expedition! Come visit me at the Town Hall to claim your loot.",
 	"com.minecolonies.core.expedition.failure": "The expedition lead by %s has not returned in time, they either got lost or died on the way.",
 	"com.minecolonies.core.expedition.finished.leaving": "[%s]: I will be leaving because you have claimed all of your rewards, goodbye!",

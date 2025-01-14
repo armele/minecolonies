@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.visitor;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IVisitorData;
 import com.minecolonies.api.colony.expeditions.ExpeditionStatus;
 import com.minecolonies.api.entity.ModEntities;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -73,6 +75,17 @@ public class ExpeditionaryVisitorType implements IVisitorType
         visitor.getNavigation().stop();
         visitor.getLookControl().setLookAt(player);
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public void onDied(final VisitorCitizen visitor, final DamageSource cause)
+    {
+        final IColony colony = visitor.getCitizenColonyHandler().getColony();
+        if (colony != null && visitor.getCitizenData() != null)
+        {
+            colony.getVisitorManager().removeCivilian(visitor.getCitizenData());
+            colony.getExpeditionManager().removeCreatedExpedition(visitor.getCivilianID());
+        }
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.expeditions.IExpeditionMember;
 import com.minecolonies.core.colony.expeditions.AbstractExpedition;
 import com.minecolonies.core.colony.expeditions.ExpeditionStage;
-import com.minecolonies.core.colony.expeditions.ExpeditionVisitorMember;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -124,24 +123,6 @@ public final class ColonyExpedition extends AbstractExpedition
         super.write(compound);
         compound.putInt(TAG_ID, id);
         compound.putString(TAG_EXPEDITION_TYPE, expeditionTypeId.toString());
-    }
-
-    /**
-     * Get the expeditionary visitor that is leading this expedition.
-     *
-     * @return the member instance.
-     */
-    @NotNull
-    public ExpeditionVisitorMember getLeader()
-    {
-        for (final IExpeditionMember<?> member : members.values())
-        {
-            if (member instanceof ExpeditionVisitorMember visitorMember)
-            {
-                return visitorMember;
-            }
-        }
-        throw new IllegalStateException("Visitor leader from expedition is missing.");
     }
 
     /**

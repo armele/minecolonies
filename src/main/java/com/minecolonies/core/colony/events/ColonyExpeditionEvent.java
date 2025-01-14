@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.events;
 
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IVisitorData;
@@ -16,13 +17,13 @@ import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.MessageUtils.MessagePriority;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.expeditions.ExpeditionCitizenMember;
-import com.minecolonies.core.colony.expeditions.ExpeditionVisitorMember;
 import com.minecolonies.core.colony.expeditions.colony.types.ColonyExpeditionType;
 import com.minecolonies.core.colony.expeditions.encounters.ExpeditionEncounter;
 import com.minecolonies.core.datalistener.ColonyExpeditionTypeListener;
 import com.minecolonies.core.datalistener.ExpeditionEncounterListener;
 import com.minecolonies.core.entity.visitor.ExpeditionaryVisitorType.DespawnTimeData.DespawnTime;
 import com.minecolonies.core.items.ItemAdventureToken;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -319,7 +320,7 @@ public class ColonyExpeditionEvent implements IColonyEvent
             }
         }
 
-        final ExpeditionVisitorMember leader = expedition.getLeader();
+        final IExpeditionMember<?> leader = expedition.getLeader();
         if (selected == null && !leader.isDead())
         {
             selected = leader;
@@ -497,10 +498,10 @@ public class ColonyExpeditionEvent implements IColonyEvent
 
         // Update the respawn time for the leader
         finishMember(expedition.getLeader());
-        final IVisitorData leaderData = expedition.getLeader().resolveCivilianData(colony);
-        if (leaderData != null)
+        final ICivilianData leaderData = expedition.getLeader().resolveCivilianData(colony);
+        if (leaderData instanceof IVisitorData visitorData)
         {
-            leaderData.setExtraDataValue(EXTRA_DATA_DESPAWN_TIME, DespawnTime.fromNow(colony.getWorld(), DEFAULT_DESPAWN_TIME));
+            visitorData.setExtraDataValue(EXTRA_DATA_DESPAWN_TIME, DespawnTime.fromNow(colony.getWorld(), DEFAULT_DESPAWN_TIME));
         }
 
         // Remove all members to the travelling manager and respawn them and update their inventories.
@@ -514,28 +515,35 @@ public class ColonyExpeditionEvent implements IColonyEvent
      */
     private void finishMember(final IExpeditionMember<?> member)
     {
-        // Remove the member from the travelling manager.
-        colony.getTravelingManager().finishTravellingFor(member.getId());
-
-        if (member.isDead())
+        final ICivilianData civilianData = member.resolveCivilianData(colony);
+        if (civilianData instanceof ICitizenData citizenData)
         {
-            // Remove the member from the colony silently in case they died
-            member.removeFromColony(colony);
-        }
-        else
-        {
-            // Apply usage damage to all armor of all members.
-            final ArmorList armor = getArmor(member);
-            damageArmor(armor,
-              armor.getTotalArmor() * Mth.randomBetween(random, MIN_PERCENTAGE_USAGE_DAMAGE, MAX_PERCENTAGE_USAGE_DAMAGE),
-              slot -> member.getInventory().forceArmorStackToSlot(slot, ItemStack.EMPTY));
+            // Get the traveling target and set the respawn position
+            final Optional<BlockPos> travelingTarget = colony.getTravelingManager().getTravellingTargetFor(citizenData);
+            travelingTarget.ifPresent(citizenData::setNextRespawnPosition);
 
-            // Write over the updated inventory
-            final CompoundTag inventoryTag = new CompoundTag();
-            member.getInventory().write(inventoryTag);
-            final ICivilianData data = member.resolveCivilianData(colony);
-            data.getInventory().read(inventoryTag);
-            data.getInventory().markDirty();
+            // Remove the member from the travelling manager.
+            colony.getTravelingManager().finishTravellingFor(member.getId());
+
+            if (member.isDead())
+            {
+                // Remove the member from the colony silently in case they died
+                member.removeFromColony(colony);
+            }
+            else
+            {
+                // Apply usage damage to all armor of all members.
+                final ArmorList armor = getArmor(member);
+                damageArmor(armor,
+                  armor.getTotalArmor() * Mth.randomBetween(random, MIN_PERCENTAGE_USAGE_DAMAGE, MAX_PERCENTAGE_USAGE_DAMAGE),
+                  slot -> member.getInventory().forceArmorStackToSlot(slot, ItemStack.EMPTY));
+
+                // Write over the updated inventory
+                final CompoundTag inventoryTag = new CompoundTag();
+                member.getInventory().write(inventoryTag);
+                citizenData.getInventory().read(inventoryTag);
+                citizenData.getInventory().markDirty();
+            }
         }
     }
 
