@@ -46,11 +46,10 @@ import static com.minecolonies.core.event.TextureReloadListener.TEXTURE_PACKS;
  */
 public class WindowMainPage extends AbstractWindowTownHall
 {
-
     /**
      * Is the special feature unlocked.
      */
-    private static final AtomicBoolean isFeatureUnlocked = new AtomicBoolean(false);
+    private static AtomicBoolean isFeatureUnlocked = new AtomicBoolean(false);
 
     /**
      * Label for the colony name.
@@ -221,8 +220,8 @@ public class WindowMainPage extends AbstractWindowTownHall
         final Pane textPane = findPaneByID(DROPDOWN_TEXT_ID);
         final Pane namePane = findPaneByID(DROPDOWN_NAME_ID);
         final Pane resetButton = findPaneByID(BUTTON_RESET_TEXTURE);
-
-        if (isFeatureUnlocked.get())
+        final boolean isOwner = building.getColony().getPermissions().getOwner().equals(Minecraft.getInstance().player.getUUID());
+        if (isFeatureUnlocked.get() && isOwner)
         {
             findPaneByID(BUTTON_PATREON).hide();
             textPane.enable();
@@ -246,7 +245,6 @@ public class WindowMainPage extends AbstractWindowTownHall
                 textPane.show();
             }
 
-
             final AbstractTextBuilder.TooltipBuilder textPaneToolTipBuilder = PaneBuilders.tooltipBuilder().hoverPane(textPane).append(Component.translatable("com.minecolonies.core.townhall.patreon.textures"))
               .paragraphBreak()
               .appendNL(Component.empty())
@@ -259,7 +257,7 @@ public class WindowMainPage extends AbstractWindowTownHall
               .appendNL(Component.empty())
               .appendNL(Component.translatable("com.minecolonies.core.townhall.patreon")).paragraphBreak();
 
-            if (isFeatureUnlocked.get() && !building.getColony().getPermissions().getOwner().equals(Minecraft.getInstance().player.getUUID()))
+            if (isFeatureUnlocked.get() && !isOwner)
             {
                 textPaneToolTipBuilder.appendNL(Component.empty());
                 namePaneToolTipBuilder.appendNL(Component.empty());
@@ -276,7 +274,7 @@ public class WindowMainPage extends AbstractWindowTownHall
      */
     public void checkFeatureUnlock()
     {
-        if (isFeatureUnlocked.get() || !building.getColony().getPermissions().getOwner().equals(Minecraft.getInstance().player.getUUID()))
+        if (isFeatureUnlocked.get())
         {
             return;
         }
