@@ -612,7 +612,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
             }
         }
 
-        combinedInv = new CombinedItemHandler(Component.literal(building.getSchematicName()), handlers);
+        combinedInv = new CombinedItemHandler(handlers);
         return combinedInv;
     }
 

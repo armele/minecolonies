@@ -5,8 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Nameable;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -22,16 +20,13 @@ import static com.minecolonies.api.util.constant.Suppression.UNCHECKED;
 /**
  * Abstract class wrapping around multiple IItemHandler.
  */
-public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializable<CompoundTag>, Nameable
+public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializable<CompoundTag>
 {
     /// NBT Constants
     private static final String NBT_KEY_HANDLERS           = "Handlers";
     private static final String NBT_KEY_HANDLERS_INDEXLIST = "Index";
 
     private final List<IItemHandlerModifiable> handlers;
-
-    @NotNull
-    private final Component defaultName;
 
     /**
      * Total slots of the item handler.
@@ -41,24 +36,21 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
     /**
      * Method to create a new {@link CombinedItemHandler}.
      *
-     * @param defaultName The default name of this {@link CombinedItemHandler}.
      * @param handlers    The combining {@link IItemHandlerModifiable}.
      */
-    public CombinedItemHandler(@NotNull final Component defaultName, @NotNull final IItemHandlerModifiable... handlers)
+    public CombinedItemHandler(@NotNull final IItemHandlerModifiable... handlers)
     {
-        this(defaultName, Arrays.asList(handlers));
+        this(Arrays.asList(handlers));
     }
 
     /**
      * Method to create a new {@link CombinedItemHandler}.
      *
-     * @param defaultName The default name of this {@link CombinedItemHandler}.
      * @param handlers    The combining {@link IItemHandlerModifiable}.
      */
-    public CombinedItemHandler(@NotNull final Component defaultName, @NotNull final List<IItemHandlerModifiable> handlers)
+    public CombinedItemHandler(@NotNull final List<IItemHandlerModifiable> handlers)
     {
         this.handlers = handlers;
-        this.defaultName = defaultName;
         for (final IItemHandler handler : handlers)
         {
             if (handler != null)
@@ -305,12 +297,5 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
         }
 
         return false;
-    }
-
-    @NotNull
-    @Override
-    public Component getName()
-    {
-        return defaultName;
     }
 }
