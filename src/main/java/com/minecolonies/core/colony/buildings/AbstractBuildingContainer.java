@@ -6,7 +6,9 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IBuildingContainer;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
+import com.minecolonies.api.tileentities.AbstractTileEntityRack;
 import com.minecolonies.api.util.NBTUtils;
+import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.blocks.BlockMinecoloniesRack;
@@ -15,7 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -61,6 +61,11 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     private int unscaledPickUpPriority = 5;
 
     /**
+     * Dirty state for the container list.
+     */
+    private boolean containerListDirty = true;
+
+    /**
      * The constructor for the building container.
      *
      * @param pos    the position of it.
@@ -69,6 +74,27 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     public AbstractBuildingContainer(final BlockPos pos, final IColony colony)
     {
         super(pos, colony);
+    }
+
+    @Override
+    public void onColonyTick(final IColony colony)
+    {
+        super.onColonyTick(colony);
+
+        final Iterator<BlockPos> iterator = containerList.iterator();
+        while (iterator.hasNext())
+        {
+            final BlockPos pos = iterator.next();
+            if (WorldUtil.isBlockLoaded(colony.getWorld(), pos) && !pos.equals(getPosition()))
+            {
+                final BlockEntity te = colony.getWorld().getBlockEntity(pos);
+                if (!(te instanceof AbstractTileEntityRack))
+                {
+                    iterator.remove();
+                    containerListDirty = true;
+                }
+            }
+        }
     }
 
     @Override
@@ -81,6 +107,7 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
         {
             containerList.add(NBTUtils.readBlockPos(containerTagList.get(i)));
         }
+        containerListDirty = true;
         if (compound.contains(TAG_PRIO))
         {
             this.unscaledPickUpPriority = compound.getInt(TAG_PRIO);
@@ -127,12 +154,14 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     public void addContainerPosition(@NotNull final BlockPos pos)
     {
         containerList.add(pos);
+        containerListDirty = true;
     }
 
     @Override
     public void removeContainerPosition(final BlockPos pos)
     {
         containerList.remove(pos);
+        containerListDirty = true;
     }
 
     @Override
@@ -214,6 +243,21 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
         {
             safeUpdateTEDataFromSchematic();
         }
+    }
+
+    /**
+     * Return true if the container list of the building has changed.
+     *
+     * @return true if so.
+     */
+    public boolean shouldUpdateInventory()
+    {
+        final boolean res = containerListDirty;
+        if (res)
+        {
+            containerListDirty = false;
+        }
+        return res;
     }
 
     //------------------------- !Start! Capabilities handling for minecolonies buildings -------------------------//

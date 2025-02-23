@@ -23,6 +23,7 @@ import com.minecolonies.api.tileentities.ITickable;
 import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.WorldUtil;
+import com.minecolonies.core.colony.buildings.AbstractBuildingContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -48,9 +49,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
@@ -444,10 +443,11 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public void tick()
     {
-        if (combinedInv != null)
+        if (building instanceof AbstractBuildingContainer buildingContainer && buildingContainer.shouldUpdateInventory())
         {
             invalidateCapabilities();
             combinedInv = null;
+            getOrCreateItemHandlerCap();
         }
         if (!getLevel().isClientSide && colonyId == 0)
         {
@@ -577,40 +577,43 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     {
         if (!remove && getBuilding() != null)
         {
-            if (combinedInv == null)
-            {
-                //Add additional containers
-                final Set<IItemHandlerModifiable> handlers = new LinkedHashSet<>();
-                final Level world = colony.getWorld();
-                if (world != null)
-                {
-                    for (final BlockPos pos : building.getContainers())
-                    {
-                        if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
-                        {
-                            final BlockEntity te = world.getBlockEntity(pos);
-                            if (te != null)
-                            {
-                                if (te instanceof final AbstractTileEntityRack rack)
-                                {
-                                    handlers.add(rack.getInventory());
-                                    rack.setBuildingPos(this.getBlockPos());
-                                }
-                                else
-                                {
-                                    building.removeContainerPosition(pos);
-                                }
-                            }
-                        }
-                    }
-                }
-                handlers.add(this.getInventory());
-
-                combinedInv = new CombinedItemHandler(building.getSchematicName(), handlers.toArray(new IItemHandlerModifiable[0]));
-            }
-            return combinedInv;
+            return getOrCreateItemHandlerCap();
         }
         return super.getItemHandlerCap(side);
+    }
+
+    /**
+     * Handles obtaining of the combined inventory or creation of it when it does not exist.
+     *
+     * @return the combined item handler instance.
+     */
+    private IItemHandler getOrCreateItemHandlerCap()
+    {
+        if (combinedInv != null)
+        {
+            return combinedInv;
+        }
+
+        final List<IItemHandlerModifiable> handlers = new ArrayList<>();
+
+        final Level world = colony.getWorld();
+        for (final BlockPos pos : building.getContainers())
+        {
+            if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
+            {
+                final BlockEntity te = world.getBlockEntity(pos);
+                if (te != null)
+                {
+                    if (te instanceof final AbstractTileEntityRack rack)
+                    {
+                        handlers.add(rack.getInventory());
+                    }
+                }
+            }
+        }
+
+        combinedInv = new CombinedItemHandler(Component.literal(building.getSchematicName()), handlers);
+        return combinedInv;
     }
 
     @Nullable

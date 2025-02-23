@@ -501,14 +501,14 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
 
         if (getBlockState().getBlock() != ModBlocks.blockRack)
         {
-            lastItemHandlerCap = new CombinedItemHandler(RACK, getInventory());
+            lastItemHandlerCap = new CombinedItemHandler(Component.translatable(RACK), getInventory());
             return lastItemHandlerCap;
         }
 
         final RackType type = getBlockState().getValue(AbstractBlockMinecoloniesRack.VARIANT);
         if (!type.isDoubleVariant())
         {
-            lastItemHandlerCap = new CombinedItemHandler(RACK, getInventory());
+            lastItemHandlerCap = new CombinedItemHandler(Component.translatable(RACK), getInventory());
             return lastItemHandlerCap;
         }
         else
@@ -516,17 +516,17 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
             final AbstractTileEntityRack other = getOtherChest();
             if (other == null)
             {
-                lastItemHandlerCap = new CombinedItemHandler(RACK, getInventory());
+                lastItemHandlerCap = new CombinedItemHandler(Component.translatable(RACK), getInventory());
             }
             else
             {
                 if (type != RackType.EMPTY)
                 {
-                    lastItemHandlerCap = new CombinedItemHandler(RACK, getInventory(), other.getInventory());
+                    lastItemHandlerCap = new CombinedItemHandler(Component.translatable(RACK), getInventory(), other.getInventory());
                 }
                 else
                 {
-                    lastItemHandlerCap = new CombinedItemHandler(RACK, other.getInventory(), getInventory());
+                    lastItemHandlerCap = new CombinedItemHandler(Component.translatable(RACK), other.getInventory(), getInventory());
                 }
             }
 
