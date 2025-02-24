@@ -23,7 +23,6 @@ import com.minecolonies.api.tileentities.ITickable;
 import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.WorldUtil;
-import com.minecolonies.core.colony.buildings.AbstractBuildingContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -48,8 +47,7 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
@@ -112,6 +110,11 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
      * Create the combined inv wrapper for the building.
      */
     private CombinedItemHandler combinedInv;
+
+    /**
+     * A list containing the current positions in the {@link TileEntityColonyBuilding#combinedInv}.
+     */
+    private Set<BlockPos> currentInvPositions;
 
     /**
      * Pending blueprint future.
@@ -443,12 +446,35 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public void tick()
     {
-        if (building instanceof AbstractBuildingContainer buildingContainer && buildingContainer.shouldUpdateInventory())
+        boolean dirty = false;
+        int rackCount = 0;
+        final Level world = colony.getWorld();
+        for (final BlockPos pos : building.getContainers())
+        {
+            if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
+            {
+                final BlockEntity te = world.getBlockEntity(pos);
+                if (te != null)
+                {
+                    if (te instanceof AbstractTileEntityRack)
+                    {
+                        if (!currentInvPositions.contains(pos))
+                        {
+                            dirty = true;
+                        }
+
+                        rackCount++;
+                    }
+                }
+            }
+        }
+
+        if (dirty || rackCount != currentInvPositions.size())
         {
             invalidateCapabilities();
             combinedInv = null;
-            getOrCreateItemHandlerCap();
         }
+
         if (!getLevel().isClientSide && colonyId == 0)
         {
             final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(getLevel(), this.getPosition());
@@ -577,43 +603,35 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     {
         if (!remove && getBuilding() != null)
         {
-            return getOrCreateItemHandlerCap();
-        }
-        return super.getItemHandlerCap(side);
-    }
-
-    /**
-     * Handles obtaining of the combined inventory or creation of it when it does not exist.
-     *
-     * @return the combined item handler instance.
-     */
-    private IItemHandler getOrCreateItemHandlerCap()
-    {
-        if (combinedInv != null)
-        {
-            return combinedInv;
-        }
-
-        final List<IItemHandlerModifiable> handlers = new ArrayList<>();
-
-        final Level world = colony.getWorld();
-        for (final BlockPos pos : building.getContainers())
-        {
-            if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
+            if (combinedInv == null)
             {
-                final BlockEntity te = world.getBlockEntity(pos);
-                if (te != null)
+                final List<IItemHandlerModifiable> handlers = new ArrayList<>();
+                final Set<BlockPos> newPositions = new HashSet<>();
+
+                final Level world = colony.getWorld();
+                for (final BlockPos pos : building.getContainers())
                 {
-                    if (te instanceof final AbstractTileEntityRack rack)
+                    if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
                     {
-                        handlers.add(rack.getInventory());
+                        final BlockEntity te = world.getBlockEntity(pos);
+                        if (te != null)
+                        {
+                            if (te instanceof final AbstractTileEntityRack rack)
+                            {
+                                handlers.add(rack.getInventory());
+                                newPositions.add(pos);
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        combinedInv = new CombinedItemHandler(handlers);
-        return combinedInv;
+                combinedInv = new CombinedItemHandler(handlers);
+                currentInvPositions = newPositions;
+            }
+
+            return combinedInv;
+        }
+        return super.getItemHandlerCap(side);
     }
 
     @Nullable

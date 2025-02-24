@@ -42,20 +42,6 @@ public interface IBuildingContainer extends ISchematicProvider, IItemHandlerCapP
     void addContainerPosition(@NotNull BlockPos pos);
 
     /**
-     * Mark a container position as loaded, meaning the tile entity is actively available.
-     *
-     * @param pos position to mark as loaded.
-     */
-    void setContainerLoaded(@NotNull BlockPos pos);
-
-    /**
-     * Mark a container position as unloaded, meaning the tile entity is removed and thus the inventory is inaccessible.
-     *
-     * @param pos position to mark as unloaded.
-     */
-    void setContainerUnloaded(@NotNull BlockPos pos);
-
-    /**
      * Remove a container from the building.
      *
      * @param pos position to remove.

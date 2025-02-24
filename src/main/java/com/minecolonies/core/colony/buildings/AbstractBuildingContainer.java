@@ -46,11 +46,6 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     protected final Set<BlockPos> containerList = new HashSet<>();
 
     /**
-     * A subset of {@link AbstractBuildingContainer#containerList} of which containers are actively loaded.
-     */
-    protected final Set<BlockPos> loadedContainers = new HashSet<>();
-
-    /**
      * List of items the worker should keep. With the quantity and if he should keep it in the inventory as well.
      */
     protected final Map<Predicate<ItemStack>, Tuple<Integer, Boolean>> keepX = new HashMap<>();
@@ -64,11 +59,6 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
      * Priority of the building in the pickUpList. This is the unscaled value (mainly for a more intuitive GUI).
      */
     private int unscaledPickUpPriority = 5;
-
-    /**
-     * Dirty state for the loaded container list.
-     */
-    private boolean containerListDirty = true;
 
     /**
      * The constructor for the building container.
@@ -166,27 +156,6 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     public void removeContainerPosition(final BlockPos pos)
     {
         containerList.remove(pos);
-        loadedContainers.remove(pos);
-    }
-
-    @Override
-    public void setContainerLoaded(@NotNull final BlockPos pos)
-    {
-        if (containerList.contains(pos))
-        {
-            loadedContainers.add(pos);
-            containerListDirty = true;
-        }
-    }
-
-    @Override
-    public void setContainerUnloaded(@NotNull final BlockPos pos)
-    {
-        if (containerList.contains(pos))
-        {
-            loadedContainers.remove(pos);
-            containerListDirty = true;
-        }
     }
 
     @Override
@@ -268,21 +237,6 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
         {
             safeUpdateTEDataFromSchematic();
         }
-    }
-
-    /**
-     * Return true if the loaded container list of the building has changed.
-     *
-     * @return true if so.
-     */
-    public boolean shouldUpdateInventory()
-    {
-        final boolean res = containerListDirty;
-        if (res)
-        {
-            containerListDirty = false;
-        }
-        return res;
     }
 
     //------------------------- !Start! Capabilities handling for minecolonies buildings -------------------------//
