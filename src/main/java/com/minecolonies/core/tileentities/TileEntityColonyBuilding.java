@@ -446,41 +446,44 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public void tick()
     {
-        boolean dirty = false;
-        int rackCount = 0;
-        final Level world = colony.getWorld();
-        for (final BlockPos pos : building.getContainers())
+        final IColony colony = getColony();
+        if (colony != null)
         {
-            if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
+            final Level world = colony.getWorld();
+            boolean dirty = false;
+            int rackCount = 0;
+            for (final BlockPos pos : building.getContainers())
             {
-                final BlockEntity te = world.getBlockEntity(pos);
-                if (te != null)
+                if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
                 {
-                    if (te instanceof AbstractTileEntityRack)
+                    final BlockEntity te = world.getBlockEntity(pos);
+                    if (te != null)
                     {
-                        if (!currentInvPositions.contains(pos))
+                        if (te instanceof AbstractTileEntityRack)
                         {
-                            dirty = true;
-                        }
+                            if (!currentInvPositions.contains(pos))
+                            {
+                                dirty = true;
+                            }
 
-                        rackCount++;
+                            rackCount++;
+                        }
                     }
                 }
             }
-        }
 
-        if (dirty || rackCount != currentInvPositions.size())
-        {
-            invalidateCapabilities();
-            combinedInv = null;
+            if (dirty || rackCount != currentInvPositions.size())
+            {
+                invalidateCapabilities();
+                combinedInv = null;
+            }
         }
 
         if (!getLevel().isClientSide && colonyId == 0)
         {
-            final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(getLevel(), this.getPosition());
-            if (tempColony != null)
+            if (colony != null)
             {
-                colonyId = tempColony.getID();
+                colonyId = colony.getID();
             }
         }
 
