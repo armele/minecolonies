@@ -114,7 +114,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     /**
      * A list containing the current positions in the {@link TileEntityColonyBuilding#combinedInv}.
      */
-    private Set<BlockPos> currentInvPositions;
+    private Set<BlockPos> currentInvPositions = new HashSet<>();
 
     /**
      * Pending blueprint future.
