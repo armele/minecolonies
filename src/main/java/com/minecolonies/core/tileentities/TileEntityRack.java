@@ -568,34 +568,10 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
     }
 
     @Override
-    public void onLoad()
-    {
-        super.onLoad();
-        if (buildingPos != BlockPos.ZERO && level != null)
-        {
-            final IColony colony = IColonyManager.getInstance().getIColony(level, worldPosition);
-            final IBuilding building = colony.getBuildingManager().getBuilding(buildingPos);
-            if (building != null)
-            {
-                building.setContainerLoaded(worldPosition);
-            }
-        }
-    }
-
-    @Override
     public void setRemoved()
     {
         super.setRemoved();
         invalidateCap();
-        if (buildingPos != BlockPos.ZERO && level != null)
-        {
-            final IColony colony = IColonyManager.getInstance().getIColony(level, worldPosition);
-            final IBuilding building = colony.getBuildingManager().getBuilding(buildingPos);
-            if (building != null)
-            {
-                building.setContainerUnloaded(worldPosition);
-            }
-        }
     }
 
     /**
