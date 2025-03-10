@@ -18,11 +18,13 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.translation.RequestSystemTranslationConstants;
 import com.minecolonies.core.colony.interactionhandling.RequestBasedInteraction;
 import com.minecolonies.core.entity.ai.workers.AbstractAISkeleton;
+import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -30,6 +32,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -452,6 +455,25 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
 
         workBuilding = null;
         workModule = null;
+
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.MAINHAND);
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.OFFHAND);
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.HEAD);
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.CHEST);
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.LEGS);
+        citizen.getInventory().moveArmorToInventory(EquipmentSlot.FEET);
+
+        if (this.getCitizen().getEntity().isPresent())
+        {
+            final EntityCitizen citizenEntity = (EntityCitizen) getCitizen().getEntity().get();
+
+            citizenEntity.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(EquipmentSlot.HEAD, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(EquipmentSlot.CHEST, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(EquipmentSlot.LEGS, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(EquipmentSlot.FEET, ItemStackUtils.EMPTY);
+        }
     }
 
     @Override
