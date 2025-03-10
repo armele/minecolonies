@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.ai.visitor;
 
+import com.minecolonies.api.colony.managers.interfaces.IRegisteredStructureManager;
 import com.minecolonies.api.entity.ai.statemachine.states.EntityState;
 import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRateStateMachine;
@@ -58,7 +59,15 @@ public class EntityAIExpeditionary implements IState
      */
     private VisitorState wander()
     {
-        EntityNavigationUtils.walkToRandomPosWithin(this.visitor, 10, DEFAULT_SPEED, visitor.getCitizenColonyHandler().getColony().getBuildingManager().getTownHall().getCorners());
+        final IRegisteredStructureManager buildingManager = visitor.getCitizenColonyHandler().getColony().getBuildingManager();
+        if (buildingManager.hasTownHall())
+        {
+            EntityNavigationUtils.walkToRandomPosWithin(this.visitor, 10, DEFAULT_SPEED, buildingManager.getTownHall().getCorners());
+        }
+        else
+        {
+            EntityNavigationUtils.walkToRandomPos(this.visitor, 10, DEFAULT_SPEED);
+        }
 
         return VisitorState.WANDERING;
     }

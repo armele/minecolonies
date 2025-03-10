@@ -246,7 +246,7 @@ public class VisitorManager implements IVisitorManager
     @Override
     public void onColonyTick(final IColony colony)
     {
-        if (colony.hasTownHall())
+        if (colony.hasTownHall() && colony.getBuildingManager().getTownHall().getBuildingLevel() > 0)
         {
             for (final IVisitorData data : visitorMap.values())
             {
@@ -263,7 +263,7 @@ public class VisitorManager implements IVisitorManager
     @Override
     public boolean tickVisitorData(int tickRate)
     {
-        for (IVisitorData visitorData : this.getCivilianDataMap().values())
+        for (IVisitorData visitorData : new HashSet<>(visitorMap.values()))
         {
             visitorData.update(tickRate);
         }
