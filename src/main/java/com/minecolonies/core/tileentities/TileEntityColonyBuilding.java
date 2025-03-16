@@ -457,17 +457,20 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
                 if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
                 {
                     final BlockEntity te = world.getBlockEntity(pos);
-                    if (te != null)
+                    if (te instanceof AbstractTileEntityRack rack)
                     {
-                        if (te instanceof AbstractTileEntityRack)
-                        {
-                            if (!currentInvPositions.contains(pos))
-                            {
-                                dirty = true;
-                            }
+                        rack.setBuildingPos(getPosition());
 
-                            rackCount++;
+                        if (!currentInvPositions.contains(pos))
+                        {
+                            dirty = true;
                         }
+
+                        rackCount++;
+                    }
+                    else
+                    {
+                        building.removeContainerPosition(pos);
                     }
                 }
             }

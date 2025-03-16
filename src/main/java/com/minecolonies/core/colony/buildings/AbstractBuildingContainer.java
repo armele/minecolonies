@@ -6,9 +6,7 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IBuildingContainer;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
-import com.minecolonies.api.tileentities.AbstractTileEntityRack;
 import com.minecolonies.api.util.NBTUtils;
-import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.blocks.BlockMinecoloniesRack;
@@ -69,29 +67,6 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     public AbstractBuildingContainer(final BlockPos pos, final IColony colony)
     {
         super(pos, colony);
-    }
-
-    @Override
-    public void onColonyTick(final IColony colony)
-    {
-        super.onColonyTick(colony);
-
-        // Clean containers that are no longer detected as racks
-        for (final BlockPos pos : new ArrayList<>(containerList))
-        {
-            if (WorldUtil.isBlockLoaded(colony.getWorld(), pos) && !pos.equals(getPosition()))
-            {
-                final BlockEntity te = colony.getWorld().getBlockEntity(pos);
-                if (te instanceof AbstractTileEntityRack rack)
-                {
-                    rack.setBuildingPos(getPosition());
-                }
-                else
-                {
-                    removeContainerPosition(pos);
-                }
-            }
-        }
     }
 
     @Override
