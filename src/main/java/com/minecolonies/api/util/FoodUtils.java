@@ -122,7 +122,7 @@ public class FoodUtils
         int bestScore = Integer.MAX_VALUE;
         int bestSlot = -1;
         Item bestItem = null;
-        final boolean restaurantExists = citizenData.getColony().getBuildingManager().getBestBuilding(citizenData.getWorkBuilding().getPosition(), BuildingCook.class) != null;
+        final boolean restaurantExists = citizenData.getColony().getBuildingManager().getBestBuilding(citizenData.getWorkBuilding() == null ? citizenData.getHomePosition() : citizenData.getWorkBuilding().getPosition(), BuildingCook.class) != null;
 
         final ICitizenFoodHandler foodHandler = citizenData.getCitizenFoodHandler();
         final ICitizenFoodHandler.CitizenFoodStats foodStats = foodHandler.getFoodHappinessStats();
