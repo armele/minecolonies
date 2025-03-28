@@ -15,7 +15,7 @@ public class ModResearchRequirements
     public static final ResourceLocation BUILDING_RESEARCH_REQ_ID = new ResourceLocation(Constants.MOD_ID, "building");
     public static final ResourceLocation BUILDING_ALTERNATES_RESEARCH_REQ_ID = new ResourceLocation(Constants.MOD_ID, "alternate-building");
     public static final ResourceLocation BUILDING_MANDATORY_RESEARCH_REQ_ID = new ResourceLocation(Constants.MOD_ID, "mandatory-building");
-    public static final ResourceLocation RESEARCH_RESEARCH_REQ_ID = new ResourceLocation(Constants.MOD_ID, "researchresearchrequirement");
+    public static final ResourceLocation RESEARCH_RESEARCH_REQ_ID = new ResourceLocation(Constants.MOD_ID, "research");
 
     public static RegistryObject<ResearchRequirementEntry> buildingResearchRequirement;
     public static RegistryObject<ResearchRequirementEntry> buildingAlternatesResearchRequirement;
