@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/plantationexotic": 1
+      "id": "minecolonies:effects/plantationexotic",
+      "level": 1
     }
   ],
   "icon": "minecraft:glow_berries",

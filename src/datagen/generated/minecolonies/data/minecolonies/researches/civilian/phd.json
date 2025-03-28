@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/teachingmultiplier": 5
+      "id": "minecolonies:effects/teachingmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:textures/icons/research/xpgain5.png",

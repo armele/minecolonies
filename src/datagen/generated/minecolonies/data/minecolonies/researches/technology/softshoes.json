@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/softshoesunlock": 1
+      "id": "minecolonies:effects/softshoesunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:leather_boots",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/citizeninvslotsaddition": 2
+      "id": "minecolonies:effects/citizeninvslotsaddition",
+      "level": 2
     }
   ],
   "icon": "minecraft:red_shulker_box",

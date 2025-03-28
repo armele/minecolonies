@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockplacespeedmultiplier": 1
+      "id": "minecolonies:effects/blockplacespeedmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:glowstone_dust",

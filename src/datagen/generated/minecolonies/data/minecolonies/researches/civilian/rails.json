@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/railsunlock": 1
+      "id": "minecolonies:effects/railsunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:detector_rail",

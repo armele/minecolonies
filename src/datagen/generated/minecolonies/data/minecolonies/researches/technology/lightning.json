@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockbreakspeedmultiplier": 5
+      "id": "minecolonies:effects/blockbreakspeedmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecraft:repeater",

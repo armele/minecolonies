@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutstonesmeltery": 1
+      "id": "minecolonies:effects/blockhutstonesmeltery",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutstonesmeltery",

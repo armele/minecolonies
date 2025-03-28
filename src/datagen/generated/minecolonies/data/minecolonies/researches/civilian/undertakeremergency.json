@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/undertakerrun": 1
+      "id": "minecolonies:effects/undertakerrun",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutgraveyard",

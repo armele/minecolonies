@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/podzolchancemultiplier": 2
+      "id": "minecolonies:effects/podzolchancemultiplier",
+      "level": 2
     }
   ],
   "icon": "minecraft:podzol",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutblacksmith": 1
+      "id": "minecolonies:effects/blockhutblacksmith",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutblacksmith",

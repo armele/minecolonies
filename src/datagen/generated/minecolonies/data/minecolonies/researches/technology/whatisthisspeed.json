@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockbreakspeedmultiplier": 4
+      "id": "minecolonies:effects/blockbreakspeedmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:comparator",

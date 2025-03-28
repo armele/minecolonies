@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutflorist": 1
+      "id": "minecolonies:effects/blockhutflorist",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutflorist",

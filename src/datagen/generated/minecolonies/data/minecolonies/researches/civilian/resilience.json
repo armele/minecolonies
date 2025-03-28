@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/healingsaturationlimitaddition": 2
+      "id": "minecolonies:effects/healingsaturationlimitaddition",
+      "level": 2
     }
   ],
   "icon": "minecraft:potion",

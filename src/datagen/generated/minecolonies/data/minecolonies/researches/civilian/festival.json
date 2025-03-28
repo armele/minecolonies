@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/happinessmultiplier": 2
+      "id": "minecolonies:effects/happinessmultiplier",
+      "level": 2
     }
   ],
   "icon": "minecolonies:textures/icons/research/happy2.png",

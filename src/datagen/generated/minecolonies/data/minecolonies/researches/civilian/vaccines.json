@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/vaccines": 1
+      "id": "minecolonies:effects/vaccines",
+      "level": 1
     }
   ],
   "icon": "minecolonies:textures/icons/research/hp5.png",

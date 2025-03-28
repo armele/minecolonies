@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/blockhutarchery": 1
+      "id": "minecolonies:effects/blockhutarchery",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutarchery",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/air": 1
+      "id": "minecolonies:effects/air",
+      "level": 1
     }
   ],
   "icon": "minecraft:potion",

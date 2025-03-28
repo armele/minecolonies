@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/vinesunlock": 1
+      "id": "minecolonies:effects/vinesunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:vine",

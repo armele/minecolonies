@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/enhancesgatedurabilityaddition": 2
+      "id": "minecolonies:effects/enhancesgatedurabilityaddition",
+      "level": 2
     }
   ],
   "icon": "minecolonies:gate_iron",

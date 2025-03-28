@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/gravedecaybonus": 2
+      "id": "minecolonies:effects/gravedecaybonus",
+      "level": 2
     }
   ],
   "icon": "minecolonies:blockminecoloniesgrave",

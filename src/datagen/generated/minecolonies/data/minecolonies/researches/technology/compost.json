@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/farmingmultiplier": 3
+      "id": "minecolonies:effects/farmingmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:bone",

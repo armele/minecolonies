@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutmechanic": 1
+      "id": "minecolonies:effects/blockhutmechanic",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutmechanic",

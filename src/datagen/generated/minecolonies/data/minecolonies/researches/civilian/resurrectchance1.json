@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/resurrectchanceaddition": 1
+      "id": "minecolonies:effects/resurrectchanceaddition",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutgraveyard",

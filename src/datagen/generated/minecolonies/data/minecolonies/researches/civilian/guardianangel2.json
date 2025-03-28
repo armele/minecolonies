@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/healthaddition": 6
+      "id": "minecolonies:effects/healthaddition",
+      "level": 6
     }
   ],
   "icon": "minecolonies:textures/icons/research/hp6.png",

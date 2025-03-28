@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/farmingmultiplier": 5
+      "id": "minecolonies:effects/farmingmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:barrel_block",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/buildermodeunlock": 1
+      "id": "minecolonies:effects/buildermodeunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutbuilder",

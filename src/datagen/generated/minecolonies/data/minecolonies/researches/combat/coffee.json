@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/sleeplessmultiplier": 1
+      "id": "minecolonies:effects/sleeplessmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:lime_bed",

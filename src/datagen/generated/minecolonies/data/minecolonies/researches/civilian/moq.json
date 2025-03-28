@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/min_order": 1
+      "id": "minecolonies:effects/min_order",
+      "level": 1
     }
   ],
   "icon": "minecolonies:clipboard",

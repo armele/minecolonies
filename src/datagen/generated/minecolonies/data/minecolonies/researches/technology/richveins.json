@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/moreoresmultiplier": 3
+      "id": "minecolonies:effects/moreoresmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:gold_block",
@@ -15,10 +16,8 @@
     },
     {
       "type": "minecolonies:item_tag",
-      "item": {
-        "tag": "minecraft:gold_ores"
-      },
-      "quantity": 32
+      "quantity": 32,
+      "tag": "minecraft:gold_ores"
     }
   ],
   "researchLevel": 4

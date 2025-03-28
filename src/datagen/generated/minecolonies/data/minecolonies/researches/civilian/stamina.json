@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/blockhuthospital": 1
+      "id": "minecolonies:effects/blockhuthospital",
+      "level": 1
     }
   ],
   "exclusiveChildResearch": true,

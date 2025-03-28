@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/blockhutschool": 1
+      "id": "minecolonies:effects/blockhutschool",
+      "level": 1
     }
   ],
   "exclusiveChildResearch": true,

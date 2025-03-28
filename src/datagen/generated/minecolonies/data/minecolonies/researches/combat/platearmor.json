@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/platearmorunlock": 1
+      "id": "minecolonies:effects/platearmorunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:plate_armor_helmet",

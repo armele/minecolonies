@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/recipesmultiplier": 2
+      "id": "minecolonies:effects/recipesmultiplier",
+      "level": 2
     }
   ],
   "icon": "minecraft:book",

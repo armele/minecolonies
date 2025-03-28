@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/fleeingdamagemultiplier": 1
+      "id": "minecolonies:effects/fleeingdamagemultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:leather_boots",

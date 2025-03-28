@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/plantationsea": 1
+      "id": "minecolonies:effects/plantationsea",
+      "level": 1
     }
   ],
   "icon": "minecraft:kelp",

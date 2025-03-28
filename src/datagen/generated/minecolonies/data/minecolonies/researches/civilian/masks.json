@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/masks": 1
+      "id": "minecolonies:effects/masks",
+      "level": 1
     }
   ],
   "icon": "minecolonies:textures/icons/research/hp4.png",

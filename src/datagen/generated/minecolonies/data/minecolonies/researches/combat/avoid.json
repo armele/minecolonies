@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/fleeingspeedaddition": 1
+      "id": "minecolonies:effects/fleeingspeedaddition",
+      "level": 1
     }
   ],
   "icon": "minecraft:feather",

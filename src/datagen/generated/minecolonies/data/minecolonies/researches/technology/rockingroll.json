@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutcrusher": 1
+      "id": "minecolonies:effects/blockhutcrusher",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutcrusher",

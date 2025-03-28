@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/doublearrowsmultiplier": 4
+      "id": "minecolonies:effects/doublearrowsmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:blaze_rod",

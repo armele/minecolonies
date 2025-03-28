@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockplacespeedmultiplier": 4
+      "id": "minecolonies:effects/blockplacespeedmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:blaze_powder",

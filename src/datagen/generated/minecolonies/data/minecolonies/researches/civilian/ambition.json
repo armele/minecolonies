@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/blockhutmysticalsite": 1
+      "id": "minecolonies:effects/blockhutmysticalsite",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutmysticalsite",

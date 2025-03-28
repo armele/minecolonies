@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/knowledgeoftheendunlock": 1
+      "id": "minecolonies:effects/knowledgeoftheendunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:chorus_bread",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/levelingmultiplier": 4
+      "id": "minecolonies:effects/levelingmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:experience_bottle:4",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutcomposter": 1
+      "id": "minecolonies:effects/blockhutcomposter",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutcomposter",

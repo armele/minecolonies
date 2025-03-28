@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/armordurabilitymultiplier": 2
+      "id": "minecolonies:effects/armordurabilitymultiplier",
+      "level": 2
     }
   ],
   "icon": "minecraft:turtle_helmet",

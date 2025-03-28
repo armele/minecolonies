@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/fishingtreasure": 1
+      "id": "minecolonies:effects/fishingtreasure",
+      "level": 1
     }
   ],
   "icon": "minecraft:fishing_rod",

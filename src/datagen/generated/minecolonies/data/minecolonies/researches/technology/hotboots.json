@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/minerfireresunlock": 1
+      "id": "minecolonies:effects/minerfireresunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:campfire",

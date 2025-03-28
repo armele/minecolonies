@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/blockattacksmultiplier": 3
+      "id": "minecolonies:effects/blockattacksmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:iron_bars",

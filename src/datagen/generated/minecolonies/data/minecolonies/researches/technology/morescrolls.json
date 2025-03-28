@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/morescrollsunlock": 1
+      "id": "minecolonies:effects/morescrollsunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:scroll_highlight",

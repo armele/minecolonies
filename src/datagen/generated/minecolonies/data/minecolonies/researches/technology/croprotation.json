@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/plantationlarge": 1
+      "id": "minecolonies:effects/plantationlarge",
+      "level": 1
     }
   ],
   "icon": "minecraft:green_dye",

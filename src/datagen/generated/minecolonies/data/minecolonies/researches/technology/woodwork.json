@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutsawmill": 1
+      "id": "minecolonies:effects/blockhutsawmill",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutsawmill",
@@ -14,10 +15,8 @@
     },
     {
       "type": "minecolonies:item_tag",
-      "item": {
-        "tag": "minecraft:planks"
-      },
-      "quantity": 64
+      "quantity": 64,
+      "tag": "minecraft:planks"
     }
   ],
   "researchLevel": 1,

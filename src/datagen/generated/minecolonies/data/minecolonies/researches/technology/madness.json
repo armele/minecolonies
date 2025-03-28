@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockplacespeedmultiplier": 5
+      "id": "minecolonies:effects/blockplacespeedmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecraft:spectral_arrow",

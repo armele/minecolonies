@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/regenerationmultiplier": 1
+      "id": "minecolonies:effects/regenerationmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecolonies:textures/icons/research/regeneration1.png",

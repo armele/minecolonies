@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/tooldurabilitymultiplier": 1
+      "id": "minecolonies:effects/tooldurabilitymultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:wooden_pickaxe",

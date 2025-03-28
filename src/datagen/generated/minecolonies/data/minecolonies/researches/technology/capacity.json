@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/minimumstockmultiplier": 2
+      "id": "minecolonies:effects/minimumstockmultiplier",
+      "level": 2
     }
   ],
   "icon": "minecraft:chest_minecart",

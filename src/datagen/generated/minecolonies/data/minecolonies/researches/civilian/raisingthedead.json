@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/usetotemunlock": 1
+      "id": "minecolonies:effects/usetotemunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:totem_of_undying",

@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/minimumstockmultiplier": 3
+      "id": "minecolonies:effects/minimumstockmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:ender_chest",

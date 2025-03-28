@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutfletcher": 1
+      "id": "minecolonies:effects/blockhutfletcher",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutfletcher",

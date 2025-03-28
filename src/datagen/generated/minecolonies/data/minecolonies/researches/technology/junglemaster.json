@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/plantationjungle": 1
+      "id": "minecolonies:effects/plantationjungle",
+      "level": 1
     }
   ],
   "icon": "minecraft:vine",

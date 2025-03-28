@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/retreatunlock": 1
+      "id": "minecolonies:effects/retreatunlock",
+      "level": 1
     }
   ],
   "exclusiveChildResearch": true,

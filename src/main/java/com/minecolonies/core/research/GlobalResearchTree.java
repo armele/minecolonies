@@ -9,7 +9,7 @@ import com.minecolonies.api.research.IGlobalResearch;
 import com.minecolonies.api.research.IGlobalResearchBranch;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.IResearchRequirement;
-import com.minecolonies.api.research.effects.IResearchEffect;
+import com.minecolonies.api.research.IResearchEffect;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.Network;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -118,7 +118,7 @@ public class GlobalResearchTree implements IGlobalResearchTree
         {
             reloadableResearch.add(research.getId());
         }
-        for (IResearchEffect<?> effect : research.getEffects())
+        for (IResearchEffect effect : research.getEffects())
         {
             researchEffectsIds.computeIfAbsent(effect.getId(), id -> new HashSet<>()).add(research);
         }
@@ -273,7 +273,7 @@ public class GlobalResearchTree implements IGlobalResearchTree
     }
 
     @Override
-    public List<IResearchEffect<?>> getEffectsForResearch(@NotNull final ResourceLocation id)
+    public List<IResearchEffect> getEffectsForResearch(@NotNull final ResourceLocation id)
     {
         for(final ResourceLocation branch: this.getBranches())
         {

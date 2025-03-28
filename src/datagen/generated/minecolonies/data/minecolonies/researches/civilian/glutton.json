@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/saturationmultiplier": 5
+      "id": "minecolonies:effects/saturationmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:textures/icons/research/saturation5.png",

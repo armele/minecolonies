@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/plantationnether": 1
+      "id": "minecolonies:effects/plantationnether",
+      "level": 1
     }
   ],
   "icon": "minecraft:crimson_fungus",

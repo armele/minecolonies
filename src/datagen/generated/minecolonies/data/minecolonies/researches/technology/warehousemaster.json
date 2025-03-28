@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/recipemodeunlock": 1
+      "id": "minecolonies:effects/recipemodeunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockminecoloniesrack",

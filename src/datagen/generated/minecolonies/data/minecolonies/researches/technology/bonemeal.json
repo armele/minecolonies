@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/farmingmultiplier": 1
+      "id": "minecolonies:effects/farmingmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:wheat_seeds",

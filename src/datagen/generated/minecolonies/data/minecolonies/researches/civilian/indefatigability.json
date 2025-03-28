@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/healingsaturationlimitaddition": 5
+      "id": "minecolonies:effects/healingsaturationlimitaddition",
+      "level": 5
     }
   ],
   "icon": "minecraft:experience_bottle",

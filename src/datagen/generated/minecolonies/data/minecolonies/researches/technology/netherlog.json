@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/netherexpeditionlog": 1
+      "id": "minecolonies:effects/netherexpeditionlog",
+      "level": 1
     }
   ],
   "icon": "minecraft:ender_eye",

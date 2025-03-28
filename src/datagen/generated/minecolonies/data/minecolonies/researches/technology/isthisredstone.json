@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockbreakspeedmultiplier": 1
+      "id": "minecolonies:effects/blockbreakspeedmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:redstone",

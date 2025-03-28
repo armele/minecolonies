@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/crushing11unlock": 1
+      "id": "minecolonies:effects/crushing11unlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:gold_block",

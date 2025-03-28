@@ -2,7 +2,8 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/meleearmormultiplier": 5
+      "id": "minecolonies:effects/meleearmormultiplier",
+      "level": 5
     }
   ],
   "icon": "minecraft:diamond_chestplate",

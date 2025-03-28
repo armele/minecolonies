@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/blockhutgraveyard": 1
+      "id": "minecolonies:effects/blockhutgraveyard",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutgraveyard",

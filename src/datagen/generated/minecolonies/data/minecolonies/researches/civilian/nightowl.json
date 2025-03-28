@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/workingdayhaddition": 1
+      "id": "minecolonies:effects/workingdayhaddition",
+      "level": 1
     }
   ],
   "icon": "minecraft:clock:1",

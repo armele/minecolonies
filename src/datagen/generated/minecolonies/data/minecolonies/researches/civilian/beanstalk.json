@@ -2,7 +2,8 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/growthmultiplier": 5
+      "id": "minecolonies:effects/growthmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:textures/icons/research/childgrowth5.png",

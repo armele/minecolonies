@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutglassblower": 1
+      "id": "minecolonies:effects/blockhutglassblower",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutglassblower",

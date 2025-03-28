@@ -2,7 +2,8 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/workinginrainunlock": 1
+      "id": "minecolonies:effects/workinginrainunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:splash_potion",
