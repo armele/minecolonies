@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/fishingtreasure": 1
+      "id": "minecolonies:effects/fishingtreasure",
+      "level": 1
     }
   ],
   "icon": "minecraft:fishing_rod",
   "parentResearch": "minecolonies:technology/alchemist",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "fisherman",
       "level": 4
     },
     {
-      "items": {
-        "count": 1,
-        "item": "minecraft:heart_of_the_sea"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:heart_of_the_sea",
+      "quantity": 1
     }
   ],
   "researchLevel": 4,

@@ -2,21 +2,22 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/archerarmormultiplier": 4
+      "id": "minecolonies:effects/archerarmormultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:golden_boots",
   "parentResearch": "minecolonies:combat/evasion",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "archery",
       "level": 5
     },
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:diamond"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond",
+      "quantity": 16
     }
   ],
   "researchLevel": 5,

@@ -2,17 +2,17 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutnetherworker": 1
+      "id": "minecolonies:effects/blockhutnetherworker",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutnetherworker",
   "parentResearch": "minecolonies:technology/morescrolls",
   "requirements": [
     {
-      "items": {
-        "count": 3,
-        "item": "minecraft:gilded_blackstone"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:gilded_blackstone",
+      "quantity": 3
     }
   ],
   "researchLevel": 2,

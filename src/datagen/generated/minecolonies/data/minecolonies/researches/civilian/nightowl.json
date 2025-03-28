@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/workingdayhaddition": 1
+      "id": "minecolonies:effects/workingdayhaddition",
+      "level": 1
     }
   ],
   "icon": "minecraft:clock:1",
   "parentResearch": "minecolonies:civilian/circus",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "library",
       "level": 2
     },
     {
-      "items": {
-        "count": 25,
-        "item": "minecraft:golden_carrot"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:golden_carrot",
+      "quantity": 25
     }
   ],
   "researchLevel": 3,

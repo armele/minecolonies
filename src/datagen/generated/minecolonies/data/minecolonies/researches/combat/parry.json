@@ -2,21 +2,22 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/meleearmormultiplier": 1
+      "id": "minecolonies:effects/meleearmormultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:leather_chestplate",
   "parentResearch": "minecolonies:combat/avoidance",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "smeltery",
       "level": 1
     },
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:iron_ingot"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:iron_ingot",
+      "quantity": 16
     }
   ],
   "researchLevel": 2

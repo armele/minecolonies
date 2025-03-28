@@ -2,17 +2,17 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/sleeplessmultiplier": 1
+      "id": "minecolonies:effects/sleeplessmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:lime_bed",
   "parentResearch": "minecolonies:combat/tactictraining",
   "requirements": [
     {
-      "items": {
-        "count": 4,
-        "item": "minecraft:golden_carrot"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:golden_carrot",
+      "quantity": 4
     }
   ],
   "researchLevel": 2,

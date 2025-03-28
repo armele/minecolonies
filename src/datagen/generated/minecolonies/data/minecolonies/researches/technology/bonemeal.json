@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/farmingmultiplier": 1
+      "id": "minecolonies:effects/farmingmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:wheat_seeds",
   "parentResearch": "minecolonies:technology/biodegradable",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "miner",
       "level": 3
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:wheat_seeds"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:wheat_seeds",
+      "quantity": 64
     }
   ],
   "researchLevel": 2,

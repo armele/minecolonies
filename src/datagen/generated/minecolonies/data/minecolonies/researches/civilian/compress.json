@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/regenerationmultiplier": 4
+      "id": "minecolonies:effects/regenerationmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecolonies:textures/icons/research/regeneration4.png",
   "parentResearch": "minecolonies:civilian/bandages",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "library",
       "level": 5
     },
     {
-      "items": {
-        "count": 32,
-        "item": "minecraft:golden_carrot"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:golden_carrot",
+      "quantity": 32
     }
   ],
   "researchLevel": 5

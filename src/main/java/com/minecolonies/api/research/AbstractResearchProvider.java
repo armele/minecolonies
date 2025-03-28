@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.blocks.AbstractBlockHut;
-import com.minecolonies.api.util.Utils;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,7 +15,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -25,15 +23,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.minecolonies.core.research.GlobalResearch.RESEARCH_ITEM_LIST_PROP;
+import static com.minecolonies.api.research.ModResearchCosts.*;
+import static com.minecolonies.api.research.ModResearchRequirements.RESEARCH_RESEARCH_REQ_ID;
 
 /**
  * A class for creating the Research-related JSONs, including Research, ResearchEffects, and (optional) Branches.
  * Note that this does not validate that the resulting research tree is coherent:
  * programmers should make sure that research parents and effects exist, that depth is 1 or one level greater than the parent depth,
  * and that cost and requirement identifiers match real items.
- *
- * Avoid changing research identifiers here unless necessary. If required, update ResearchCompatMap.
+ * <p>Avoid changing research identifiers here unless necessary. If required, update ResearchCompatMap.</p>
  */
 public abstract class AbstractResearchProvider implements DataProvider
 {
@@ -55,7 +53,7 @@ public abstract class AbstractResearchProvider implements DataProvider
     /**
      * Creates a collection of Research Branches, holding the human-readable name and time multiplier.
      * Research Branches are optional: if no matching json is present, or no values set,
-     * the branch will default to its ResourceLocation.path, at 1.0 research time.
+     * the branch will default to its {@code ResourceLocation.getPath()}, at 1.0 research time.
      * @return  A collection of Research Branches, or Collection.EMPTY_LIST.
      */
     protected abstract Collection<ResearchBranch> getResearchBranchCollection();
@@ -173,20 +171,23 @@ public abstract class AbstractResearchProvider implements DataProvider
     /**
      * A Builder-like class for producing Researches.
      */
-    protected static class Research
+    public static class Research
     {
         final public JsonObject       json = new JsonObject();
         final public ResourceLocation id;
+
         /**
          * The university level of the research.
          */
         public int researchLevel;
+
         /**
-         *  A Translated Name to add to the output language file.
+         * A Translated Name to add to the output language file.
          */
         public String translatedName;
+
         /**
-         *  A Translated Subtitle to add to the output language file.
+         * A Translated Subtitle to add to the output language file.
          */
         public String translatedSubtitle;
 
@@ -404,6 +405,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         private JsonObject makeSafeBuildingProperty(final String propertyType, final String buildingName, final int level)
         {
             JsonObject req = new JsonObject();
+            req.addProperty("type", new ResourceLocation(Constants.MOD_ID, propertyType).toString());
             req.addProperty(propertyType, buildingName);
             req.addProperty("level", level);
             return req;
@@ -511,6 +513,7 @@ public abstract class AbstractResearchProvider implements DataProvider
                 reqArray = new JsonArray();
             }
             JsonObject req = new JsonObject();
+            req.addProperty("type", RESEARCH_RESEARCH_REQ_ID.toString());
             req.addProperty("research", researchReq.toString());
             reqArray.add(req);
             this.json.add("requirements", reqArray);
@@ -550,71 +553,65 @@ public abstract class AbstractResearchProvider implements DataProvider
          * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
          * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
          *
-         * @param item     The item to require.
-         * @param count    The count to require.
-         * @param provider The registry provider.
+         * @param item  The item to require.
+         * @param count The count to require.
          * @return this.
          */
-        public Research addItemCost(final Item item, final int count, final HolderLookup.Provider provider)
-        {
-            return addItemCost(SizedIngredient.of(item, count), provider);
-        }
-
-        /**
-         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
-         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
-         *
-         * @param tag      The tag to require.
-         * @param count    The count to require.
-         * @param provider The registry provider.
-         * @return this.
-         */
-        public Research addItemCost(final TagKey<Item> tag, final int count, final HolderLookup.Provider provider)
-        {
-            return addItemCost(SizedIngredient.of(tag, count), provider);
-        }
-
-        /**
-         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
-         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
-         *
-         * @param item     The item to require.
-         * @param provider The registry provider.
-         * @return this.
-         */
-        public Research addItemCost(final SizedIngredient item, final HolderLookup.Provider provider)
-        {
-            return addItemCost(List.of(item), provider);
-        }
-
-        /**
-         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
-         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
-         *
-         * @param items    The items to require.
-         * @param provider The registry provider.
-         * @return this.
-         */
-        public Research addItemCost(final List<SizedIngredient> items, final HolderLookup.Provider provider)
+        public Research addItemCost(final Item item, final int count)
         {
             final JsonArray reqArray = getRequirementsArray();
-
-            if (items.isEmpty())
-            {
-                return this;
-            }
-
-            final JsonElement itemJson;
-            if (items.size() == 1)
-            {
-                itemJson = Utils.serializeCodecMessToJson(SizedIngredient.FLAT_CODEC, provider, items.getFirst());
-            }
-            else
-            {
-                itemJson = Utils.serializeCodecMessToJson(SizedIngredient.FLAT_CODEC.listOf(), provider, items);
-            }
             JsonObject req = new JsonObject();
-            req.add(RESEARCH_ITEM_LIST_PROP, itemJson);
+            req.addProperty("type", SIMPLE_ITEM_COST_ID.toString());
+            req.addProperty("item", BuiltInRegistries.ITEM.getKey(item).toString());
+            req.addProperty("quantity", count);
+            reqArray.add(req);
+
+            this.json.add("requirements", reqArray);
+            return this;
+        }
+
+        /**
+         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
+         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
+         *
+         * @param items The item to require.
+         * @param count The number of the item to require.
+         * @return this.
+         */
+        public Research addItemCost(final List<Item> items, final int count)
+        {
+            final JsonArray reqArray = getRequirementsArray();
+            final JsonArray itemArr = new JsonArray();
+            for (Item item : items)
+            {
+                itemArr.add(BuiltInRegistries.ITEM.getKey(item).toString());
+            }
+
+            final JsonObject req = new JsonObject();
+            req.addProperty("type", LIST_ITEM_COST_ID.toString());
+            req.add("items", itemArr);
+            req.addProperty("quantity", count);
+            reqArray.add(req);
+
+            this.json.add("requirements", reqArray);
+            return this;
+        }
+
+        /**
+         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
+         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
+         *
+         * @param tag   The tag to require.
+         * @param count The count to require.
+         * @return this.
+         */
+        public Research addItemCost(final TagKey<Item> tag, final int count)
+        {
+            final JsonArray reqArray = getRequirementsArray();
+            final JsonObject req = new JsonObject();
+            req.addProperty("type", TAG_ITEM_COST_ID.toString());
+            req.addProperty("tag", tag.location().toString());
+            req.addProperty("quantity", count);
             reqArray.add(req);
 
             this.json.add("requirements", reqArray);
@@ -652,7 +649,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         public Research addEffect(final ResourceLocation effect, final int level)
         {
             final JsonArray effects;
-            if(this.json.has("effects") && this.json.get("effects").isJsonArray())
+            if (this.json.has("effects") && this.json.get("effects").isJsonArray())
             {
                 effects = this.json.getAsJsonArray("effects");
                 this.json.remove("effects");
@@ -661,8 +658,9 @@ public abstract class AbstractResearchProvider implements DataProvider
             {
                 effects = new JsonArray();
             }
-            JsonObject eff = new JsonObject();
-            eff.addProperty(effect.toString(), level);
+            final JsonObject eff = new JsonObject();
+            eff.addProperty("id", effect.toString());
+            eff.addProperty("level", level);
             effects.add(eff);
             this.json.add("effects", effects);
             return this;
@@ -683,7 +681,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         public Research addEffect(final AbstractBlockHut<?> buildingBlock, int level)
         {
             final JsonArray effects;
-            if(this.json.has("effects") && this.json.get("effects").isJsonArray())
+            if (this.json.has("effects") && this.json.get("effects").isJsonArray())
             {
                 effects = this.json.getAsJsonArray("effects");
                 this.json.remove("effects");
@@ -693,8 +691,9 @@ public abstract class AbstractResearchProvider implements DataProvider
                 effects = new JsonArray();
             }
             final ResourceLocation registryName = BuiltInRegistries.BLOCK.getKey(buildingBlock);
-            JsonObject eff = new JsonObject();
-            eff.addProperty(registryName.getNamespace() + ":effects/" + registryName.getPath(), level);
+            final JsonObject eff = new JsonObject();
+            eff.addProperty("id", registryName.getNamespace() + ":effects/" + registryName.getPath());
+            eff.addProperty("level", level);
             effects.add(eff);
             this.json.add("effects", effects);
             return this;
@@ -756,7 +755,7 @@ public abstract class AbstractResearchProvider implements DataProvider
     /**
      * A Builder-like class for producing Research Effects.
      */
-    protected static class ResearchEffect
+    public static class ResearchEffect
     {
         final public JsonObject       json = new JsonObject();
         final public ResourceLocation id;
@@ -870,7 +869,7 @@ public abstract class AbstractResearchProvider implements DataProvider
     /**
      * A Builder-like class for producing Research Branches
      */
-    protected static class ResearchBranch
+    public static class ResearchBranch
     {
         final public JsonObject       json = new JsonObject();
         final public ResourceLocation id;

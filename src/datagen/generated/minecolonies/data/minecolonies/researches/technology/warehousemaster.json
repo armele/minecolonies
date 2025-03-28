@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/recipemodeunlock": 1
+      "id": "minecolonies:effects/recipemodeunlock",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockminecoloniesrack",
   "parentResearch": "minecolonies:technology/memoryaid",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "sawmill",
       "level": 3
     },
     {
-      "items": {
-        "count": 3,
-        "item": "minecolonies:blockminecoloniesrack"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecolonies:blockminecoloniesrack",
+      "quantity": 3
     }
   ],
   "researchLevel": 3,

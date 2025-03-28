@@ -2,27 +2,27 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/min_order": 1
+      "id": "minecolonies:effects/min_order",
+      "level": 1
     }
   ],
   "icon": "minecolonies:clipboard",
   "parentResearch": "minecolonies:civilian/rails",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "deliveryman",
       "level": 9
     },
     {
-      "items": {
-        "count": 1,
-        "item": "minecolonies:clipboard"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecolonies:clipboard",
+      "quantity": 1
     },
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:book"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:book",
+      "quantity": 16
     }
   ],
   "researchLevel": 3,

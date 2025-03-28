@@ -2,17 +2,17 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockbreakspeedmultiplier": 4
+      "id": "minecolonies:effects/blockbreakspeedmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecraft:comparator",
   "parentResearch": "minecolonies:technology/heavymachinery",
   "requirements": [
     {
-      "items": {
-        "count": 1024,
-        "item": "minecraft:redstone"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:redstone",
+      "quantity": 1024
     }
   ],
   "researchLevel": 5,

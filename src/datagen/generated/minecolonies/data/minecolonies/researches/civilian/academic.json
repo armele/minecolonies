@@ -2,17 +2,17 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/levelingmultiplier": 5
+      "id": "minecolonies:effects/levelingmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecraft:experience_bottle:5",
   "parentResearch": "minecolonies:civilian/reflective",
   "requirements": [
     {
-      "items": {
-        "count": 128,
-        "item": "minecraft:book"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:book",
+      "quantity": 128
     }
   ],
   "researchLevel": 6,

@@ -2,17 +2,17 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/saturationmultiplier": 5
+      "id": "minecolonies:effects/saturationmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:textures/icons/research/saturation5.png",
   "parentResearch": "minecolonies:civilian/epicure",
   "requirements": [
     {
-      "items": {
-        "count": 512,
-        "item": "minecraft:cookie"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:cookie",
+      "quantity": 512
     }
   ],
   "researchLevel": 6,

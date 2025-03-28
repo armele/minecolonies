@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/saturationmultiplier": 1
+      "id": "minecolonies:effects/saturationmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecolonies:textures/icons/research/saturation1.png",
   "parentResearch": "minecolonies:civilian/firstaid",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "cook",
       "level": 2
     },
     {
-      "items": {
-        "count": 32,
-        "item": "minecraft:cookie"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:cookie",
+      "quantity": 32
     }
   ],
   "researchLevel": 2,

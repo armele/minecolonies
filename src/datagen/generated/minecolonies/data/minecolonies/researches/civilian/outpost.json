@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/citizencapaddition": 2
+      "id": "minecolonies:effects/citizencapaddition",
+      "level": 2
     }
   ],
   "icon": "minecolonies:blockhutcitizen:50",
   "parentResearch": "minecolonies:civilian/keen",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "residence",
       "level": 4
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:cooked_beef"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:cooked_beef",
+      "quantity": 64
     }
   ],
   "researchLevel": 2

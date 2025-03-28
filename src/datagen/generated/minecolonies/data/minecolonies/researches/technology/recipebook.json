@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/recipesmultiplier": 3
+      "id": "minecolonies:effects/recipesmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:enchanted_book",
   "parentResearch": "minecolonies:technology/cheatsheet",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "sawmill",
       "level": 3
     },
     {
-      "items": {
-        "count": 128,
-        "item": "minecraft:paper"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:paper",
+      "quantity": 128
     }
   ],
   "researchLevel": 4

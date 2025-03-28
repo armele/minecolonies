@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutdyer": 1
+      "id": "minecolonies:effects/blockhutdyer",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutcomposter",
   "parentResearch": "minecolonies:technology/biodegradable",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "composter",
       "level": 3
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:poppy"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:poppy",
+      "quantity": 64
     }
   ],
   "researchLevel": 2,

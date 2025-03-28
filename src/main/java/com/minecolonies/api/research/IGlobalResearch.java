@@ -1,12 +1,10 @@
 package com.minecolonies.api.research;
 
-import com.minecolonies.api.research.effects.IResearchEffect;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -45,7 +43,7 @@ public interface IGlobalResearch
      *
      * @return the list.
      */
-    List<SizedIngredient> getCostList();
+    List<IResearchCost> getCostList();
 
     /**
      * Start the research.
@@ -72,23 +70,11 @@ public interface IGlobalResearch
     ResourceLocation getId();
 
     /**
-     * Getter of the research icon's resource location.
-     * On the client, this texture file's presence has already been validated.
-     * @return the ResourceLocation of the icon.
-     */
-    ResourceLocation getIconTextureResourceLocation();
-
-    /**
-     * Getter of the research icon's item stack.
-     * @return the ItemStack for the icon.
-     */
-    ItemStack getIconItemStack();
-
-    /**
      * Get the id of the parent IResearch.
      *
      * @return the parent id, as a ResourceLocation
      */
+    @Nullable
     ResourceLocation getParent();
 
     /**
@@ -148,13 +134,6 @@ public interface IGlobalResearch
     boolean hasOnlyChild();
 
     /**
-     * Set if a research should only allow one child.
-     *
-     * @param onlyChild the param to set.
-     */
-    void setOnlyChild(boolean onlyChild);
-
-    /**
      * Check if this research has other children and if one of these children has been research already.
      *
      * @param localTree the local tree of the colony.
@@ -176,16 +155,16 @@ public interface IGlobalResearch
     void addChild(final ResourceLocation child);
 
     /**
-     * Add item costs.
-     * @param cost the items to add to the cost list.
+     * Add an individual cost.
+     * @param cost the individual item to add to the cost list, as a reseach cost instance.
      */
-    void addCosts(final List<SizedIngredient> cost);
+    void addCost(final IResearchCost cost);
 
     /**
      * Add an individual effect.
      * @param effect the individual effect to add to the research, as a IResearchEffect.
      */
-    void addEffect(final IResearchEffect<?> effect);
+    void addEffect(final IResearchEffect effect);
 
     /**
      * Add an individual requirement
@@ -201,23 +180,16 @@ public interface IGlobalResearch
     List<ResourceLocation> getChildren();
 
     /**
-     * Set the parent of a research.
-     *
-     * @param id the id of the parent.
-     */
-    void setParent(ResourceLocation id);
-
-    /**
      * Getter for the research requirement.
      *
      * @return the requirement.
      */
-    List<IResearchRequirement> getResearchRequirement();
+    List<IResearchRequirement> getResearchRequirements();
 
     /**
      * Get the effect of the research.
      *
      * @return the effect.
      */
-    List<IResearchEffect<?>> getEffects();
+    List<IResearchEffect> getEffects();
 }

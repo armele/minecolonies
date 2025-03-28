@@ -2,17 +2,17 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/happinessmultiplier": 5
+      "id": "minecolonies:effects/happinessmultiplier",
+      "level": 5
     }
   ],
   "icon": "minecolonies:textures/icons/research/happy5.png",
   "parentResearch": "minecolonies:civilian/opera",
   "requirements": [
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:enchanted_golden_apple"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:enchanted_golden_apple",
+      "quantity": 16
     }
   ],
   "researchLevel": 6,

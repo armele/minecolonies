@@ -2,17 +2,17 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/archerarmormultiplier": 5
+      "id": "minecolonies:effects/archerarmormultiplier",
+      "level": 5
     }
   ],
   "icon": "minecraft:diamond_boots",
   "parentResearch": "minecolonies:combat/improvedevasion",
   "requirements": [
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:diamond"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond",
+      "quantity": 64
     }
   ],
   "researchLevel": 6,

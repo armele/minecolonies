@@ -2,21 +2,22 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/blockattacksmultiplier": 1
+      "id": "minecolonies:effects/blockattacksmultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:iron_ingot",
   "parentResearch": "minecolonies:combat/improvedswords",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "combatacademy",
       "level": 3
     },
     {
-      "items": {
-        "count": 4,
-        "item": "minecraft:shield"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:shield",
+      "quantity": 4
     }
   ],
   "researchLevel": 3,

@@ -108,6 +108,7 @@ public class MineColonies
         ModGuardTypesInitializer.DEFERRED_REGISTER.register(modBus);
         ModColonyEventDescriptionTypeInitializer.DEFERRED_REGISTER.register(modBus);
         ModResearchRequirementInitializer.DEFERRED_REGISTER.register(modBus);
+        ModResearchCostInitializer.DEFERRED_REGISTER.register(modBus);
         ModRecipeSerializerInitializer.RECIPE_SERIALIZER.register(modBus);
         ModRecipeSerializerInitializer.RECIPE_TYPES.register(modBus);
         ModColonyEventTypeInitializer.DEFERRED_REGISTER.register(modBus);

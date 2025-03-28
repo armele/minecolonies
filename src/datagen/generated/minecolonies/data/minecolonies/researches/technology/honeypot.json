@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/beekeep2unlock": 1
+      "id": "minecolonies:effects/beekeep2unlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:honeycomb",
   "parentResearch": "minecolonies:technology/rainbowheaven",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "beekeeper",
       "level": 3
     },
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:beehive"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:beehive",
+      "quantity": 16
     }
   ],
   "researchLevel": 3,

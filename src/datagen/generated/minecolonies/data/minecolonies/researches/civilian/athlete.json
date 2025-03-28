@@ -2,17 +2,17 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/walkingmultiplier": 4
+      "id": "minecolonies:effects/walkingmultiplier",
+      "level": 4
     }
   ],
   "icon": "minecolonies:textures/icons/research/speed4.png",
   "parentResearch": "minecolonies:civilian/swift",
   "requirements": [
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:rabbit_foot"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:rabbit_foot",
+      "quantity": 64
     }
   ],
   "researchLevel": 6,

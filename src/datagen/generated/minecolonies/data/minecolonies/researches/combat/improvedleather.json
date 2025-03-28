@@ -2,20 +2,21 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/armordurabilitymultiplier": 1
+      "id": "minecolonies:effects/armordurabilitymultiplier",
+      "level": 1
     }
   ],
   "icon": "minecraft:leather_helmet",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "townhall",
       "level": 1
     },
     {
-      "items": {
-        "count": 32,
-        "item": "minecraft:leather"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:leather",
+      "quantity": 32
     }
   ],
   "researchLevel": 1,

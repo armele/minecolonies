@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/vinesunlock": 1
+      "id": "minecolonies:effects/vinesunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:vine",
   "parentResearch": "minecolonies:civilian/keen",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "residence",
       "level": 3
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:vine"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:vine",
+      "quantity": 64
     }
   ],
   "researchLevel": 2,

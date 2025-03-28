@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/blockhutmechanic": 1
+      "id": "minecolonies:effects/blockhutmechanic",
+      "level": 1
     }
   ],
   "icon": "minecolonies:blockhutmechanic",
   "parentResearch": "minecolonies:technology/hittingiron",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "blacksmith",
       "level": 3
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:redstone"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:redstone",
+      "quantity": 64
     }
   ],
   "researchLevel": 2,

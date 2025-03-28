@@ -2,21 +2,22 @@
   "branch": "minecolonies:combat",
   "effects": [
     {
-      "minecolonies:effects/fleeingspeedaddition": 3
+      "id": "minecolonies:effects/fleeingspeedaddition",
+      "level": 3
     }
   ],
   "icon": "minecraft:feather:3",
   "parentResearch": "minecolonies:combat/evade",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "guardtower",
       "level": 12
     },
     {
-      "items": {
-        "count": 32,
-        "item": "minecraft:emerald"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:emerald",
+      "quantity": 32
     }
   ],
   "researchLevel": 5,

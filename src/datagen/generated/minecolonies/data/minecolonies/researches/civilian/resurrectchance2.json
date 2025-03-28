@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/resurrectchanceaddition": 2
+      "id": "minecolonies:effects/resurrectchanceaddition",
+      "level": 2
     }
   ],
   "icon": "minecolonies:blockhutgraveyard",
   "parentResearch": "minecolonies:civilian/resurrectchance1",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "graveyard",
       "level": 5
     },
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:chorus_fruit"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:chorus_fruit",
+      "quantity": 16
     }
   ],
   "researchLevel": 3,

@@ -2,21 +2,22 @@
   "branch": "minecolonies:civilian",
   "effects": [
     {
-      "minecolonies:effects/levelingmultiplier": 3
+      "id": "minecolonies:effects/levelingmultiplier",
+      "level": 3
     }
   ],
   "icon": "minecraft:experience_bottle:3",
   "parentResearch": "minecolonies:civilian/studious",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "library",
       "level": 4
     },
     {
-      "items": {
-        "count": 24,
-        "item": "minecraft:book"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:book",
+      "quantity": 24
     }
   ],
   "researchLevel": 4,

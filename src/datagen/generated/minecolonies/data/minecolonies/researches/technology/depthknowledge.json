@@ -2,21 +2,22 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/knowledgeofthedepthsunlock": 1
+      "id": "minecolonies:effects/knowledgeofthedepthsunlock",
+      "level": 1
     }
   ],
   "icon": "minecraft:cobbled_deepslate",
   "parentResearch": "minecolonies:technology/rockingroll",
   "requirements": [
     {
+      "type": "minecolonies:building",
       "building": "crusher",
       "level": 3
     },
     {
-      "items": {
-        "count": 64,
-        "item": "minecraft:deepslate"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:deepslate",
+      "quantity": 64
     }
   ],
   "researchLevel": 3,

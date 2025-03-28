@@ -2,25 +2,25 @@
   "branch": "minecolonies:technology",
   "effects": [
     {
-      "minecolonies:effects/netherexpeditionlog": 1
+      "id": "minecolonies:effects/netherexpeditionlog",
+      "level": 1
     }
   ],
   "icon": "minecraft:ender_eye",
   "parentResearch": "minecolonies:technology/opennether",
   "requirements": [
     {
-      "items": {
-        "count": 16,
-        "item": "minecraft:ender_eye"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:ender_eye",
+      "quantity": 16
     },
     {
-      "items": {
-        "count": 1,
-        "item": "minecolonies:ancienttome"
-      }
+      "type": "minecolonies:item_simple",
+      "item": "minecolonies:ancienttome",
+      "quantity": 1
     },
     {
+      "type": "minecolonies:building",
       "building": "netherworker",
       "level": 1
     }
