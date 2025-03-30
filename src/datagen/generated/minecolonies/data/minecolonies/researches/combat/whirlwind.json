@@ -1,5 +1,19 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:redstone"
+    },
+    {
+      "count": 64,
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "count": 128,
+      "item": "minecraft:lapis_lazuli"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/whirlwindabilityunlock",
@@ -13,21 +27,6 @@
       "type": "minecolonies:building",
       "building": "barracks",
       "level": 4
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:redstone",
-      "quantity": 64
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:gold_ingot",
-      "quantity": 64
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:lapis_lazuli",
-      "quantity": 128
     }
   ],
   "researchLevel": 4

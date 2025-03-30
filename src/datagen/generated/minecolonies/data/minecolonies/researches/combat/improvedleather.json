@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 32,
+      "item": "minecraft:leather"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/armordurabilitymultiplier",
@@ -12,11 +18,6 @@
       "type": "minecolonies:building",
       "building": "townhall",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:leather",
-      "quantity": 32
     }
   ],
   "researchLevel": 1,

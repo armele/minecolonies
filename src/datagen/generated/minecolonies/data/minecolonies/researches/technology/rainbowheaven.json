@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:poppy"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutdyer",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "composter",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:poppy",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

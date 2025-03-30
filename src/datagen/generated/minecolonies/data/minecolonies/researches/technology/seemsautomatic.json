@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 512,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockplacespeedmultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "blacksmith",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_ingot",
-      "quantity": 512
     }
   ],
   "researchLevel": 5,

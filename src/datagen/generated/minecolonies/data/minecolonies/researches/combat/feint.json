@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 8,
+      "item": "minecraft:emerald"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/fleeingdamagemultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 4
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:emerald",
-      "quantity": 8
     }
   ],
   "researchLevel": 3

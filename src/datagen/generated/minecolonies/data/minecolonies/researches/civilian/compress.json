@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 32,
+      "item": "minecraft:golden_carrot"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/regenerationmultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "library",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:golden_carrot",
-      "quantity": 32
     }
   ],
   "researchLevel": 5

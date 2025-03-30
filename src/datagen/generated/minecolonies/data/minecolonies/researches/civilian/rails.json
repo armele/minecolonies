@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:rail"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/railsunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "deliveryman",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:rail",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

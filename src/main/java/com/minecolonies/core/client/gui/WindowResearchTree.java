@@ -28,7 +28,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -676,12 +675,11 @@ public class WindowResearchTree extends AbstractWindowSkeleton
                       .append(research.getResearchRequirements().get(txt).getDesc());
                 }
             }
-            for (final IResearchCost cost : research.getCostList())
+            for (final SizedIngredient cost : research.getCostList())
             {
-                final SizedIngredient ingredient = new SizedIngredient(Ingredient.of(cost.getItems().toArray(new Item[0])), cost.getCount());
                 hoverPaneBuilder.paragraphBreak()
-                  .append(Component.literal(" - "))
-                  .append(Component.translatable("com.minecolonies.coremod.research.limit.cost", ItemStackUtils.getTranslatedName(ingredient)));
+                    .append(Component.literal(" - "))
+                    .append(Component.translatable("com.minecolonies.coremod.research.limit.cost", ItemStackUtils.getTranslatedName(cost)));
                 if (research.hasEnoughResources(new InvWrapper(Minecraft.getInstance().player.getInventory())))
                 {
                     hoverPaneBuilder.color(COLOR_TEXT_FULFILLED);
@@ -876,7 +874,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
 
         final List<BuildingAlternatesResearchRequirement> alternateBuildingRequirements = new ArrayList<>();
         final List<BuildingResearchRequirement> buildingRequirements = new ArrayList<>();
-        final List<IResearchCost> itemRequirements = research.getCostList();
+        final List<SizedIngredient> itemRequirements = research.getCostList();
 
         research.getResearchRequirements().forEach(requirement -> {
             // There will only ever be one AlternateBuildingRequirement per research, under the current implementation.
@@ -969,12 +967,12 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         }
 
         storageXOffset = COST_OFFSET;
-        for (final IResearchCost cost : itemRequirements)
+        for (final SizedIngredient cost : itemRequirements)
         {
             final RotatingItemIcon icon = new RotatingItemIcon();
             icon.setPosition(offsetX + RESEARCH_WIDTH - storageXOffset - INITIAL_X_OFFSET, offsetY + NAME_LABEL_HEIGHT + TEXT_Y_OFFSET);
             icon.setSize(DEFAULT_COST_SIZE, DEFAULT_COST_SIZE);
-            icon.setItems(cost.getItems().stream().map(ItemStack::new).peek(stack -> stack.setCount(cost.getCount())).toList());
+            icon.setItems(List.of(cost.getItems()));
             view.addChild(icon);
             storageXOffset += COST_OFFSET;
         }

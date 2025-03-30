@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:string"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutsifter",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "fisherman",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:string",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 1,
+      "item": "minecraft:iron_boots"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/undertakerrun",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "graveyard",
       "level": 2
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_boots",
-      "quantity": 1
     }
   ],
   "researchLevel": 2,

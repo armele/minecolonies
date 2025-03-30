@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 16,
+      "item": "minecraft:beehive"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/beekeep2unlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "beekeeper",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:beehive",
-      "quantity": 16
     }
   ],
   "researchLevel": 3,

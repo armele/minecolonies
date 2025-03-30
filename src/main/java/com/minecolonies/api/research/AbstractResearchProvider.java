@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.blocks.AbstractBlockHut;
+import com.minecolonies.api.util.Utils;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +16,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -23,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.minecolonies.api.research.ModResearchCosts.*;
 import static com.minecolonies.api.research.ModResearchRequirements.RESEARCH_RESEARCH_REQ_ID;
 
 /**
@@ -422,16 +423,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -449,16 +441,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addMandatoryBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("mandatory-building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -477,16 +460,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addAlternateBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("alternate-building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -502,16 +476,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addResearchRequirement(final ResourceLocation researchReq)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             JsonObject req = new JsonObject();
             req.addProperty("type", RESEARCH_RESEARCH_REQ_ID.toString());
             req.addProperty("research", researchReq.toString());
@@ -531,16 +496,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addResearchRequirement(final ResourceLocation researchReq, final String name)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             JsonObject req = new JsonObject();
             req.addProperty("research", researchReq.toString());
             req.addProperty("name", name);
@@ -553,68 +509,81 @@ public abstract class AbstractResearchProvider implements DataProvider
          * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
          * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
          *
-         * @param item  The item to require.
-         * @param count The count to require.
+         * @param item     The item to require.
+         * @param count    The count to require.
+         * @param provider The registry provider.
          * @return this.
          */
-        public Research addItemCost(final Item item, final int count)
+        public Research addItemCost(final Item item, final int count, final HolderLookup.Provider provider)
         {
-            final JsonArray reqArray = getRequirementsArray();
-            JsonObject req = new JsonObject();
-            req.addProperty("type", SIMPLE_ITEM_COST_ID.toString());
-            req.addProperty("item", BuiltInRegistries.ITEM.getKey(item).toString());
-            req.addProperty("quantity", count);
-            reqArray.add(req);
-
-            this.json.add("requirements", reqArray);
-            return this;
+            return addItemCost(SizedIngredient.of(item, count), provider);
         }
 
         /**
          * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
          * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
          *
-         * @param items The item to require.
-         * @param count The number of the item to require.
+         * @param tag      The tag to require.
+         * @param count    The count to require.
+         * @param provider The registry provider.
          * @return this.
          */
-        public Research addItemCost(final List<Item> items, final int count)
+        public Research addItemCost(final TagKey<Item> tag, final int count, final HolderLookup.Provider provider)
         {
-            final JsonArray reqArray = getRequirementsArray();
-            final JsonArray itemArr = new JsonArray();
-            for (Item item : items)
+            return addItemCost(SizedIngredient.of(tag, count), provider);
+        }
+
+        /**
+         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
+         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
+         *
+         * @param item     The item to require.
+         * @param provider The registry provider.
+         * @return this.
+         */
+        public Research addItemCost(final SizedIngredient item, final HolderLookup.Provider provider)
+        {
+            return addItemCost(List.of(item), provider);
+        }
+
+        /**
+         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
+         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
+         *
+         * @param items    The items to require.
+         * @param provider The registry provider.
+         * @return this.
+         */
+        public Research addItemCost(final List<SizedIngredient> items, final HolderLookup.Provider provider)
+        {
+            final JsonArray costArray;
+            if (this.json.has("costs") && this.json.get("costs").isJsonArray())
             {
-                itemArr.add(BuiltInRegistries.ITEM.getKey(item).toString());
+                costArray = this.json.getAsJsonArray("costs");
+                this.json.remove("costs");
+            }
+            else
+            {
+                costArray = new JsonArray();
             }
 
-            final JsonObject req = new JsonObject();
-            req.addProperty("type", LIST_ITEM_COST_ID.toString());
-            req.add("items", itemArr);
-            req.addProperty("quantity", count);
-            reqArray.add(req);
+            if (items.isEmpty())
+            {
+                return this;
+            }
 
-            this.json.add("requirements", reqArray);
-            return this;
-        }
+            final JsonElement itemJson;
+            if (items.size() == 1)
+            {
+                itemJson = Utils.serializeCodecMessToJson(SizedIngredient.FLAT_CODEC, provider, items.getFirst());
+            }
+            else
+            {
+                itemJson = Utils.serializeCodecMessToJson(SizedIngredient.FLAT_CODEC.listOf(), provider, items);
+            }
+            costArray.add(itemJson);
 
-        /**
-         * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
-         * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
-         *
-         * @param tag   The tag to require.
-         * @param count The count to require.
-         * @return this.
-         */
-        public Research addItemCost(final TagKey<Item> tag, final int count)
-        {
-            final JsonArray reqArray = getRequirementsArray();
-            final JsonObject req = new JsonObject();
-            req.addProperty("type", TAG_ITEM_COST_ID.toString());
-            req.addProperty("tag", tag.location().toString());
-            req.addProperty("quantity", count);
-            reqArray.add(req);
-
-            this.json.add("requirements", reqArray);
+            this.json.add("costs", costArray);
             return this;
         }
 

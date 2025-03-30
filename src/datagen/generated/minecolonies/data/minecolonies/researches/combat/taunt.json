@@ -1,5 +1,19 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 8,
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "count": 8,
+      "item": "minecraft:bone"
+    },
+    {
+      "count": 8,
+      "item": "minecraft:spider_eye"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/knighttauntmobsunlock",
@@ -12,21 +26,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:rotten_flesh",
-      "quantity": 8
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:bone",
-      "quantity": 8
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:spider_eye",
-      "quantity": 8
     }
   ],
   "researchLevel": 1,

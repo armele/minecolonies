@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 128,
+      "item": "minecraft:emerald"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/citizeninvslotsaddition",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "library",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:emerald",
-      "quantity": 128
     }
   ],
   "researchLevel": 5

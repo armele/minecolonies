@@ -29,7 +29,6 @@ import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.eventbus.EventBus;
 import com.minecolonies.api.quests.registries.QuestRegistries;
 import com.minecolonies.api.research.IGlobalResearchTree;
-import com.minecolonies.api.research.ModResearchCosts;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.ModResearchRequirements;
 import net.minecraft.core.Registry;
@@ -78,8 +77,6 @@ public interface IMinecoloniesAPI
     IGlobalResearchTree getGlobalResearchTree();
 
     Registry<ModResearchRequirements.ResearchRequirementEntry> getResearchRequirementRegistry();
-
-    Registry<ModResearchCosts.ResearchCostEntry> getResearchCostRegistry();
 
     Registry<ModResearchEffects.ResearchEffectEntry> getResearchEffectRegistry();
 

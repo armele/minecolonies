@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 1,
+      "item": "minecraft:ghast_tear"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/resurrectchanceaddition",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "graveyard",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:ghast_tear",
-      "quantity": 1
     }
   ],
   "researchLevel": 2,

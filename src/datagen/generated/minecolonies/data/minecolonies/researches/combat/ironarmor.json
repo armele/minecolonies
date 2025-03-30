@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 32,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/armordurabilitymultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "townhall",
       "level": 4
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_ingot",
-      "quantity": 32
     }
   ],
   "researchLevel": 4

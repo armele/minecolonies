@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:vine"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/vinesunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "residence",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:vine",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

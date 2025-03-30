@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 32,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/platearmorunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:mandatory-building",
       "level": 4,
       "mandatory-building": "blacksmith"
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_ingot",
-      "quantity": 32
     }
   ],
   "researchLevel": 5,

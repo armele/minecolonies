@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 1024,
+      "item": "minecraft:redstone"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockbreakspeedmultiplier",
@@ -8,13 +14,6 @@
   ],
   "icon": "minecraft:comparator",
   "parentResearch": "minecolonies:technology/heavymachinery",
-  "requirements": [
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:redstone",
-      "quantity": 1024
-    }
-  ],
   "researchLevel": 5,
   "subtitle": "com.minecolonies.research.technology.whatisthisspeed.subtitle"
 }

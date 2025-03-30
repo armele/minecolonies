@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 3,
+      "item": "minecolonies:blockminecoloniesrack"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/recipemodeunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "sawmill",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecolonies:blockminecoloniesrack",
-      "quantity": 3
     }
   ],
   "researchLevel": 3,

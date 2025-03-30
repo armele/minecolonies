@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 16,
+      "item": "minecraft:leather"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/archerarmormultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "smeltery",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:leather",
-      "quantity": 16
     }
   ],
   "researchLevel": 2,

@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 8,
+      "item": "minecraft:iron_block"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/meleedamageaddition",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 10
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_block",
-      "quantity": 8
     }
   ],
   "researchLevel": 4

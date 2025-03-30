@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 32,
+      "tag": "minecolonies:concrete"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutconcretemixer",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "crusher",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_tag",
-      "quantity": 32,
-      "tag": "minecolonies:concrete"
     }
   ],
   "researchLevel": 3,

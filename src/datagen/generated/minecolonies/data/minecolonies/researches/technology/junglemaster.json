@@ -1,5 +1,19 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 16,
+      "item": "minecraft:bamboo"
+    },
+    {
+      "count": 16,
+      "item": "minecraft:cocoa_beans"
+    },
+    {
+      "count": 16,
+      "item": "minecraft:vine"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/plantationjungle",
@@ -13,21 +27,6 @@
       "type": "minecolonies:building",
       "building": "plantation",
       "level": 2
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:bamboo",
-      "quantity": 16
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:cocoa_beans",
-      "quantity": 16
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:vine",
-      "quantity": 16
     }
   ],
   "researchLevel": 3,

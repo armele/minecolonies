@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 1,
+      "item": "minecraft:totem_of_undying"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/usetotemunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "graveyard",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:totem_of_undying",
-      "quantity": 1
     }
   ],
   "researchLevel": 4,

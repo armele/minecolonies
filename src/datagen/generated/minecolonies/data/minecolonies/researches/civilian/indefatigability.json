@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:golden_apple"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/healingsaturationlimitaddition",
@@ -8,12 +14,5 @@
   ],
   "icon": "minecraft:experience_bottle",
   "parentResearch": "minecolonies:civilian/fortitude",
-  "requirements": [
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:golden_apple",
-      "quantity": 64
-    }
-  ],
   "researchLevel": 6
 }

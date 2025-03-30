@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 48,
+      "item": "minecraft:book"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/levelingmultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "library",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:book",
-      "quantity": 48
     }
   ],
   "researchLevel": 5,

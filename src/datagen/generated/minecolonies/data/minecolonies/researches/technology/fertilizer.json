@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 512,
+      "item": "minecraft:wheat_seeds"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/farmingmultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "smeltery",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:wheat_seeds",
-      "quantity": 512
     }
   ],
   "researchLevel": 5,

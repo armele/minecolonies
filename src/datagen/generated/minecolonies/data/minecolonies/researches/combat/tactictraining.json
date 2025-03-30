@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 3,
+      "item": "minecraft:iron_block"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutbarracks",
@@ -12,11 +18,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_block",
-      "quantity": 3
     }
   ],
   "researchLevel": 1,

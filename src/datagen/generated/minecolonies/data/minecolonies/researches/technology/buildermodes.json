@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 1,
+      "item": "minecraft:diamond_axe"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/buildermodeunlock",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "builder",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond_axe",
-      "quantity": 1
     }
   ],
   "researchLevel": 3,

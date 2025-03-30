@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 512,
+      "item": "minecraft:cooked_beef"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/citizencapaddition",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "townhall",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:cooked_beef",
-      "quantity": 512
     }
   ],
   "researchLevel": 5

@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 32,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/meleearmormultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "combatacademy",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_ingot",
-      "quantity": 32
     }
   ],
   "researchLevel": 3,

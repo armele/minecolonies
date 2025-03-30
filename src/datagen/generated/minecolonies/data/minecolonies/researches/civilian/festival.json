@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "count": 9,
+      "item": "minecraft:cake"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/happinessmultiplier",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "cook",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:cake",
-      "quantity": 9
     }
   ],
   "researchLevel": 3,

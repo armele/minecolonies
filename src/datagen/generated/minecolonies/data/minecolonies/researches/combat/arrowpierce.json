@@ -1,5 +1,15 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:arrow"
+    },
+    {
+      "count": 64,
+      "item": "minecraft:redstone"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/piercingarrowsunlock",
@@ -13,16 +23,6 @@
       "type": "minecolonies:building",
       "building": "archery",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:arrow",
-      "quantity": 64
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:redstone",
-      "quantity": 64
     }
   ],
   "researchLevel": 3

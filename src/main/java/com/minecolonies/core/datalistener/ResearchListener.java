@@ -5,6 +5,7 @@ import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.research.*;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.Utils;
 import com.minecolonies.core.research.*;
 import com.minecolonies.core.util.GsonHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -13,6 +14,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -139,6 +141,11 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
      * The property name for the list of requirement objects.
      */
     private static final String RESEARCH_REQUIREMENTS_PROP = "requirements";
+
+    /**
+     * The property name for the list of cost objects.
+     */
+    private static final String RESEARCH_COSTS_PROP = "costs";
     //endregion [JSON properties]
 
     /**
@@ -278,14 +285,17 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
             final boolean autostart = GsonHelper.getAsBoolean(researchJson, RESEARCH_AUTOSTART_PROP, false);
             final boolean immutable = GsonHelper.getAsBoolean(researchJson, RESEARCH_NO_RESET_PROP, false);
 
-            final Tuple<List<IResearchCost>, List<IResearchRequirement>> requirements =
+            final List<IResearchRequirement> requirements =
                 parseResearchRequirements(researchId, GsonHelper.getAsJsonArray(researchJson, RESEARCH_REQUIREMENTS_PROP, new JsonArray()));
+            final List<SizedIngredient> costs = parseResearchCosts(researchId,
+                GsonHelper.getAsJsonArray(researchJson, RESEARCH_COSTS_PROP, new JsonArray()),
+                GsonHelper.getAsJsonArray(researchJson, RESEARCH_REQUIREMENTS_PROP, new JsonArray()));
             final List<GlobalResearchEffect> effects =
                 parseResearchEffects(researchId, GsonHelper.getAsJsonArray(researchJson, RESEARCH_EFFECTS_PROP, new JsonArray()), effectCategories);
 
             final GlobalResearch research = new GlobalResearch(researchId, parent, branch, name, subtitle, depth, sortOrder, onlyChild, hidden, autostart, instant, immutable);
-            requirements.getA().forEach(research::addCost);
-            requirements.getB().forEach(research::addRequirement);
+            requirements.forEach(research::addRequirement);
+            costs.forEach(research::addCost);
             effects.forEach(research::addEffect);
 
             researchMap.put(researchId, research);
@@ -297,17 +307,16 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
      * Parses a JSON object for research requirements.
      *
      * @param researchId a json object to retrieve the ID from.
-     * @param jsonArray  the array of requirements.
+     * @param jsonRequirements  the array of requirements.
      */
-    private Tuple<List<IResearchCost>, List<IResearchRequirement>> parseResearchRequirements(final ResourceLocation researchId, final JsonArray jsonArray)
+    private List<IResearchRequirement> parseResearchRequirements(final ResourceLocation researchId, final JsonArray jsonRequirements)
     {
-        final List<IResearchCost> costs = new ArrayList<>();
         final List<IResearchRequirement> requirements = new ArrayList<>();
-        for (int index = 0; index < jsonArray.size(); index++)
+        for (int index = 0; index < jsonRequirements.size(); index++)
         {
-            final JsonObject requirementJson = jsonArray.get(index).getAsJsonObject();
+            final JsonObject jsonRequirement = jsonRequirements.get(index).getAsJsonObject();
 
-            final ResourceLocation type = GsonHelper.getAsResourceLocation(requirementJson, RESEARCH_REQUIREMENT_TYPE_PROP, null);
+            final ResourceLocation type = GsonHelper.getAsResourceLocation(jsonRequirement, RESEARCH_REQUIREMENT_TYPE_PROP, null);
             if (type == null)
             {
                 Log.getLogger().warn("Research '{}' requirement #{} is missing the required '{}' property.", researchId, index, RESEARCH_REQUIREMENT_TYPE_PROP);
@@ -319,21 +328,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
             {
                 try
                 {
-                    requirements.add(researchRequirementEntry.get().readFromJson(requirementJson));
-                }
-                catch (Exception ex)
-                {
-                    Log.getLogger().warn("Research '{}' requirement #{} is invalid. {}", researchId, index, ex.getMessage());
-                }
-                continue;
-            }
-
-            final Optional<ModResearchCosts.ResearchCostEntry> researchCostEntry = IMinecoloniesAPI.getInstance().getResearchCostRegistry().getOptional(type);
-            if (researchCostEntry.isPresent())
-            {
-                try
-                {
-                    costs.add(researchCostEntry.get().readFromJson(requirementJson));
+                    requirements.add(researchRequirementEntry.get().readFromJson(jsonRequirement));
                 }
                 catch (Exception ex)
                 {
@@ -344,7 +339,37 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
 
             Log.getLogger().warn("Research '{}' requirement #{} is invalid, type '{}' does not exist.", researchId, index, type);
         }
-        return new Tuple<>(costs, requirements);
+        return requirements;
+    }
+
+    /**
+     * Parses a JSON object for research costs.
+     *
+     * @param researchId       a json object to retrieve the ID from.
+     * @param jsonCosts        the array of requirements.
+     * @param jsonRequirements the array of requirements.
+     */
+    private List<SizedIngredient> parseResearchCosts(final ResourceLocation researchId, final JsonArray jsonCosts, final JsonArray jsonRequirements)
+    {
+        final List<SizedIngredient> costs = new ArrayList<>();
+        for (int index = 0; index < jsonCosts.size(); index++)
+        {
+            final JsonElement jsonCost = jsonCosts.get(index);
+            costs.add(Utils.deserializeCodecMessFromJson(SizedIngredient.FLAT_CODEC, getRegistryLookup(), jsonCost));
+        }
+
+        // TODO: 1.22 remove the json requirements array as a potential input here, costs should move to a separate list to get them mixed out with requirements
+        for (int index = 0; index < jsonRequirements.size(); index++)
+        {
+            final JsonObject jsonRequirement = jsonRequirements.get(index).getAsJsonObject();
+            if (jsonRequirement.has("items"))
+            {
+                Log.getLogger().warn("Research '{}' requirement #{} is deprecated. Cost requirements should be put in the 'costs' array.", researchId, index);
+                costs.add(Utils.deserializeCodecMessFromJson(SizedIngredient.FLAT_CODEC, getRegistryLookup(), jsonRequirement));
+            }
+        }
+
+        return costs;
     }
 
     /**

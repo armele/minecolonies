@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:chiseled_stone_bricks"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutstonemason",
@@ -12,11 +18,6 @@
       "type": "minecolonies:building",
       "building": "miner",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:chiseled_stone_bricks",
-      "quantity": 64
     }
   ],
   "researchLevel": 1,

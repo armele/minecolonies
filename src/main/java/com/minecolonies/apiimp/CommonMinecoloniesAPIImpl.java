@@ -31,7 +31,6 @@ import com.minecolonies.api.eventbus.DefaultEventBus;
 import com.minecolonies.api.eventbus.EventBus;
 import com.minecolonies.api.quests.registries.QuestRegistries;
 import com.minecolonies.api.research.IGlobalResearchTree;
-import com.minecolonies.api.research.ModResearchCosts;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.ModResearchRequirements;
 import com.minecolonies.api.util.constant.Constants;
@@ -65,7 +64,6 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     public static final ResourceKey<Registry<CraftingType>> CRAFTING_TYPES = key("craftingtypes");
     public static final ResourceKey<Registry<RecipeTypeEntry>>                                  RECIPE_TYPE_ENTRIES        = key("recipetypeentries");
     public static final ResourceKey<Registry<ModResearchRequirements.ResearchRequirementEntry>> RESEARCH_REQUIREMENT_TYPES = key("researchrequirementtypes");
-    public static final ResourceKey<Registry<ModResearchCosts.ResearchCostEntry>>             RESEARCH_COST_TYPES        = key("researchcosttypes");
     public static final ResourceKey<Registry<ModResearchEffects.ResearchEffectEntry>>           RESEARCH_EFFECT_TYPES      = key("researcheffecttypes");
     public static final ResourceKey<Registry<QuestRegistries.ObjectiveEntry>>         QUEST_OBJECTIVES           = key("questobjectives");
     public static final ResourceKey<Registry<QuestRegistries.RewardEntry>> QUEST_REWARDS = key("questrewards");
@@ -93,7 +91,6 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     private Registry<ColonyEventTypeRegistryEntry>                     colonyEventRegistry;
     private Registry<ColonyEventDescriptionTypeRegistryEntry>          colonyEventDescriptionRegistry;
     private Registry<ModResearchRequirements.ResearchRequirementEntry> researchRequirementRegistry;
-    private Registry<ModResearchCosts.ResearchCostEntry>               researchCostRegistry;
     private Registry<ModResearchEffects.ResearchEffectEntry>           researchEffectRegistry;
     private Registry<RecipeTypeEntry>                                  recipeTypeEntryRegistry;
     private Registry<CraftingType>                                     craftingTypeRegistry;
@@ -223,12 +220,6 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     }
 
     @Override
-    public Registry<ModResearchCosts.ResearchCostEntry> getResearchCostRegistry()
-    {
-        return researchCostRegistry;
-    }
-
-    @Override
     public Registry<ModResearchEffects.ResearchEffectEntry> getResearchEffectRegistry()
     {
         return researchEffectRegistry;
@@ -247,7 +238,6 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
         craftingTypeRegistry = event.create(syncedRegistry(CRAFTING_TYPES));
         recipeTypeEntryRegistry = event.create(syncedRegistry(RECIPE_TYPE_ENTRIES, new ResourceLocation(Constants.MOD_ID, "classic")));
         researchRequirementRegistry = event.create(syncedRegistry(RESEARCH_REQUIREMENT_TYPES));
-        researchCostRegistry = event.create(syncedRegistry(RESEARCH_COST_TYPES));
         researchEffectRegistry = event.create(syncedRegistry(RESEARCH_EFFECT_TYPES));
         questObjectiveRegistry = event.create(syncedRegistry(QUEST_OBJECTIVES));
         questRewardRegistry = event.create(syncedRegistry(QUEST_REWARDS));

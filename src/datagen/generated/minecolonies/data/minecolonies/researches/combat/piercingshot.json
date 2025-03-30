@@ -1,5 +1,11 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "count": 64,
+      "item": "minecraft:flint"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/archerdamageaddition",
@@ -13,11 +19,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 10
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:flint",
-      "quantity": 64
     }
   ],
   "researchLevel": 4

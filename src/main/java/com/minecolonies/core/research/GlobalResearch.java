@@ -2,13 +2,12 @@ package com.minecolonies.core.research;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.research.*;
-import com.minecolonies.api.research.IResearchCost;
 import com.minecolonies.api.research.IResearchEffect;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.InventoryUtils;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +23,7 @@ public class GlobalResearch implements IGlobalResearch
     /**
      * The costList of the research.
      */
-    private final List<IResearchCost> costList = new ArrayList<>();
+    private final List<SizedIngredient> costList = new ArrayList<>();
 
     /**
      * The id of the research.
@@ -172,24 +171,28 @@ public class GlobalResearch implements IGlobalResearch
             return true;
         }
 
-        for (final IResearchCost ingredient : costList)
+        for (final SizedIngredient ingredient : costList)
         {
-            int totalCount = 0;
-            for (final Item cost : ingredient.getItems())
+            if (ingredient.ingredient().hasNoItems())
             {
-                final int count = InventoryUtils.getItemCountInItemHandler(inventory, stack -> stack.getItem().equals(cost));
-                totalCount += count;
-            }
-            if (totalCount < ingredient.getCount())
-            {
-                return false;
+                if (ingredient.ingredient().hasNoItems())
+                {
+                    return false;
+                }
+
+                final int requiredCount = ingredient.count();
+                final int totalCount = InventoryUtils.getItemCountInItemHandler(inventory, ingredient.ingredient());
+                if (totalCount < requiredCount)
+                {
+                    return false;
+                }
             }
         }
         return true;
     }
 
     @Override
-    public List<IResearchCost> getCostList()
+    public List<SizedIngredient> getCostList()
     {
         return ImmutableList.copyOf(costList);
     }
@@ -308,7 +311,7 @@ public class GlobalResearch implements IGlobalResearch
     }
 
     @Override
-    public void addCost(final IResearchCost cost)
+    public void addCost(final SizedIngredient cost)
     {
         costList.add(cost);
     }

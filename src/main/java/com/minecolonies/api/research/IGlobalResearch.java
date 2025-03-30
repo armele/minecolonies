@@ -2,6 +2,7 @@ package com.minecolonies.api.research;
 
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +44,7 @@ public interface IGlobalResearch
      *
      * @return the list.
      */
-    List<IResearchCost> getCostList();
+    List<SizedIngredient> getCostList();
 
     /**
      * Start the research.
@@ -155,10 +156,10 @@ public interface IGlobalResearch
     void addChild(final ResourceLocation child);
 
     /**
-     * Add an individual cost.
-     * @param cost the individual item to add to the cost list, as a reseach cost instance.
+     * Add item costs.
+     * @param cost the items to add to the cost list.
      */
-    void addCost(final IResearchCost cost);
+    void addCost(final SizedIngredient cost);
 
     /**
      * Add an individual effect.
