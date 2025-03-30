@@ -2,8 +2,11 @@ package com.minecolonies.core.blocks;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.util.constant.Constants;
+import com.minecolonies.core.Network;
+import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -34,9 +37,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.FarmlandWaterManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+
+import static com.minecolonies.api.util.constant.CitizenConstants.BLOCK_BREAK_SOUND_RANGE;
 
 public class MinecoloniesFarmland extends AbstractBlockMinecolonies<MinecoloniesFarmland> implements SimpleWaterloggedBlock
 {
@@ -144,13 +150,22 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
         if (level.isRaining())
         {
             growthChance = 6;
-            BoneMealItem.addGrowthParticles(level, pos, 1);
         }
         if (aboveState.getBlock() instanceof MinecoloniesCropBlock cropBlock && rng.nextInt(100) <= growthChance)
         {
             cropBlock.attemptGrow(aboveState, level, pos.above());
+            Network.getNetwork().sendToPosition(new VanillaParticleMessage(pos.getX() + 0.5F, pos.getY() - 0.5F, pos.getZ() + 0.5F, ParticleTypes.HAPPY_VILLAGER),  new PacketDistributor.TargetPoint(pos.getX(), pos.getY(), pos.getZ(), BLOCK_BREAK_SOUND_RANGE, level.dimension()));
+        }
+    }
+
+    @Override
+    public void animateTick(final BlockState state, final Level level, final BlockPos pos, final RandomSource rng)
+    {
+        if (level.isRaining())
+        {
             BoneMealItem.addGrowthParticles(level, pos, 1);
         }
+        super.animateTick(state, level, pos, rng);
     }
 
     @Override
