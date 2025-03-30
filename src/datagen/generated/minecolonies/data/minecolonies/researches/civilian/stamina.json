@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:carrot",
+      "quantity": 1
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhuthospital",
@@ -8,12 +15,5 @@
   ],
   "exclusiveChildResearch": true,
   "icon": "minecolonies:blockhuthospital",
-  "requirements": [
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:carrot",
-      "quantity": 1
-    }
-  ],
   "researchLevel": 1
 }

@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond",
+      "quantity": 64
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/meleearmormultiplier",
@@ -8,12 +15,5 @@
   ],
   "icon": "minecraft:diamond_chestplate",
   "parentResearch": "minecolonies:combat/provost",
-  "requirements": [
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond",
-      "quantity": 64
-    }
-  ],
   "researchLevel": 6
 }

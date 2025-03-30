@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecolonies:blockminecoloniesrack",
+      "quantity": 32
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/minimumstockmultiplier",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "miner",
       "level": 4
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecolonies:blockminecoloniesrack",
-      "quantity": 32
     }
   ],
   "researchLevel": 4,

@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_tag",
+      "quantity": 64,
+      "tag": "minecraft:iron_ores"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/moreoresmultiplier",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "miner",
       "level": 2
-    },
-    {
-      "type": "minecolonies:item_tag",
-      "quantity": 64,
-      "tag": "minecraft:iron_ores"
     }
   ],
   "researchLevel": 3

@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:civilian",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:rotten_flesh",
+      "quantity": 64
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/gravedecaybonus",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "graveyard",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:rotten_flesh",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

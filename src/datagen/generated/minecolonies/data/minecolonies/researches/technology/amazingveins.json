@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_tag",
+      "quantity": 64,
+      "tag": "minecraft:gold_ores"
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/moreoresmultiplier",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "blacksmith",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_tag",
-      "quantity": 64,
-      "tag": "minecraft:gold_ores"
     }
   ],
   "researchLevel": 5

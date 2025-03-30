@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:emerald",
+      "quantity": 8
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/fleeingspeedaddition",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 4
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:emerald",
-      "quantity": 8
     }
   ],
   "researchLevel": 3,

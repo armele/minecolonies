@@ -225,8 +225,8 @@ public class GlobalResearch implements IGlobalResearch
         return this.subtitle;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public ResourceLocation getParent()
     {
         return this.parent;

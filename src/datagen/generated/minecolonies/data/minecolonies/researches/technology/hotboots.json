@@ -1,5 +1,17 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:leather",
+      "quantity": 32
+    },
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:iron_ingot",
+      "quantity": 16
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/minerfireresunlock",
@@ -13,16 +25,6 @@
       "type": "minecolonies:building",
       "building": "fletcher",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:leather",
-      "quantity": 32
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:iron_ingot",
-      "quantity": 16
     }
   ],
   "researchLevel": 3,

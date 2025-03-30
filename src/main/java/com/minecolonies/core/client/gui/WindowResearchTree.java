@@ -258,7 +258,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
                     }
                     // researches with an ancestor with OnlyChild status should be undoable, no children are complete or in-progress.
                     ResourceLocation parentId = IGlobalResearchTree.getInstance().getResearch(branch, research.getId()).getParent();
-                    while (!parentId.getPath().isEmpty())
+                    while (parentId != null)
                     {
                         if (IGlobalResearchTree.getInstance().getResearch(branch, parentId) != null
                               && IGlobalResearchTree.getInstance().getResearch(branch, parentId).hasOnlyChild())
@@ -326,7 +326,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
 
             final boolean trueAbandoned = drawResearchItem(view, offsetX, offsetY, research, abandoned);
 
-            if (!research.getParent().getPath().isEmpty())
+            if (research.getParent() != null)
             {
                 drawArrows(view, offsetX - X_SPACING, offsetY - NAME_LABEL_HEIGHT, researchList.size(), research.getParent(), i, nextHeight, height);
             }

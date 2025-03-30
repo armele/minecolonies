@@ -33,7 +33,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
      * Generator functions for default parsed values.
      */
     private static final Function<ResourceLocation, String> DEFAULT_RESEARCH_NAME          =
-        (effectId) -> String.format("com.%s.research.%s", effectId.getNamespace(), effectId.getPath().replaceAll("[ /]", "."));
+        (effectId) -> String.format("com.%s.research.%s.name", effectId.getNamespace(), effectId.getPath().replaceAll("[ /]", "."));
     private static final Function<ResourceLocation, String> DEFAULT_RESEARCH_EFFECT_NAME   =
         (effectId) -> String.format("com.%s.research.%s.description", effectId.getNamespace(), effectId.getPath().replaceAll("[ /]", "."));
     private static final Supplier<JsonArray>                DEFAULT_RESEARCH_EFFECT_LEVELS = () -> {
@@ -138,7 +138,12 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
     /**
      * The property name for the list of requirement objects.
      */
-    private static final String RESEARCH_REQUIREMENTS_PROP = "requirements";
+    private static final String RESEARCH_REQUIREMENTS_PROP = "requirements";;
+
+    /**
+     * The property name for the list of cost objects.
+     */
+    private static final String RESEARCH_COSTS_PROP = "costs";
     //endregion [JSON properties]
 
     /**
@@ -280,12 +285,17 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
 
             final Tuple<List<IResearchCost>, List<IResearchRequirement>> requirements =
                 parseResearchRequirements(researchId, GsonHelper.getAsJsonArray(researchJson, RESEARCH_REQUIREMENTS_PROP, new JsonArray()));
+            final List<IResearchCost> costs = parseResearchCosts(researchId,
+                GsonHelper.getAsJsonArray(researchJson, RESEARCH_COSTS_PROP, new JsonArray()),
+                GsonHelper.getAsJsonArray(researchJson, RESEARCH_REQUIREMENTS_PROP, new JsonArray()));
             final List<GlobalResearchEffect> effects =
                 parseResearchEffects(researchId, GsonHelper.getAsJsonArray(researchJson, RESEARCH_EFFECTS_PROP, new JsonArray()), effectCategories);
 
             final GlobalResearch research = new GlobalResearch(researchId, parent, branch, name, subtitle, depth, sortOrder, onlyChild, hidden, autostart, instant, immutable);
+            // TODO: 1.22 remove the json requirements array as a potential input here, costs should move to a separate list to get them mixed out with requirements
             requirements.getA().forEach(research::addCost);
             requirements.getB().forEach(research::addRequirement);
+            costs.forEach(research::addCost);
             effects.forEach(research::addEffect);
 
             researchMap.put(researchId, research);
@@ -345,6 +355,44 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
             Log.getLogger().warn("Research '{}' requirement #{} is invalid, type '{}' does not exist.", researchId, index, type);
         }
         return new Tuple<>(costs, requirements);
+    }
+
+    /**
+     * Parses a JSON object for research costs.
+     *
+     * @param researchId       a json object to retrieve the ID from.
+     * @param jsonCosts        the array of requirements.
+     * @param jsonRequirements the array of requirements.
+     */
+    private List<IResearchCost> parseResearchCosts(final ResourceLocation researchId, final JsonArray jsonCosts, final JsonArray jsonRequirements)
+    {
+        final List<IResearchCost> costs = new ArrayList<>();
+        for (int index = 0; index < jsonCosts.size(); index++)
+        {
+            final JsonObject jsonCost = jsonCosts.get(index).getAsJsonObject();
+
+            final ResourceLocation type = GsonHelper.getAsResourceLocation(jsonCost, RESEARCH_REQUIREMENT_TYPE_PROP, null);
+            if (type == null)
+            {
+                Log.getLogger().warn("Research '{}' cost #{} is missing the required '{}' property.", researchId, index, RESEARCH_REQUIREMENT_TYPE_PROP);
+                continue;
+            }
+
+            final ModResearchCosts.ResearchCostEntry researchCostEntry = IMinecoloniesAPI.getInstance().getResearchCostRegistry().getValue(type);
+            if (researchCostEntry != null)
+            {
+                try
+                {
+                    costs.add(researchCostEntry.readFromJson(jsonCost));
+                }
+                catch (Exception ex)
+                {
+                    Log.getLogger().warn("Research '{}' cost #{} is invalid. {}", researchId, index, ex.getMessage());
+                }
+            }
+        }
+
+        return costs;
     }
 
     /**

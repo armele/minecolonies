@@ -1,6 +1,5 @@
 package com.minecolonies.core.research;
 
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -19,12 +18,12 @@ public class ResearchEffectCategory
     /**
      * The optional effect category name, uses for display purposes if present.  Overrides default translation lookups.
      */
-    private final TranslatableContents effectName;
+    private final String effectName;
 
     /**
      * The optional subtitle, uses for display purposes if present.
      */
-    private final TranslatableContents subtitle;
+    private final String subtitle;
 
     /**
      * The absolute value of each level of an effect.
@@ -46,13 +45,13 @@ public class ResearchEffectCategory
     public ResearchEffectCategory(final ResourceLocation effectId, final String effectName, final String subtitle, final List<Double> levels)
     {
         this.effectId = effectId;
-        this.effectName = new TranslatableContents(effectName, null, TranslatableContents.NO_ARGS);
-        this.subtitle = new TranslatableContents(subtitle, null, TranslatableContents.NO_ARGS);
+        this.effectName = effectName;
+        this.subtitle = subtitle;
         levelsAbsolute.add(0d);
         levelsRelative.add(0d);
         levels.forEach(level -> {
-            levelsAbsolute.add(level);
             levelsRelative.add(level - levelsAbsolute.get(levelsAbsolute.size() - 1));
+            levelsAbsolute.add(level);
         });
     }
 
@@ -104,7 +103,7 @@ public class ResearchEffectCategory
      *
      * @return the effect's display name, as a human-readable text or translation key.
      */
-    public TranslatableContents getName()
+    public String getName()
     {
         return this.effectName;
     }
@@ -114,7 +113,7 @@ public class ResearchEffectCategory
      *
      * @return the effect's display name, as a string.
      */
-    public TranslatableContents getSubtitle()
+    public String getSubtitle()
     {
         return this.subtitle;
     }

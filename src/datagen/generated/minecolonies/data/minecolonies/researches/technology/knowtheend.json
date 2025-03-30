@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:chorus_fruit",
+      "quantity": 64
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/knowledgeoftheendunlock",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "baker",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:chorus_fruit",
-      "quantity": 64
     }
   ],
   "researchLevel": 3,

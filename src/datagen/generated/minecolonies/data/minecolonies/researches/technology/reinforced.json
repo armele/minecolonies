@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond",
+      "quantity": 32
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/tooldurabilitymultiplier",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "blacksmith",
       "level": 3
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond",
-      "quantity": 32
     }
   ],
   "researchLevel": 4

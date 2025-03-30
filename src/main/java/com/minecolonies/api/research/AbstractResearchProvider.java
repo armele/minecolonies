@@ -411,16 +411,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -438,16 +429,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addMandatoryBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("mandatory-building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -466,16 +448,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addAlternateBuildingRequirement(final String buildingName, final int level)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             reqArray.add(makeSafeBuildingProperty("alternate-building", buildingName, level));
             this.json.add("requirements", reqArray);
             return this;
@@ -491,16 +464,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addResearchRequirement(final ResourceLocation researchReq)
         {
-            final JsonArray reqArray;
-            if(this.json.has("requirements") && this.json.get("requirements").isJsonArray())
-            {
-                reqArray = this.json.getAsJsonArray("requirements");
-                this.json.remove("requirements");
-            }
-            else
-            {
-                reqArray = new JsonArray();
-            }
+            final JsonArray reqArray = getRequirementsArray();
             JsonObject req = new JsonObject();
             req.addProperty("research", researchReq.toString());
             reqArray.add(req);
@@ -518,15 +482,15 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addItemCost(final Item item, final int count)
         {
-            final JsonArray reqArray = getRequirementsArray();
+            final JsonArray costArray = getCostsArray();
 
-            JsonObject req = new JsonObject();
-            req.addProperty("type", SIMPLE_ITEM_COST_ID.toString());
-            req.addProperty("item", ForgeRegistries.ITEMS.getKey(item).toString());
-            req.addProperty("quantity", count);
+            JsonObject cost = new JsonObject();
+            cost.addProperty("type", SIMPLE_ITEM_COST_ID.toString());
+            cost.addProperty("item", ForgeRegistries.ITEMS.getKey(item).toString());
+            cost.addProperty("quantity", count);
 
-            reqArray.add(req);
-            this.json.add("requirements", reqArray);
+            costArray.add(cost);
+            this.json.add("costs", costArray);
             return this;
         }
 
@@ -540,7 +504,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addItemCost(final List<Item> items, final int count)
         {
-            final JsonArray reqArray = getRequirementsArray();
+            final JsonArray costArray = getCostsArray();
 
             JsonArray itemArr = new JsonArray();
             for (Item item : items)
@@ -548,13 +512,13 @@ public abstract class AbstractResearchProvider implements DataProvider
                 itemArr.add(ForgeRegistries.ITEMS.getKey(item).toString());
             }
 
-            JsonObject req = new JsonObject();
-            req.addProperty("type", LIST_ITEM_COST_ID.toString());
-            req.add("items", itemArr);
-            req.addProperty("quantity", count);
-            reqArray.add(req);
+            JsonObject cost = new JsonObject();
+            cost.addProperty("type", LIST_ITEM_COST_ID.toString());
+            cost.add("items", itemArr);
+            cost.addProperty("quantity", count);
+            costArray.add(cost);
 
-            this.json.add("requirements", reqArray);
+            this.json.add("costs", costArray);
             return this;
         }
 
@@ -568,15 +532,15 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public Research addItemCost(final TagKey<Item> tag, final int count)
         {
-            final JsonArray reqArray = getRequirementsArray();
+            final JsonArray costArray = getCostsArray();
 
-            JsonObject req = new JsonObject();
-            req.addProperty("type", TAG_ITEM_COST_ID.toString());
-            req.addProperty("tag", tag.location().toString());
-            req.addProperty("quantity", count);
-            reqArray.add(req);
+            JsonObject cost = new JsonObject();
+            cost.addProperty("type", TAG_ITEM_COST_ID.toString());
+            cost.addProperty("tag", tag.location().toString());
+            cost.addProperty("quantity", count);
+            costArray.add(cost);
 
-            this.json.add("requirements", reqArray);
+            this.json.add("costs", costArray);
             return this;
         }
 
@@ -598,6 +562,26 @@ public abstract class AbstractResearchProvider implements DataProvider
                 reqArray = new JsonArray();
             }
             return reqArray;
+        }
+
+        /**
+         * Internal method to ensure the costs array exists.
+         *
+         * @return the costs array.
+         */
+        private JsonArray getCostsArray()
+        {
+            final JsonArray costArray;
+            if (this.json.has("costs") && this.json.get("costs").isJsonArray())
+            {
+                costArray = this.json.getAsJsonArray("costs");
+                this.json.remove("costs");
+            }
+            else
+            {
+                costArray = new JsonArray();
+            }
+            return costArray;
         }
 
         /**

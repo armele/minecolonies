@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond",
+      "quantity": 16
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/meleearmormultiplier",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "combatacademy",
       "level": 5
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond",
-      "quantity": 16
     }
   ],
   "researchLevel": 5

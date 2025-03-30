@@ -65,7 +65,10 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final IGlobalResearch research)
     {
         final CompoundTag compound = new CompoundTag();
-        compound.putString(TAG_PARENT, research.getParent().toString());
+        if (research.getParent() != null)
+        {
+            compound.putString(TAG_PARENT, research.getParent().toString());
+        }
         compound.putString(TAG_ID, research.getId().toString());
         compound.putString(TAG_BRANCH, research.getBranch().toString());
         compound.putString(TAG_NAME, research.getName().getKey());
@@ -120,7 +123,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     public IGlobalResearch deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
     {
         final ResourceLocation id = new ResourceLocation(nbt.getString(TAG_ID));
-        final ResourceLocation parent = new ResourceLocation(nbt.getString(TAG_PARENT));
+        final ResourceLocation parent = nbt.contains(TAG_PARENT) ? new ResourceLocation(nbt.getString(TAG_PARENT)) : null;
         final ResourceLocation branch = new ResourceLocation(nbt.getString(TAG_BRANCH));
         final TranslatableContents name = new TranslatableContents(nbt.getString(TAG_NAME), null, TranslatableContents.NO_ARGS);
         final TranslatableContents subtitle = new TranslatableContents(nbt.getString(TAG_SUBTITLE_NAME), null, TranslatableContents.NO_ARGS);
@@ -155,7 +158,11 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     public void serialize(@NotNull IFactoryController controller, IGlobalResearch input, FriendlyByteBuf packetBuffer)
     {
         packetBuffer.writeResourceLocation(input.getId());
-        packetBuffer.writeResourceLocation(input.getParent());
+        packetBuffer.writeBoolean(input.getParent() != null);
+        if (input.getParent() != null)
+        {
+            packetBuffer.writeResourceLocation(input.getParent());
+        }
         packetBuffer.writeResourceLocation(input.getBranch());
         packetBuffer.writeUtf(input.getName().getKey());
         packetBuffer.writeUtf(input.getSubtitle().getKey());
@@ -196,7 +203,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     public IGlobalResearch deserialize(@NotNull IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
     {
         final ResourceLocation id = buffer.readResourceLocation();
-        final ResourceLocation parent = buffer.readResourceLocation();
+        final ResourceLocation parent = buffer.readBoolean() ? buffer.readResourceLocation() : null;
         final ResourceLocation branch = buffer.readResourceLocation();
         final TranslatableContents name = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);
         final TranslatableContents subtitle = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);

@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:combat",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:arrow",
+      "quantity": 64
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/consumearrowsunlock",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "guardtower",
       "level": 2
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:arrow",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,

@@ -4,6 +4,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -73,6 +74,7 @@ public interface IGlobalResearch
      *
      * @return the parent id, as a ResourceLocation
      */
+    @Nullable
     ResourceLocation getParent();
 
     /**

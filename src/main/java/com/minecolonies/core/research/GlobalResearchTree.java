@@ -172,7 +172,7 @@ public class GlobalResearchTree implements IGlobalResearchTree
         {
             return Collections.emptyList();
         }
-        return researchTree.get(branch).values().stream().filter(research -> research.getParent().getPath().isEmpty())
+        return researchTree.get(branch).values().stream().filter(research -> research.getParent() == null)
                  .sorted(Comparator.comparing(IGlobalResearch::getId))
                  .map(IGlobalResearch::getId).collect(Collectors.toList());
     }
@@ -196,9 +196,9 @@ public class GlobalResearchTree implements IGlobalResearchTree
         autostartResearch.clear();
         branchDatas.clear();
         final Iterator<Map.Entry<ResourceLocation, Map<ResourceLocation, IGlobalResearch>>> iterator = researchTree.entrySet().iterator();
-        while (researchTree.entrySet().size() > 0 && iterator.hasNext())
+        while (!researchTree.isEmpty() && iterator.hasNext())
         {
-            if(iterator.next().getValue().size() == 0)
+            if (iterator.next().getValue().isEmpty())
             {
                 iterator.remove();
             }
@@ -212,9 +212,9 @@ public class GlobalResearchTree implements IGlobalResearchTree
         {
             return true;
         }
-        for(final IResearchRequirement requirement : requirements)
+        for (final IResearchRequirement requirement : requirements)
         {
-            if(!requirement.isFulfilled(colony))
+            if (!requirement.isFulfilled(colony))
             {
                 return false;
             }

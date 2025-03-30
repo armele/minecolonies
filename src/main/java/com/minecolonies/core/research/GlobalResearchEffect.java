@@ -73,11 +73,11 @@ public class GlobalResearchEffect implements IResearchEffect
      * @param effect        the effect's absolute strength.
      * @param displayEffect the effect's relative strength, for display purposes.
      */
-    public GlobalResearchEffect(final ResourceLocation id, final TranslatableContents name, final TranslatableContents subtitle, final double effect, final double displayEffect)
+    public GlobalResearchEffect(final ResourceLocation id, final String name, final String subtitle, final double effect, final double displayEffect)
     {
         this.id = id;
-        this.name = name;
-        this.subtitle = subtitle;
+        this.name = new TranslatableContents(name, null, List.of(displayEffect, effect, Math.round(displayEffect * 100), Math.round(effect * 100)).toArray());
+        this.subtitle = new TranslatableContents(subtitle, null, TranslatableContents.NO_ARGS);
         this.effect = effect;
         this.displayEffect = displayEffect;
     }

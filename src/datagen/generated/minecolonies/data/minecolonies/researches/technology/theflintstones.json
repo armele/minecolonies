@@ -1,5 +1,12 @@
 {
   "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:brick",
+      "quantity": 64
+    }
+  ],
   "effects": [
     {
       "id": "minecolonies:effects/blockhutstonesmeltery",
@@ -13,11 +20,6 @@
       "type": "minecolonies:building",
       "building": "stonemason",
       "level": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:brick",
-      "quantity": 64
     }
   ],
   "researchLevel": 2,
