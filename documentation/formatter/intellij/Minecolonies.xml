@@ -22,8 +22,8 @@
         <option name="RIGHT_MARGIN" value="72" />
     </MarkdownNavigatorCodeStyleSettings>
     <XML>
-        <option name="XML_KEEP_LINE_BREAKS" value="false" />
-        <option name="XML_KEEP_LINE_BREAKS_IN_TEXT" value="false" />
+        <option name="XML_ATTRIBUTE_WRAP" value="4" />
+        <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>
     <codeStyleSettings language="JAVA">
         <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
