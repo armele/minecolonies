@@ -19,13 +19,14 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_EQUIPMENT_TYPES;
+
 /**
  * Class used for storing and registering any EquipmentTypes.
  */
 public class ModEquipmentTypes
 {
-    public static final DeferredRegister<EquipmentTypeEntry> DEFERRED_REGISTER =
-      DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "equipmenttypes"), Constants.MOD_ID);
+    public static final DeferredRegister<EquipmentTypeEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_EQUIPMENT_TYPES, Constants.MOD_ID);
 
     public static final RegistryObject<EquipmentTypeEntry> none;
     public static final RegistryObject<EquipmentTypeEntry> pickaxe;

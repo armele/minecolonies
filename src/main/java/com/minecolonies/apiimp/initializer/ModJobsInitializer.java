@@ -13,9 +13,11 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_JOBS;
+
 public final class ModJobsInitializer
 {
-    public final static DeferredRegister<JobEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "jobs"), Constants.MOD_ID);
+    public final static DeferredRegister<JobEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_JOBS, Constants.MOD_ID);
 
     private ModJobsInitializer()
     {

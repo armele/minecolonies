@@ -5,18 +5,17 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.research.costs.ListItemCost;
 import com.minecolonies.core.research.costs.SimpleItemCost;
 import com.minecolonies.core.research.costs.TagItemCost;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.research.ModResearchCostTypes.*;
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_RESEARCH_COST_TYPES;
 
 /**
  * Registry initializer for the {@link ModResearchCostTypes}.
  */
 public class ModResearchCostTypeInitializer
 {
-    public static final DeferredRegister<ResearchCostType>
-      DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "researchcosttypes"), Constants.MOD_ID);
+    public static final DeferredRegister<ResearchCostType> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_RESEARCH_COST_TYPES, Constants.MOD_ID);
     static
     {
         ModResearchCostTypes.simpleItemCost =

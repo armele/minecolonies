@@ -2,10 +2,7 @@ package com.minecolonies.api.compatibility;
 
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.crafting.ItemStorage;
-import com.minecolonies.api.crafting.RecipeStorage;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.function.Predicate;
 
 /**
  * Interface for the new furnace recipes.

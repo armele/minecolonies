@@ -6,14 +6,14 @@ import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.recipes.ArchitectsCutterCraftingType;
 import com.minecolonies.core.recipes.BrewingCraftingType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.registries.DeferredRegister;
 
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_CRAFTING_TYPES;
+
 public final class ModCraftingTypesInitializer
 {
-    public final static DeferredRegister<CraftingType>
-       DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "craftingtypes"), Constants.MOD_ID);
+    public final static DeferredRegister<CraftingType> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_CRAFTING_TYPES, Constants.MOD_ID);
 
     private ModCraftingTypesInitializer()
     {

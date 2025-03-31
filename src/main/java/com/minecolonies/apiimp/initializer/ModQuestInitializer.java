@@ -7,24 +7,24 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.quests.objectives.*;
 import com.minecolonies.core.quests.rewards.*;
 import com.minecolonies.core.quests.triggers.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.quests.registries.QuestRegistries.*;
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.*;
 
 public final class ModQuestInitializer
 {
     public final static DeferredRegister<QuestRegistries.ObjectiveEntry>
-      DEFERRED_REGISTER_OBJECTIVE = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "questobjectives"), Constants.MOD_ID);
+      DEFERRED_REGISTER_OBJECTIVE = DeferredRegister.create(REGISTRY_KEY_QUEST_OBJECTIVES, Constants.MOD_ID);
 
     public final static DeferredRegister<QuestRegistries.TriggerEntry>
-      DEFERRED_REGISTER_TRIGGER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "questtriggers"), Constants.MOD_ID);
+      DEFERRED_REGISTER_TRIGGER = DeferredRegister.create(REGISTRY_KEY_QUEST_TRIGGERS, Constants.MOD_ID);
 
     public final static DeferredRegister<QuestRegistries.RewardEntry>
-      DEFERRED_REGISTER_REWARD = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "questrewards"), Constants.MOD_ID);
+      DEFERRED_REGISTER_REWARD = DeferredRegister.create(REGISTRY_KEY_QUEST_REWARDS, Constants.MOD_ID);
 
     public final static DeferredRegister<QuestRegistries.DialogueAnswerEntry>
-      DEFERRED_REGISTER_ANSWER_RESULT = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "questanswerresults"), Constants.MOD_ID);
+      DEFERRED_REGISTER_ANSWER_RESULT = DeferredRegister.create(REGISTRY_KEY_QUEST_ANSWER_RESULTS, Constants.MOD_ID);
 
 
     private ModQuestInitializer()

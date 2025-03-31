@@ -10,15 +10,16 @@ import com.minecolonies.core.colony.events.raid.norsemenevent.NorsemenShipRaidEv
 import com.minecolonies.core.colony.events.raid.pirateEvent.DrownedPirateRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.PirateGroundRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.PirateRaidEvent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
+
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_COLONY_EVENTS;
 
 /**
  * Initializer for colony event types, register new event types here.
  */
 public final class ModColonyEventTypeInitializer
 {
-    public final static DeferredRegister<ColonyEventTypeRegistryEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "colonyeventtypes"), Constants.MOD_ID);
+    public final static DeferredRegister<ColonyEventTypeRegistryEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_COLONY_EVENTS, Constants.MOD_ID);
 
     private ModColonyEventTypeInitializer()
     {

@@ -4,12 +4,13 @@ import com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHan
 import com.minecolonies.api.colony.interactionhandling.registry.InteractionResponseHandlerEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.interactionhandling.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
+
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_INTERACTION_RESPONSE_HANDLERS;
 
 public final class ModInteractionsInitializer
 {
-    public final static DeferredRegister<InteractionResponseHandlerEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "interactionresponsehandlers"), Constants.MOD_ID);
+    public final static DeferredRegister<InteractionResponseHandlerEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_INTERACTION_RESPONSE_HANDLERS, Constants.MOD_ID);
 
     private ModInteractionsInitializer()
     {

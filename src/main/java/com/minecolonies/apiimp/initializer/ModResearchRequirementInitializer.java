@@ -6,14 +6,14 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.research.AlternateBuildingResearchRequirement;
 import com.minecolonies.core.research.BuildingResearchRequirement;
 import com.minecolonies.core.research.ResearchResearchRequirement;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.research.ModResearchRequirements.*;
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_RESEARCH_REQUIREMENT_TYPES;
 
 public class ModResearchRequirementInitializer
 {
-    public final static DeferredRegister<ResearchRequirementEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "researchrequirementtypes"), Constants.MOD_ID);
+    public final static DeferredRegister<ResearchRequirementEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_RESEARCH_REQUIREMENT_TYPES, Constants.MOD_ID);
 
     private ModResearchRequirementInitializer()
     {

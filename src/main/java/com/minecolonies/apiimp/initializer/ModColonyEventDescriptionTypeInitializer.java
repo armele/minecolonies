@@ -7,15 +7,16 @@ import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingDeconstruc
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingRepairedEvent;
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingUpgradedEvent;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
+
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_COLONY_EVENT_DESCRIPTIONS;
 
 /**
  * Initializer for colony event types, register new event types here.
  */
 public final class ModColonyEventDescriptionTypeInitializer
 {
-    public final static DeferredRegister<ColonyEventDescriptionTypeRegistryEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "colonyeventdesctypes"), Constants.MOD_ID);
+    public final static DeferredRegister<ColonyEventDescriptionTypeRegistryEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_COLONY_EVENT_DESCRIPTIONS, Constants.MOD_ID);
 
     private ModColonyEventDescriptionTypeInitializer()
     {

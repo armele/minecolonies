@@ -8,14 +8,14 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.jobs.JobDruid;
 import com.minecolonies.core.colony.jobs.JobKnight;
 import com.minecolonies.core.colony.jobs.JobRanger;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.util.constant.translation.JobTranslationConstants.*;
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_GUARD_TYPES;
 
 public final class ModGuardTypesInitializer
 {
-    public final static DeferredRegister<GuardType> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "guardtypes"), Constants.MOD_ID);
+    public final static DeferredRegister<GuardType> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_GUARD_TYPES, Constants.MOD_ID);
 
     private ModGuardTypesInitializer()
     {

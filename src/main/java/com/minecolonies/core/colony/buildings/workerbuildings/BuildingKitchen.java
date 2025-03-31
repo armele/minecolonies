@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
+import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.crafting.IGenericRecipe;
@@ -8,7 +9,6 @@ import com.minecolonies.api.util.FoodUtils;
 import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import com.minecolonies.core.util.FurnaceRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -88,9 +88,7 @@ public class BuildingKitchen extends AbstractBuilding
             if (isRecipeAllowed.isPresent()) return isRecipeAllowed.get();
 
             final ItemStack output = recipe.getPrimaryOutput();
-            return FoodUtils.EDIBLE.test(output)
-                || FoodUtils.EDIBLE.test(FurnaceRecipes.getInstance()
-                    .getSmeltingResult(output));
+            return FoodUtils.EDIBLE.test(output) || FoodUtils.EDIBLE.test(IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(output));
         }
     }
 

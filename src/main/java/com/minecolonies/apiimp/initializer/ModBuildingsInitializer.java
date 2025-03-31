@@ -13,11 +13,12 @@ import com.minecolonies.core.colony.buildings.workerbuildings.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
+import static com.minecolonies.apiimp.CommonMinecoloniesAPIImpl.REGISTRY_KEY_BUILDINGS;
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.*;
 
 public final class ModBuildingsInitializer
 {
-    public final static DeferredRegister<BuildingEntry> DEFERRED_REGISTER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "buildings"), Constants.MOD_ID);
+    public final static DeferredRegister<BuildingEntry> DEFERRED_REGISTER = DeferredRegister.create(REGISTRY_KEY_BUILDINGS, Constants.MOD_ID);
 
     private ModBuildingsInitializer()
     {
