@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.minecolonies.api.util.Log;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -98,7 +99,12 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
             minimumRarity = 0;
         }
         final List<RecruitCost> recruitCosts = RECRUIT_COSTS.stream().filter(f -> f.rarity >= minimumRarity).toList();
-        return recruitCosts.isEmpty() ? null : recruitCosts.get(source.nextInt(recruitCosts.size()));
+        if (recruitCosts.isEmpty())
+        {
+            Log.getLogger().warn("No recruitment items found, please ensure valid recruitment items exist in the datapacks.");
+            return null;
+        }
+        return recruitCosts.get(source.nextInt(recruitCosts.size()));
     }
 
     @Override
