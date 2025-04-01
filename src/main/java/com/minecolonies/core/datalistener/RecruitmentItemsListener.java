@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,6 +81,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
      * @param level  the recruitment level.
      * @return a random recruit cost.
      */
+    @Nullable
     public static RecruitCost getRandomRecruitCost(final RandomSource source, final int level)
     {
         int minimumRarity;
@@ -95,8 +97,8 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
         {
             minimumRarity = 0;
         }
-        final List<RecruitCost> recruitCostStream = RECRUIT_COSTS.stream().filter(f -> f.rarity <= minimumRarity).toList();
-        return recruitCostStream.get(source.nextInt(recruitCostStream.size()));
+        final List<RecruitCost> recruitCosts = RECRUIT_COSTS.stream().filter(f -> f.rarity >= minimumRarity).toList();
+        return recruitCosts.isEmpty() ? null : recruitCosts.get(source.nextInt(recruitCosts.size()));
     }
 
     @Override

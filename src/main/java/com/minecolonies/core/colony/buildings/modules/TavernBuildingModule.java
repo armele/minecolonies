@@ -26,6 +26,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,7 +170,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     {
         final IVisitorData visitorData = spawnVisitor();
 
-        if (!CustomVisitorListener.chanceCustomVisitors(visitorData))
+        if (visitorData != null && !CustomVisitorListener.chanceCustomVisitors(visitorData))
         {
             visitorData.triggerInteraction(new RecruitmentInteraction(Component.translatable(
                 "com.minecolonies.coremod.gui.chat.recruitstory" + (building.getColony().getWorld().random.nextInt(MAX_STORY) + 1), visitorData.getName().split(" ")[0]),
@@ -180,10 +181,15 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     /**
      * Spawns a visitor citizen that can be recruited.
      */
+    @Nullable
     public IVisitorData spawnVisitor()
     {
         final int recruitLevel = building.getColony().getWorld().random.nextInt(10 * building.getBuildingLevel()) + 15;
         final RecruitmentItemsListener.RecruitCost cost = RecruitmentItemsListener.getRandomRecruitCost(building.getColony().getWorld().getRandom(), recruitLevel);
+        if (cost == null)
+        {
+            return null;
+        }
 
         final IVisitorData newCitizen = (IVisitorData) building.getColony().getVisitorManager().createAndRegisterCivilianData();
         newCitizen.setBedPos(building.getPosition());
