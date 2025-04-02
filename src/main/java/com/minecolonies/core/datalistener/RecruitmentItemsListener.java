@@ -18,13 +18,9 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.minecolonies.core.colony.buildings.modules.TavernBuildingModule.DIAMOND_SKILL_LEVEL;
-import static com.minecolonies.core.colony.buildings.modules.TavernBuildingModule.IRON_SKILL_LEVEL;
+import static com.minecolonies.core.generation.DataGeneratorConstants.COLONY_RECRUITMENT_ITEMS_DIR;
 
 /**
  * Loads and listens to recruitment costs data.
@@ -43,77 +39,71 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
     private static final String KEY_RARITY = "rarity";
 
     /**
-     * The current list of recruitment costs.
+     * The current map of recruitment costs.
      */
-    private static List<RecruitCost> RECRUIT_COSTS = new ArrayList<>();
+    private static Map<RecruitmentTiers, List<RecruitCost>> RECRUIT_COSTS = new HashMap<>();
 
     /**
-     * A possible recruit cost item.
-     *
-     * @param item   the item to recruit with.
-     * @param rarity the rarity of the given item.
+     * The current max level of the recruitment tiers.
      */
-    public record RecruitCost(Item item, int rarity)
-    {
-        /**
-         * Generate an itemstack for the given recruit cost.
-         *
-         * @param level the recruitment level.
-         * @return the newly generated itemstack.
-         */
-        public ItemStack toItemStack(final int level)
-        {
-            return new ItemStack(item, (int) Math.round(level * 3.0 / rarity));
-        }
-    }
+    private static int MAX_RECRUIT_COST_LEVEL = -1;
+
+    /**
+     * @param itemStack
+     * @param recruitLevel
+     * @param boots
+     */
+    public record RecruitCostResult(
+        ItemStack itemStack,
+        int recruitLevel,
+        Item boots)
+    {}
 
     /**
      * Default constructor.
      */
     public RecruitmentItemsListener()
     {
-        super(GSON, "recruitment_items");
+        super(GSON, COLONY_RECRUITMENT_ITEMS_DIR);
     }
 
     /**
      * Get a random recruit cost using the input random source.
      *
-     * @param source the random source.
-     * @param level  the recruitment level.
+     * @param source        the random source.
+     * @param buildingLevel the building level.
      * @return a random recruit cost.
      */
     @Nullable
-    public static RecruitCost getRandomRecruitCost(final RandomSource source, final int level)
+    public static RecruitCostResult getRandomRecruitCost(final RandomSource source, final int buildingLevel)
     {
-        int minimumRarity;
-        if (level > DIAMOND_SKILL_LEVEL)
+        final int recruitLevel = Math.min(MAX_RECRUIT_COST_LEVEL, source.nextInt(10 * buildingLevel) + 15);
+        final Map.Entry<RecruitmentTiers, List<RecruitCost>> tierAndCosts = RECRUIT_COSTS.entrySet()
+            .stream()
+            .filter(f -> !f.getValue().isEmpty())
+            .filter(f -> recruitLevel <= f.getKey().maxLevel)
+            .min(Comparator.comparingInt(f -> f.getKey().maxLevel))
+            .orElse(null);
+        if (tierAndCosts == null)
         {
-            minimumRarity = 3;
-        }
-        else if (level > IRON_SKILL_LEVEL)
-        {
-            minimumRarity = 2;
-        }
-        else
-        {
-            minimumRarity = 0;
-        }
-        final List<RecruitCost> recruitCosts = RECRUIT_COSTS.stream().filter(f -> f.rarity >= minimumRarity).toList();
-        if (recruitCosts.isEmpty())
-        {
-            Log.getLogger().warn("No recruitment items found, please ensure valid recruitment items exist in the datapacks.");
             return null;
         }
-        return recruitCosts.get(source.nextInt(recruitCosts.size()));
+
+        final RecruitCost recruitCost = tierAndCosts.getValue().get(source.nextInt(tierAndCosts.getValue().size()));
+        return new RecruitCostResult(new ItemStack(recruitCost.item, (int) Math.round(recruitLevel * 3.0 / recruitCost.rarity)), recruitLevel, tierAndCosts.getKey().boots);
     }
 
     @Override
-    protected void apply(
-      final @NotNull Map<ResourceLocation, JsonElement> jsonElementMap,
-      final @NotNull ResourceManager resourceManager,
-      final @NotNull ProfilerFiller profiler)
+    protected void apply(final @NotNull Map<ResourceLocation, JsonElement> jsonElementMap, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
     {
-        final List<RecruitCost> recruitCosts = new ArrayList<>();
+        final Map<RecruitmentTiers, List<RecruitCost>> recruitCosts = new HashMap<>();
+        int maxRecruitCostLevel = -1;
+
+        if (jsonElementMap.isEmpty())
+        {
+            Log.getLogger().warn("No recruitment items found, please ensure to add at least one recruitment item, otherwise visitors will be unable to spawn.");
+        }
+
         for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
         {
             if (!entry.getValue().isJsonObject())
@@ -130,9 +120,54 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
                 throw new IllegalArgumentException("Recruit cost '" + entry.getKey() + "' item not allowed to be air");
             }
 
-            recruitCosts.add(new RecruitCost(item, rarity));
+            for (final RecruitmentTiers tier : RecruitmentTiers.values())
+            {
+                if (rarity >= tier.minRarity)
+                {
+                    recruitCosts.putIfAbsent(tier, new ArrayList<>());
+                    recruitCosts.get(tier).add(new RecruitCost(item, rarity));
+
+                    if (maxRecruitCostLevel > tier.maxLevel)
+                    {
+                        maxRecruitCostLevel = tier.maxLevel;
+                    }
+                }
+            }
         }
 
-        RECRUIT_COSTS = Collections.unmodifiableList(recruitCosts);
+        RECRUIT_COSTS = Collections.unmodifiableMap(recruitCosts);
+        MAX_RECRUIT_COST_LEVEL = maxRecruitCostLevel;
     }
+
+    private enum RecruitmentTiers
+    {
+        LEATHER(20, 0, Items.LEATHER_BOOTS),
+        GOLD(25, 2, Items.GOLDEN_BOOTS),
+        IRON(35, 4, Items.IRON_BOOTS),
+        DIAMOND(45, 6, Items.DIAMOND_BOOTS);
+
+        private final int maxLevel;
+
+        private final int minRarity;
+
+        private final Item boots;
+
+        RecruitmentTiers(final int maxLevel, final int minRarity, final Item boots)
+        {
+            this.maxLevel = maxLevel;
+            this.minRarity = minRarity;
+            this.boots = boots;
+        }
+    }
+
+    /**
+     * A possible recruit cost item.
+     *
+     * @param item   the item to recruit with.
+     * @param rarity the rarity of the given item.
+     */
+    private record RecruitCost(
+        Item item,
+        int rarity)
+    {}
 }
