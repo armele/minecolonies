@@ -1,36 +1,47 @@
 package com.minecolonies.api.configuration;
 
+import com.minecolonies.api.configuration.builders.ConfigSpecBuilder;
+import com.minecolonies.api.configuration.builders.IConfigBuilder;
+import com.minecolonies.api.configuration.builders.ValueHolder;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
  * Mod client configuration. Loaded clientside, not synced.
  */
-public class ClientConfiguration extends AbstractConfiguration
+public class ClientConfiguration
 {
-    public final ForgeConfigSpec.BooleanValue citizenVoices;
-    public final ForgeConfigSpec.BooleanValue neighborbuildingrendering;
-    public final ForgeConfigSpec.IntValue neighborbuildingrange;
-    public final ForgeConfigSpec.IntValue buildgogglerange;
-    public final ForgeConfigSpec.BooleanValue colonyteamborders;
-    public final ForgeConfigSpec.BooleanValue holidayFeatures;
+    public ValueHolder<Boolean> citizenVoices;
+    public ValueHolder<Boolean> neighborbuildingrendering;
+    public ValueHolder<Integer> neighborbuildingrange;
+    public ValueHolder<Integer> buildgogglerange;
+    public ValueHolder<Boolean> colonyteamborders;
+    public ValueHolder<Boolean> holidayFeatures;
 
     /**
      * Builds client configuration.
      *
      * @param builder config builder
      */
-    protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
+    public ClientConfiguration(final IConfigBuilder builder)
     {
-        createCategory(builder, "gameplay");
-        citizenVoices = defineBoolean(builder, "enablecitizenvoices", true);
-        neighborbuildingrendering = defineBoolean(builder, "neighborbuildingrendering", true);
-        neighborbuildingrange = defineInteger(builder, "neighborbuildingrange", 4, -2, 16);
-        buildgogglerange = defineInteger(builder, "buildgogglerange", 50, 1, 250);
-        colonyteamborders = defineBoolean(builder, "colonyteamborders", true);
-        holidayFeatures = defineBoolean(builder, "holidayfeatures", true);
+        builder.createCategory("gameplay", gameplay -> {
+            citizenVoices = gameplay.defineBoolean("enablecitizenvoices", true);
+            neighborbuildingrendering = gameplay.defineBoolean("neighborbuildingrendering", true);
+            neighborbuildingrange = gameplay.defineInteger("neighborbuildingrange", 4, -2, 16);
+            buildgogglerange = gameplay.defineInteger("buildgogglerange", 50, 1, 250);
+            colonyteamborders = gameplay.defineBoolean("colonyteamborders", true);
+            holidayFeatures = gameplay.defineBoolean("holidayfeatures", true);
+        });
+    }
 
-        swapToCategory(builder, "pathfinding");
-
-        finishCategory(builder);
+    /**
+     * Generate the configuration for a Forge configuration builder.
+     *
+     * @param builder the Forge configuration spec builder.
+     * @return the finalized configuration instance.
+     */
+    public static ClientConfiguration forConfigBuilder(final ForgeConfigSpec.Builder builder)
+    {
+        return new ClientConfiguration(new ConfigSpecBuilder(builder));
     }
 }

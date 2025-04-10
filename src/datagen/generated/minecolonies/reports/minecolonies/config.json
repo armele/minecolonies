@@ -1,0 +1,532 @@
+{
+  "client": {
+    "categories": [
+      {
+        "description": "All configuration items related to the core gameplay",
+        "key": "gameplay",
+        "name": "Gameplay Settings",
+        "options": [
+          {
+            "default": true,
+            "description": "minecolonies.config.enablecitizenvoices.comment",
+            "key": "enablecitizenvoices",
+            "name": "minecolonies.config.enablecitizenvoices"
+          },
+          {
+            "default": true,
+            "description": "By default, when placing a schematic near other buildings, the already-placed buildings will show as if they were at level 5 and have a blue outline around them. You can disable that by setting this to false.",
+            "key": "neighborbuildingrendering",
+            "name": "Neighbor Building Rendering"
+          },
+          {
+            "default": 4,
+            "description": "How close a building needs to be to another to be considered a neighbor, in blocks. -1 = intersecting, 0 = touching",
+            "key": "neighborbuildingrange",
+            "max": 16,
+            "min": -2,
+            "name": "Neighbor Building Range"
+          },
+          {
+            "default": 50,
+            "description": "How close (in blocks) you need to be to see work orders while wearing the Build Goggles.",
+            "key": "buildgogglerange",
+            "max": 250,
+            "min": 1,
+            "name": "Build Goggles Range"
+          },
+          {
+            "default": true,
+            "description": "When true, the colony borders shown when holding the build tool will be in the colony's team color. When false, the colony you're inside will be white and any other colony will be red.",
+            "key": "colonyteamborders",
+            "name": "Show Colony Borders in Team Colors"
+          },
+          {
+            "default": true,
+            "description": "Should special holiday content be displayed?",
+            "key": "holidayfeatures",
+            "name": "Holiday Features"
+          }
+        ]
+      }
+    ]
+  },
+  "common": {
+    "categories": [
+      {
+        "description": "All configurations related to the request system",
+        "key": "requestsystem",
+        "name": "Request System Settings",
+        "options": [
+          {
+            "default": false,
+            "description": "Should the request system show debug information in the debug.log? Useful if malfunctioning.",
+            "key": "enabledebuglogging",
+            "name": "Enable Debug Logging"
+          }
+        ]
+      },
+      {
+        "description": "All configuration items related to the core gameplay",
+        "key": "gameplay",
+        "name": "Gameplay Settings",
+        "options": [
+          {
+            "default": true,
+            "description": "Whether to generate supply ships and camps in loot chests.",
+            "key": "generatesupplyloot",
+            "name": "Supply Loot"
+          }
+        ]
+      }
+    ]
+  },
+  "server": {
+    "categories": [
+      {
+        "description": "All configurations related to pathfinding",
+        "key": "pathfinding",
+        "name": "Pathfinding Settings",
+        "options": [
+          {
+            "default": 0,
+            "description": "Verbosity of pathfinding debug messages.",
+            "key": "pathfindingdebugverbosity",
+            "max": 10,
+            "min": 0,
+            "name": "Pathfinding Debug Verbosity"
+          },
+          {
+            "default": 8,
+            "description": "Minimum number of consecutive rails for citizens to use them.",
+            "key": "minimumrailstopath",
+            "max": 100,
+            "min": 5,
+            "name": "Minimum Rails"
+          },
+          {
+            "default": 1,
+            "description": "Amount of additional threads to be used for pathfinding.",
+            "key": "pathfindingmaxthreadcount",
+            "max": 10,
+            "min": 1,
+            "name": "Pathfinding Max Thread Count"
+          }
+        ]
+      },
+      {
+        "description": "All configurations related to the request system",
+        "key": "requestSystem",
+        "name": "Request System Settings",
+        "options": [
+          {
+            "default": false,
+            "description": "Should the request system creatively resolve (if possible) when the player is required to resolve a request? This is a debugging tool and can take a very long time to resolve a request.",
+            "key": "creativeresolve",
+            "name": "Creatively Resolve Requests"
+          }
+        ]
+      },
+      {
+        "description": "All permission configuration options",
+        "key": "permissions",
+        "name": "Permission Settings",
+        "options": [
+          {
+            "default": true,
+            "description": "Should colony protection be enabled?",
+            "key": "enablecolonyprotection",
+            "name": "Enable Colony Protection"
+          },
+          {
+            "default": "DAMAGE_ENTITIES",
+            "description": "Independent from the colony protection, should explosions be turned off inside colonies? DAMAGE_NOTHING prevents explosions completely. DAMAGE_PLAYERS, allows explosions to damage players and hostile mobs, but not blocks or neutral or friendly mobs. DAMAGE_ENTITIES allows damage to all entities. DAMAGE_EVERYTHING allows explosions to damage entities and blocks.",
+            "key": "turnoffexplosionsincolonies",
+            "name": "Turn off Explosions in Colonies",
+            "values": [
+              "DAMAGE_NOTHING",
+              "DAMAGE_PLAYERS",
+              "DAMAGE_ENTITIES",
+              "DAMAGE_EVERYTHING"
+            ]
+          }
+        ]
+      },
+      {
+        "description": "All configuration related to colony claims",
+        "key": "claims",
+        "name": "Claim Settings",
+        "options": [
+          {
+            "default": 20,
+            "description": "Maximum claim range for a colony. This is the radius, measured in chunks.",
+            "key": "maxColonySize",
+            "max": 250,
+            "min": 1,
+            "name": "Maximum Claim Range for Colonies"
+          },
+          {
+            "default": 8,
+            "description": "The minimum distance (in chunks) between colonies.",
+            "key": "minColonyDistance",
+            "max": 200,
+            "min": 1,
+            "name": "Minimum Colony Distance"
+          },
+          {
+            "default": 4,
+            "description": "Initial claim size for a colony. This is the radius, measured in chunks.",
+            "key": "initialColonySize",
+            "max": 15,
+            "min": 1,
+            "name": "Initial Colony Claim Size"
+          },
+          {
+            "default": 30000,
+            "description": "Max distance (in blocks) from world spawn for a colony.",
+            "key": "maxdistancefromworldspawn",
+            "max": 2147483647,
+            "min": 1000,
+            "name": "Max Distance from World Spawn"
+          },
+          {
+            "default": 0,
+            "description": "Min distance (in blocks) from world spawn for a colony.",
+            "key": "mindistancefromworldspawn",
+            "max": 1000,
+            "min": 0,
+            "name": "Min Distance from World Spawn"
+          }
+        ]
+      },
+      {
+        "description": "All configuration items related to the combat elements of MineColonies",
+        "key": "combat",
+        "name": "Combat Settings",
+        "options": [
+          {
+            "default": true,
+            "description": "minecolonies.config.dobarbariansspawn.comment",
+            "key": "dobarbariansspawn",
+            "name": "minecolonies.config.dobarbariansspawn"
+          },
+          {
+            "default": 5,
+            "description": "minecolonies.config.barbarianhordedifficulty.comment",
+            "key": "barbarianhordedifficulty",
+            "max": 10,
+            "min": 0,
+            "name": "minecolonies.config.barbarianhordedifficulty"
+          },
+          {
+            "default": 80,
+            "description": "minecolonies.config.maxbarbariansize.comment",
+            "key": "maxBarbarianSize",
+            "max": 400,
+            "min": 6,
+            "name": "minecolonies.config.maxbarbariansize"
+          },
+          {
+            "default": true,
+            "description": "minecolonies.config.dobarbariansbreakthroughwalls.comment",
+            "key": "dobarbariansbreakthroughwalls",
+            "name": "minecolonies.config.dobarbariansbreakthroughwalls"
+          },
+          {
+            "default": 14,
+            "description": "The average number of nights between raids.",
+            "key": "averagenumberofnightsbetweenraids",
+            "max": 50,
+            "min": 1,
+            "name": "Average Number of Nights Between Raids"
+          },
+          {
+            "default": 10,
+            "description": "The minimum number of nights between raids.",
+            "key": "minimumnumberofnightsbetweenraids",
+            "max": 30,
+            "min": 1,
+            "name": "Minimum Number of Nights Between Raids"
+          },
+          {
+            "default": true,
+            "description": "Should mobs attack citizens?",
+            "key": "mobattackcitizens",
+            "name": "Mobs Attack Citizens"
+          },
+          {
+            "default": true,
+            "description": "minecolonies.config.shouldraiderbreakdoors.comment",
+            "key": "shouldraiderbreakdoors",
+            "name": "minecolonies.config.shouldraiderbreakdoors"
+          },
+          {
+            "default": 1.0,
+            "description": "minecolonies.config.guarddamagemultiplier.comment",
+            "key": "guardDamageMultiplier",
+            "max": 15.0,
+            "min": 0.1,
+            "name": "minecolonies.config.guarddamagemultiplier"
+          },
+          {
+            "default": 1.0,
+            "description": "Health multiplier for all Guards.",
+            "key": "guardhealthmult",
+            "max": 5.0,
+            "min": 0.1,
+            "name": "Guard Health Multiplier"
+          },
+          {
+            "default": false,
+            "description": "Turn on MineColonies PVP mode (colonies can be destroyed and griefed under certain conditions).",
+            "key": "pvp_mode",
+            "name": "PVP Mode"
+          }
+        ]
+      },
+      {
+        "description": "All configuration related to mod compatibility",
+        "key": "compatibility",
+        "name": "Mod Compatibility Settings",
+        "options": [
+          {
+            "default": false,
+            "description": "When loading recipes, generate audit CSV files to help debug datapacks or extra mods.",
+            "key": "auditcraftingtags",
+            "name": "Audit Crafting Tags"
+          },
+          {
+            "default": false,
+            "description": "Enable inventory debugging.",
+            "key": "debuginventories",
+            "name": "Debug Inventories"
+          },
+          {
+            "default": false,
+            "description": "Turn this on if you're using this world for blueprint building and scanning.",
+            "key": "blueprintbuildmode",
+            "name": "Blueprint Build Mode"
+          }
+        ]
+      },
+      {
+        "description": "All configurations related to the MineColonies commands",
+        "key": "commands",
+        "name": "Command Settings",
+        "options": [
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc rtp command?",
+            "key": "canplayerusertpcommand",
+            "name": "Can Players Use the RTP Command"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc colony teleport command?",
+            "key": "canplayerusecolonytpcommand",
+            "name": "Can Players Use the Colony TP Command"
+          },
+          {
+            "default": true,
+            "description": "Can players teleport to allied colonies?",
+            "key": "canplayeruseallytownhallteleport",
+            "name": "Can Players TP to Allies"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc home command? Note: Only owners of the colony can use this command.",
+            "key": "canplayerusehometpcommand",
+            "name": "Can Players Use the Home TP Command"
+          },
+          {
+            "default": true,
+            "description": "Should players be allowed to use the /mc colony info command?",
+            "key": "canplayeruseshowcolonyinfocommand",
+            "name": "Can Players Use the Show Colony Info Command"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc citizens kill command?",
+            "key": "canplayerusekillcitizenscommand",
+            "name": "Can Players Use the Kill Citizens Command"
+          },
+          {
+            "default": true,
+            "description": "Should players be allowed to use the /mc colony addOfficer command?",
+            "key": "canplayeruseaddofficercommand",
+            "name": "Can Players Use the Add Officer Command"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc colony delete command?",
+            "key": "canplayerusedeletecolonycommand",
+            "name": "Can Players Use the Delete Colony Command"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to use the /mc colony requestsystem-reset command?",
+            "key": "canplayeruseresetcommand",
+            "name": "Can Players Use the Request System Reset Command"
+          }
+        ]
+      },
+      {
+        "description": "All configurations related to the research system",
+        "key": "research",
+        "name": "Research Settings",
+        "options": [
+          {
+            "default": true,
+            "description": "Allows automatic and (near) instant completion of research for players in creative mode. If false, creative players will still be able to begin researches, but will have normal progress rates.",
+            "key": "researchcreativecompletion",
+            "name": "Research Creative Completion"
+          },
+          {
+            "default": false,
+            "description": "Significantly increases the amount of information related to research datapacks that is logged during the world load.",
+            "key": "researchdebuglog",
+            "name": "Log Research Data"
+          },
+          {
+            "default": "minecolonies:ancienttome:1",
+            "description": "A list of items to charge players when undoing an already-completed research.",
+            "key": "researchresetcost",
+            "name": "Cost to Undo a Completed Research"
+          }
+        ]
+      },
+      {
+        "description": "All configuration items related to the core gameplay",
+        "key": "gameplay",
+        "name": "Gameplay Settings",
+        "options": [
+          {
+            "default": 4,
+            "description": "Amount of initial citizens.",
+            "key": "initialcitizenamount",
+            "max": 10,
+            "min": 1,
+            "name": "Initital Citizen Count"
+          },
+          {
+            "default": false,
+            "description": "Should players be able to place an infinite amount of supply camps/ships?",
+            "key": "allowinfinitesupplychests",
+            "name": "Infinite Supply Camps/Ships"
+          },
+          {
+            "default": false,
+            "description": "Should players be allowed to abandon their colony to create a new one easily? Note: This is buggy!",
+            "key": "allowinfinitecolonies",
+            "name": "Infinite Colonies"
+          },
+          {
+            "default": true,
+            "description": "Should colonies in other dimensions be allowed?",
+            "key": "allowotherdimcolonies",
+            "name": "Other Dim Colonies"
+          },
+          {
+            "default": 250,
+            "description": "Max citizens in one colony.",
+            "key": "maxcitizenpercolony",
+            "max": 500,
+            "min": 30,
+            "name": "Citizen Cap"
+          },
+          {
+            "default": false,
+            "description": "Should development features be enabled (might be buggy)?",
+            "key": "enableindevelopmentfeatures",
+            "name": "Dev Features"
+          },
+          {
+            "default": true,
+            "description": "Should citizen name tags be rendered?",
+            "key": "alwaysrendernametag",
+            "name": "Name Tags"
+          },
+          {
+            "default": false,
+            "description": "Should workers work during the rain?",
+            "key": "workersalwaysworkinrain",
+            "name": "Working in Rain"
+          },
+          {
+            "default": 1,
+            "description": "Chance for the Miner to get an ore when mining cobblestone or stone (by default, can be expanded with datapacks to other materials). This is a percentage. (To change which ores the Miner can find, see \"List of Lucky Ores\".)",
+            "key": "luckyblockchance",
+            "max": 100,
+            "min": 0,
+            "name": "Ore Chance"
+          },
+          {
+            "default": 3,
+            "description": "The minimum level a Town Hall has to be to allow teleportation to allied colonies.",
+            "key": "minthleveltoteleport",
+            "max": 5,
+            "min": 0,
+            "name": "Town Hall Teleport"
+          },
+          {
+            "default": 1.0,
+            "description": "Food consumption modifier.",
+            "key": "foodmodifier",
+            "max": 100.0,
+            "min": 0.1,
+            "name": "Food Modifier"
+          },
+          {
+            "default": 5,
+            "description": "How common diseases are. 1 = Very common, 100 = extremely rare.",
+            "key": "diseasemodifier",
+            "max": 100,
+            "min": 1,
+            "name": "Disease Modifier"
+          },
+          {
+            "default": true,
+            "description": "If part of the colony is loaded by an owner/officer, should the colony be kept loaded? (Set how many chunks are loaded with the \"Colony Chunk Loading Strictness\" option.)",
+            "key": "forceloadcolony",
+            "name": "Chunk Load Colony"
+          },
+          {
+            "default": 10,
+            "description": "Set how long chunks stay loaded after player leaves, does not persist through restarts. Default: 10min",
+            "key": "loadtime",
+            "max": 1440,
+            "min": 1,
+            "name": "Colony chunk loading duration"
+          },
+          {
+            "default": 3,
+            "description": "This controls how many chunks are loaded with the \"Chunk Load Colony\" option. The higher this value, the fewer chunks will be loaded. (The innermost chunks will be loaded first.) 1 = load all claimed chunks.",
+            "key": "colonyloadstrictness",
+            "max": 15,
+            "min": 1,
+            "name": "Colony Chunk Loading Strictness"
+          },
+          {
+            "default": 400,
+            "description": "Max log count in one tree for the Forester to check during their tree search.",
+            "key": "maxtreesize",
+            "max": 1000,
+            "min": 1,
+            "name": "Max Tree Size"
+          },
+          {
+            "default": false,
+            "description": "Disables supply camp placing restrictions, intended for skyworlds and similar",
+            "key": "nosupplyplacementrestrictions",
+            "name": "No supply camp placing restrictions"
+          },
+          {
+            "default": false,
+            "description": "Raiders will spawn in the sky if this is enabled",
+            "key": "skyraiders",
+            "name": "Enable raiders to spawn in the sky"
+          }
+        ]
+      }
+    ]
+  }
+}

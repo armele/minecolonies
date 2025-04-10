@@ -30,9 +30,9 @@ public class Configuration
      */
     public Configuration()
     {
-        final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
-        final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::new);
-        final Pair<CommonConfiguration, ForgeConfigSpec> com = new ForgeConfigSpec.Builder().configure(CommonConfiguration::new);
+        final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::forConfigBuilder);
+        final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::forConfigBuilder);
+        final Pair<CommonConfiguration, ForgeConfigSpec> com = new ForgeConfigSpec.Builder().configure(CommonConfiguration::forConfigBuilder);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, cli.getRight());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ser.getRight());

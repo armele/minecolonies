@@ -1,25 +1,35 @@
 package com.minecolonies.api.configuration;
 
+import com.minecolonies.api.configuration.builders.ConfigSpecBuilder;
+import com.minecolonies.api.configuration.builders.IConfigBuilder;
+import com.minecolonies.api.configuration.builders.ValueHolder;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class CommonConfiguration extends AbstractConfiguration
+public class CommonConfiguration
 {
-    public final ForgeConfigSpec.BooleanValue generateSupplyLoot;
-    public final ForgeConfigSpec.BooleanValue rsEnableDebugLogging;
+    public ValueHolder<Boolean> generateSupplyLoot;
+    public ValueHolder<Boolean> rsEnableDebugLogging;
 
     /**
      * Builds client configuration.
      *
      * @param builder config builder
      */
-    protected CommonConfiguration(final ForgeConfigSpec.Builder builder)
+    public CommonConfiguration(final IConfigBuilder builder)
     {
-        createCategory(builder, "gameplay");
-        generateSupplyLoot = defineBoolean(builder, "generatesupplyloot", true);
-        finishCategory(builder);
+        builder.createCategory("gameplay", gameplay -> generateSupplyLoot = gameplay.defineBoolean("generatesupplyloot", true));
 
-        createCategory(builder, "requestsystem");
-        rsEnableDebugLogging = defineBoolean(builder, "enabledebuglogging", false);
-        finishCategory(builder);
+        builder.createCategory("requestsystem", requestSystem -> rsEnableDebugLogging = requestSystem.defineBoolean("enabledebuglogging", false));
+    }
+
+    /**
+     * Generate the configuration for a Forge configuration builder.
+     *
+     * @param builder the Forge configuration spec builder.
+     * @return the finalized configuration instance.
+     */
+    public static CommonConfiguration forConfigBuilder(final ForgeConfigSpec.Builder builder)
+    {
+        return new CommonConfiguration(new ConfigSpecBuilder(builder));
     }
 }

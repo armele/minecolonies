@@ -68,5 +68,8 @@ public class GatherDataHandler
         generator.addProvider(event.includeServer(), new DefaultStoneSmelteryCraftingProvider(generator.getPackOutput()));
 
         generator.addProvider(event.includeClient() && event.includeServer(), new ItemNbtCalculator(generator.getPackOutput(), event.getLookupProvider()));
+
+        // Reports
+        generator.addProvider(event.includeReports(), new DefaultConfigurationReportProvider(generator.getPackOutput()));
     }
 }
