@@ -165,7 +165,7 @@ public class DataPackSyncEventHandler
      */
     private static void loadFurnaceRecipes(final RecipeManager manager, final Level level)
     {
-        final IFurnaceRecipes furnaceRecipes = IMinecoloniesAPI.getInstance().getFurnaceRecipes();
+        final IFurnaceRecipes furnaceRecipes = IFurnaceRecipes.getFurnaceRecipes();
         if (furnaceRecipes instanceof FurnaceRecipes recipes)
         {
             recipes.loadRecipes(manager, level);

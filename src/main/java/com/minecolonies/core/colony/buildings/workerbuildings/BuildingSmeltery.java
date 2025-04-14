@@ -1,11 +1,11 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
-import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.compatibility.ICompatibilityManager;
+import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.crafting.*;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.items.ModTags;
@@ -117,8 +117,8 @@ public class BuildingSmeltery extends AbstractBuilding
             {
                 if (ItemStackUtils.IS_SMELTABLE.and(compatibility::isOre).and(s -> !s.is(ModTags.breakable_ore)).test(stack))
                 {
-                    final ItemStack output = IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(stack);
-                    recipes.add(createSmeltingRecipe(new ItemStorage(stack), output, Blocks.FURNACE));
+                    final ItemStack output = IFurnaceRecipes.getFurnaceRecipes().getSmeltingResult(stack);
+                    recipes.add(createSmeltingRecipe(stack, output, Blocks.FURNACE));
                 }
             }
             return recipes;

@@ -1,6 +1,6 @@
 package com.minecolonies.api.inventory.container;
 
-import com.minecolonies.api.IMinecoloniesAPI;
+import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.util.ItemStackUtils;
 import net.minecraft.core.BlockPos;
@@ -150,7 +150,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
             {
                 if (slot == 0)
                 {
-                    return !IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(stack).isEmpty();
+                    return !IFurnaceRecipes.getFurnaceRecipes().getSmeltingResult(stack).isEmpty();
                 }
                 else
                 {
@@ -280,7 +280,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
         if (!playerInventory.player.level().isClientSide)
         {
             final ServerPlayer player = (ServerPlayer) playerInventory.player;
-            final ItemStack result = IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(furnaceInventory.getStackInSlot(0));
+            final ItemStack result = IFurnaceRecipes.getFurnaceRecipes().getSmeltingResult(furnaceInventory.getStackInSlot(0));
 
             this.furnaceInventory.insertItem(1, result, false);
             player.connection.send(new ClientboundContainerSetSlotPacket(this.containerId, 0, 1, result));

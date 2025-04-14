@@ -1,7 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
 
 import com.google.common.reflect.TypeToken;
-import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.*;
@@ -10,6 +9,7 @@ import com.minecolonies.api.colony.requestsystem.request.RequestState;
 import com.minecolonies.api.colony.requestsystem.requestable.MinimumStack;
 import com.minecolonies.api.colony.requestsystem.requestable.Stack;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.crafting.RecipeStorage;
 import com.minecolonies.api.util.*;
@@ -124,7 +124,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
                 }
                 ItemStack requestStack = originalStack;
                 ItemStack rawStack = ItemStack.EMPTY;
-                if (canCook && MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getFirstSmeltingRecipeByResult(menuItem) instanceof RecipeStorage recipeStorage)
+                if (canCook && IFurnaceRecipes.getFurnaceRecipes().getFirstSmeltingRecipeByResult(menuItem) instanceof RecipeStorage recipeStorage)
                 {
                     // Smelting Recipes only got 1 input. Request sometimes the input if this is a smeltable.
                     rawStack = recipeStorage.getInput().get(0).getItemStack().copy();
@@ -192,7 +192,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
         for (final ItemStorage menuItem : menu)
         {
             consumer.accept(stack -> ItemStackUtils.compareItemStacksIgnoreStackSize(stack, menuItem.getItemStack(), false, true), menuItem.getItemStack().getMaxStackSize() * getExpectedStock(), false);
-            if (canCook && MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getFirstSmeltingRecipeByResult(menuItem) instanceof RecipeStorage recipeStorage)
+            if (canCook && IFurnaceRecipes.getFurnaceRecipes().getFirstSmeltingRecipeByResult(menuItem) instanceof RecipeStorage recipeStorage)
             {
                 final ItemStack smeltStack = recipeStorage.getInput().get(0).getItemStack();
                 consumer.accept(stack -> ItemStackUtils.compareItemStacksIgnoreStackSize(stack, smeltStack, false, true), smeltStack.getMaxStackSize() * getExpectedStock(), false);

@@ -3,6 +3,7 @@ package com.minecolonies.core.colony.buildings.workerbuildings;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
+import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.util.CraftingUtils;
 import com.minecolonies.api.util.FoodUtils;
@@ -88,7 +89,7 @@ public class BuildingKitchen extends AbstractBuilding
             if (isRecipeAllowed.isPresent()) return isRecipeAllowed.get();
 
             final ItemStack output = recipe.getPrimaryOutput();
-            return FoodUtils.EDIBLE.test(output) || FoodUtils.EDIBLE.test(IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(output));
+            return FoodUtils.EDIBLE.test(output) || FoodUtils.EDIBLE.test(IFurnaceRecipes.getFurnaceRecipes().getSmeltingResult(output));
         }
     }
 
