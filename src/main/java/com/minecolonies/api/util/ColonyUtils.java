@@ -11,6 +11,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -70,7 +72,7 @@ public final class ColonyUtils
                 {
                     if (blueprint == null)
                     {
-                        errorHandler.accept(("Couldn't find structure with name: " + structurePack + " in: " + structurePath + ". Aborting loading procedure");
+                        errorHandler.accept("Couldn't find structure with name: " + structurePack + " in: " + structurePath + ". Aborting loading procedure");
                     }
                     else
                     {
@@ -101,7 +103,7 @@ public final class ColonyUtils
     }
 
     /**
-     * Calculated the corner of a building.
+     * Calculated the corner of a building.  Also rotates the blueprint accordingly.
      *
      * @param pos        the central position.
      * @param world      the world.
@@ -127,6 +129,19 @@ public final class ColonyUtils
         final BlockPos pos2 = new BlockPos(zeroPos.getX() + blueprint.getSizeX() - 1, zeroPos.getY() + blueprint.getSizeY() - 1, zeroPos.getZ() + blueprint.getSizeZ() - 1);
 
         return new Tuple<>(pos1, pos2);
+    }
+
+    /**
+     * Reports the block corners from a bounding box.
+     *
+     * @param box the bounding box.
+     * @return the corners.
+     */
+    public static Tuple<BlockPos, BlockPos> calculateCorners(@NotNull final AABB box)
+    {
+        final BlockPos min = BlockPos.containing(box.minX, box.minY, box.minZ);
+        final BlockPos max = BlockPos.containing(box.maxX, box.maxY, box.maxZ);
+        return new Tuple<>(min, max);
     }
 
     /**
