@@ -10,6 +10,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Utils;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
@@ -536,6 +537,7 @@ public final class LootTableAnalyzer
                     break;
                 }
             }
+
             buffer.writeFloat(probability);
             buffer.writeFloat(quality);
             buffer.writeBoolean(conditional);
