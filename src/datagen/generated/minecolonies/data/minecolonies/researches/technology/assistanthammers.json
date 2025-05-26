@@ -1,0 +1,25 @@
+{
+  "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "count": 2,
+      "item": "minecraft:iron_block"
+    }
+  ],
+  "effects": [
+    {
+      "id": "minecolonies:effects/assistanthammerunlock",
+      "level": 1
+    }
+  ],
+  "icon": "minecolonies:assistanthammer_diamond",
+  "parentResearch": "minecolonies:technology/hittingiron",
+  "requirements": [
+    {
+      "type": "minecolonies:building",
+      "building": "blacksmith",
+      "level": 1
+    }
+  ],
+  "researchLevel": 2
+}

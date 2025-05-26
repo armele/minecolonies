@@ -73,10 +73,12 @@ public class DataPackSyncEventHandler
                                         @NotNull final UpdateClientWithCompatibilityMessage compatMsg)
         {
             compatMsg.sendToPlayer(player);
-            CustomRecipeManager.getInstance().sendCustomRecipeManagerPackets(player);
             IGlobalResearchTree.getInstance().sendGlobalResearchTreePackets(player);
             QuestJsonListener.sendGlobalQuestPackets(player);
             DiseasesListener.sendGlobalDiseasesPackets(player);
+
+            // always send this last; we rely on CustomRecipesReloadedEvent signalling that all packets are processed
+            CustomRecipeManager.getInstance().sendCustomRecipeManagerPackets(player);
         }
 
 
@@ -103,7 +105,12 @@ public class DataPackSyncEventHandler
                 final UpdateClientWithCompatibilityMessage compatMsg = new UpdateClientWithCompatibilityMessage(server.registryAccess());
                 for (final ServerPlayer player : event.getPlayerList().getPlayers())
                 {
-                    if (player.getGameProfile() != owner)   // don't need to send them in SP, or LAN owner
+                    if (player.getGameProfile() == owner)
+                    {
+                        // SP 'server' doesn't need most of the packets, but does need compatmgr since we keep separate instances
+                        compatMsg.sendToPlayer(player);
+                    }
+                    else
                     {
                         sendPackets(player, compatMsg);
                     }

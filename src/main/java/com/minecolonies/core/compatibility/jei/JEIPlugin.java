@@ -9,6 +9,7 @@ import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.crafting.registry.CraftingType;
+import com.minecolonies.api.eventbus.events.CustomRecipesReloadedEvent;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
@@ -20,8 +21,10 @@ import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.helpers.IModIdHelper;
+import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.*;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -29,6 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -36,6 +40,9 @@ import java.util.function.BiConsumer;
 @mezz.jei.api.JeiPlugin
 public class JEIPlugin implements IModPlugin
 {
+    @Nullable IJeiRuntime jei;
+    boolean recipesLoaded;
+
     @NotNull
     @Override
     public ResourceLocation getPluginUid()
@@ -123,22 +130,37 @@ public class JEIPlugin implements IModPlugin
     @Override
     public void registerRecipes(@NotNull final IRecipeRegistration registration)
     {
+        IMinecoloniesAPI.getInstance().getEventBus().subscribe(CustomRecipesReloadedEvent.class, this::onRecipesLoaded);
+
         registration.addIngredientInfo(ModBlocks.blockHutComposter,
                 Component.translatableEscape(TranslationConstants.PARTIAL_JEI_INFO + ModJobs.COMPOSTER_ID.getPath()));
 
-        registration.addRecipes(ModRecipeTypes.TOOLS, ToolRecipeCategory.findRecipes(Minecraft.getInstance().level));
-        registration.addRecipes(ModRecipeTypes.CROPS, CropRecipeCategory.findRecipes());
-        registration.addRecipes(ModRecipeTypes.COMPOSTING, CompostRecipeCategory.findRecipes());
-        registration.addRecipes(ModRecipeTypes.FISHING, FishermanRecipeCategory.findRecipes());
-        registration.addRecipes(ModRecipeTypes.FLOWERS, FloristRecipeCategory.findRecipes());
+        // we actually populate the recipes in onRecipesLoaded, since that happens later
+    }
 
-        final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
-        final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(level.getRecipeManager(), level);
-        final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
+    private void onRecipesLoaded(@NotNull final CustomRecipesReloadedEvent event)
+    {
+        this.recipesLoaded = true;
 
-        for (final JobBasedRecipeCategory<?> category : this.categories)
+        if (this.jei != null)
         {
-            addJobBasedRecipes(vanilla, animals, category, registration::addRecipes, level);
+            // defer recipe loading until after the compatibility manager is populated, because they use it
+            final IRecipeManager recipeManager = this.jei.getRecipeManager();
+            recipeManager.addRecipes(ModRecipeTypes.COMPOSTING, CompostRecipeCategory.findRecipes());
+            recipeManager.addRecipes(ModRecipeTypes.FLOWERS, FloristRecipeCategory.findRecipes());
+
+            recipeManager.addRecipes(ModRecipeTypes.TOOLS, ToolRecipeCategory.findRecipes(Minecraft.getInstance().level));
+            recipeManager.addRecipes(ModRecipeTypes.CROPS, CropRecipeCategory.findRecipes());
+            recipeManager.addRecipes(ModRecipeTypes.FISHING, FishermanRecipeCategory.findRecipes());
+
+            final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
+            final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(level.getRecipeManager(), level);
+            final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
+
+            for (final JobBasedRecipeCategory<?> category : this.categories)
+            {
+                addJobBasedRecipes(vanilla, animals, category, recipeManager::addRecipes, level);
+            }
         }
     }
 
@@ -186,5 +208,22 @@ public class JEIPlugin implements IModPlugin
         new CraftingGuiHandler(this.categories).register(registration);
         new FurnaceCraftingGuiHandler(this.categories).register(registration);
         new BrewingCraftingGuiHandler(this.categories).register(registration);
+    }
+
+    @Override
+    public void onRuntimeAvailable(@NotNull final IJeiRuntime jeiRuntime)
+    {
+        this.jei = jeiRuntime;
+
+        if (this.recipesLoaded)
+        {
+            onRecipesLoaded(new CustomRecipesReloadedEvent());
+        }
+    }
+
+    @Override
+    public void onRuntimeUnavailable()
+    {
+        this.jei = null;
     }
 }
