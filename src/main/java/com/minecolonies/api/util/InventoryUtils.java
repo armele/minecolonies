@@ -3060,9 +3060,9 @@ public class InventoryUtils
      * @param target             to insert intems into
      * @param requiredSaturation required saturation value
      * @param foodPredicate      food choosing predicate
-     * @return true if any food was transferred
+     * @returns a map of transferred items
      */
-    public static int transferFoodUpToSaturation(
+    public static Map<ItemStack, Integer> transferFoodUpToSaturation(
       final ICapabilityProvider source,
       final IItemHandler target,
       final int requiredSaturation,
@@ -3072,6 +3072,8 @@ public class InventoryUtils
 
         int foundSaturation = 0;
         int transferedItems = 0;
+        Map<ItemStack, Integer> transferredItemMap = new HashMap<ItemStack, Integer>();
+
         for (final IItemHandler handler : handlers)
         {
             for (int i = 0; i < handler.getSlots(); i++)
@@ -3104,6 +3106,14 @@ public class InventoryUtils
                     }
 
                     transferedItems += extractedFood.getCount();
+                    if (transferredItemMap.containsKey(extractedFood))
+                    {
+                        transferredItemMap.put(extractedFood, transferredItemMap.get(extractedFood) + extractedFood.getCount());
+                    } else 
+                    {
+                        transferredItemMap.put(extractedFood, extractedFood.getCount());
+                    }
+                    
                     if (!ItemStackUtils.isEmpty(extractedFood))
                     {
                         if (!addItemStackToItemHandler(target, extractedFood))
@@ -3121,13 +3131,13 @@ public class InventoryUtils
 
                     if (foundSaturation >= requiredSaturation)
                     {
-                        return transferedItems;
+                        return transferredItemMap;
                     }
                 }
             }
         }
 
-        return transferedItems;
+        return transferredItemMap;
     }
 
     /**
