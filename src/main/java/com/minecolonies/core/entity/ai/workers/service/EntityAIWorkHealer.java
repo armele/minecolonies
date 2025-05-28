@@ -539,7 +539,8 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
         return BuildingHospital.class;
     }
 
-    private void recordTreatmentStats(EntityCitizen citizen) {
+    private void recordTreatmentStats(EntityCitizen citizen) 
+    {
         final Disease disease = citizen.getCitizenData().getCitizenDiseaseHandler().getDisease();
         if (disease != null)
         {
