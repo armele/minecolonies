@@ -14,7 +14,7 @@ public final class StatisticsConstants
     public static final String MOBS_KILLED     = "mobs_killed";
     public static final String ITEMS_DELIVERED = "items_delivered";
     public static final String ITEMS_CRAFTED   = "items_crafted";
-    public static final String FOOD_SERVED     = "food_served";
+    public static final String FOOD_SERVED     = "food_served";                 // Records by count of meal distributed.
     public static final String CITIZENS_HEALED = "citizens_healed";
     public static final String CROPS_HARVESTED = "crops_harvested";
     public static final String LAND_TILLED     = "land_tilled";
@@ -23,6 +23,7 @@ public final class StatisticsConstants
     public static final String BUILD_UPGRADED  = "build_upgraded";
     public static final String BUILD_REPAIRED  = "build_repaired";
     public static final String BUILD_REMOVED   = "build_removed";
+    public static final String ITEMS_COOKED    = "items_cooked";
 
     /**
      * Generic building Stats
@@ -35,4 +36,12 @@ public final class StatisticsConstants
      * Specific building stats.
      */
     public static final String INT_LEVELED = "int_leveled";
+
+    // Cook
+    public static final String FOOD_SERVED_DETAIL = "food_served_detail";       // Records by specific meal distributed.
+
+    // Hospital
+    public static final String DISEASES_TREATED = "diseases_treated";           // Records by specific disease.
+    public static final String NUM_DISEASES_TREATED = "num_diseases_treated";   // Records count for town hall.
 }
+
