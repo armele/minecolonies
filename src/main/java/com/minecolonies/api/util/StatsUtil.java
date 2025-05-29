@@ -13,9 +13,9 @@ import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 
 /**
  * A variety of helper functions to facilitate statistics collection by buildings.
- * 
  */
-public class StatsUtil {
+public class StatsUtil 
+{
     /**
      * Safely return the name of the item in the given slot of the given furnace for use in statistics.
      * Returns empty if no furnace, or no item in the slot.
@@ -40,6 +40,14 @@ public class StatsUtil {
         return name;
     }
 
+    /**
+     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
+     * Takes a map of ItemStacks and the total amounts of those stacks to be added to the stats and calls 
+     * overridden individual trackStat methods on each of them.
+     * @param building the building to track the stat for.
+     * @param statName the identifier for the stat.
+     * @param itemMap the items to track the stats for.
+     */
     public static void trackStat(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
     {
         for (Map.Entry<ItemStack, Integer> entry : itemMap.entrySet())
@@ -52,7 +60,6 @@ public class StatsUtil {
 
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * 
      * @param building the building to track the stat for.
      * @param statIdentifier the identifier for the stat.
      * @param displayName the display name of the item to track the stat for.
@@ -77,6 +84,13 @@ public class StatsUtil {
         }
     }
 
+    /**
+     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
+     * @param building the building to track the stat for.
+     * @param statIdentifier the identifier for the stat.
+     * @param displayName the display name of the item to track the stat for, as a Component.
+     * @param count the number of the item to track the stat for.
+     */
     public static void trackStat(IBuilding building, String statIdentifier, Component displayName, int count) 
     {
         if (displayName == null) 
@@ -88,6 +102,13 @@ public class StatsUtil {
         trackStat(building, statIdentifier, displayName.getString(), count);
     }
 
+    /**
+     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
+     * @param building the building to track the stat for.
+     * @param statIdentifier the identifier for the stat.
+     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
+     * @param count the number of the item to track the stat for.
+     */
     public static void trackStat(IBuilding building, String statIdentifier, ItemStack stack, int count) 
     {
         if (stack == null) 
