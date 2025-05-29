@@ -51,6 +51,11 @@ public abstract class AbstractBuildingExtension implements IBuildingExtension
     private BlockPos buildingId = null;
 
     /**
+     * Unique extension id.
+     */
+    private final ExtensionId extensionId;
+
+    /**
      * Constructor used in NBT deserialization.
      *
      * @param buildingExtensionEntry the type of building extension.
@@ -60,6 +65,7 @@ public abstract class AbstractBuildingExtension implements IBuildingExtension
     {
         this.buildingExtensionEntry = buildingExtensionEntry;
         this.position = position;
+        this.extensionId = new ExtensionId(position, buildingExtensionEntry);
     }
 
     @Override
@@ -229,5 +235,11 @@ public abstract class AbstractBuildingExtension implements IBuildingExtension
             return false;
         }
         return buildingExtensionEntry.equals(that.buildingExtensionEntry);
+    }
+
+    @Override
+    public ExtensionId getId()
+    {
+        return extensionId;
     }
 }
