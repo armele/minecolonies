@@ -42,12 +42,11 @@ public class StatsUtil
 
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * This version of the function takes a map of ItemStacks to Integers, and calls the other version of the function
-     * for each map entry.
-     * 
+     * Takes a map of ItemStacks and the total amounts of those stacks to be added to the stats and calls 
+     * overridden individual trackStat methods on each of them.
      * @param building the building to track the stat for.
-     * @param statName the name of the stat to track.
-     * @param itemMap the map of ItemStacks and associated Integer counters to track the stat for.
+     * @param statName the identifier for the stat.
+     * @param itemMap the items to track the stats for.
      */
     public static void trackStat(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
     {
@@ -61,7 +60,6 @@ public class StatsUtil
 
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * 
      * @param building the building to track the stat for.
      * @param statIdentifier the identifier for the stat.
      * @param displayName the display name of the item to track the stat for.
@@ -88,12 +86,9 @@ public class StatsUtil
 
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * This version of the function takes a Component for the displayName, and calls the other version of the function
-     * with the String value of that Component.
-     * 
      * @param building the building to track the stat for.
      * @param statIdentifier the identifier for the stat.
-     * @param displayName the display name of the item to track the stat for.
+     * @param displayName the display name of the item to track the stat for, as a Component.
      * @param count the number of the item to track the stat for.
      */
     public static void trackStat(IBuilding building, String statIdentifier, Component displayName, int count) 
@@ -107,15 +102,11 @@ public class StatsUtil
         trackStat(building, statIdentifier, displayName.getString(), count);
     }
 
-
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * This version of the function takes an ItemStack for which stats will be collected, and calls the 
-     * other version of the function with the descriptionId String value of that ItemStack as the displayName.
-     * 
      * @param building the building to track the stat for.
      * @param statIdentifier the identifier for the stat.
-     * @param displayName the display name of the item to track the stat for.
+     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
      * @param count the number of the item to track the stat for.
      */
     public static void trackStat(IBuilding building, String statIdentifier, ItemStack stack, int count) 
