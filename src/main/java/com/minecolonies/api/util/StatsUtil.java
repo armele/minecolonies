@@ -48,14 +48,32 @@ public class StatsUtil
      * @param statName the identifier for the stat.
      * @param itemMap the items to track the stats for.
      */
-    public static void trackStat(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
+    public static void trackStatByStackMap(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
     {
         for (Map.Entry<ItemStack, Integer> entry : itemMap.entrySet())
         {
             ItemStack stack = entry.getKey();
             int count = entry.getValue();
-            trackStat(building, statName, stack, count);
+            trackStatByStack(building, statName, stack, count);
         }
+    }
+
+    /**
+     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
+     * @param building the building to track the stat for.
+     * @param statIdentifier the identifier for the stat.
+     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
+     * @param count the number of the item to track the stat for.
+     */
+    public static void trackStatByStack(IBuilding building, String statIdentifier, ItemStack stack, int count) 
+    {
+        if (stack == null) 
+        {
+            Log.getLogger().warn("Attempted to track stat '{}' with null stack: ", statIdentifier);
+            return;
+        }
+
+        trackStat(building, statIdentifier, stack.getDescriptionId(), count);
     }
 
     /**
@@ -102,21 +120,4 @@ public class StatsUtil
         trackStat(building, statIdentifier, displayName.getString(), count);
     }
 
-    /**
-     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * @param building the building to track the stat for.
-     * @param statIdentifier the identifier for the stat.
-     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
-     * @param count the number of the item to track the stat for.
-     */
-    public static void trackStat(IBuilding building, String statIdentifier, ItemStack stack, int count) 
-    {
-        if (stack == null) 
-        {
-            Log.getLogger().warn("Attempted to track stat '{}' with null stack: ", statIdentifier);
-            return;
-        }
-
-        trackStat(building, statIdentifier, stack.getDescriptionId(), count);
-    }
 }
