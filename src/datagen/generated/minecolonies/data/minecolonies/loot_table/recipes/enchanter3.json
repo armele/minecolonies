@@ -384,7 +384,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:aqua_affinity": 2
+                    "minecraft:aqua_affinity": 1
                   }
                 }
               },
@@ -520,7 +520,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:flame": 2
+                    "minecraft:flame": 1
                   }
                 }
               },
@@ -758,7 +758,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:aqua_affinity": 3
+                    "minecraft:aqua_affinity": 1
                   }
                 }
               },
@@ -860,7 +860,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:fire_aspect": 3
+                    "minecraft:fire_aspect": 2
                   }
                 }
               },
@@ -894,7 +894,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:flame": 3
+                    "minecraft:flame": 1
                   }
                 }
               },
@@ -911,7 +911,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:frost_walker": 3
+                    "minecraft:frost_walker": 2
                   }
                 }
               },
@@ -928,7 +928,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:knockback": 3
+                    "minecraft:knockback": 2
                   }
                 }
               },
@@ -1013,7 +1013,7 @@
               "components": {
                 "minecraft:stored_enchantments": {
                   "levels": {
-                    "minecraft:punch": 3
+                    "minecraft:punch": 2
                   }
                 }
               },
