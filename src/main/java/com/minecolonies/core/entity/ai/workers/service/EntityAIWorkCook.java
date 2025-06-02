@@ -23,6 +23,8 @@ import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobCook;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIUsesFurnace;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.function.Predicate;
 
@@ -251,6 +252,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
      */
     private IAIState serveFoodToPlayer()
     {
+
         if (playerToServe.isEmpty())
         {
             return START_WORKING;
@@ -282,8 +284,9 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
             return getState();
         }
 
-        final Map<ItemStack, Integer> transferredItemMap = InventoryUtils.transferFoodUpToSaturation(worker, handler, building.getBuildingLevel() * SATURATION_TO_SERVE, canEatPredicate);
-        final int count = transferredItemMap.values().stream().mapToInt(Integer::intValue).sum();
+        final Object2IntMap<ItemStack> transferredItemMap = InventoryUtils.transferFoodUpToSaturation(worker, handler, building.getBuildingLevel() * SATURATION_TO_SERVE, canEatPredicate);
+        int count = 0;
+        for (int v : transferredItemMap.values()) count += v;
 
         if (count <= 0)
         {

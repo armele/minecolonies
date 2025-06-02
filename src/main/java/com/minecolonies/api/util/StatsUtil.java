@@ -7,6 +7,7 @@ import java.util.Map;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingStatisticsModule;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
@@ -48,12 +49,12 @@ public class StatsUtil
      * @param statName the identifier for the stat.
      * @param itemMap the items to track the stats for.
      */
-    public static void trackStatByStackMap(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
+    public static void trackStatByStackMap(IBuilding building, String statName, Object2IntMap<ItemStack> itemMap)
     {
-        for (Map.Entry<ItemStack, Integer> entry : itemMap.entrySet())
+        for (Object2IntMap.Entry<ItemStack> entry : itemMap.object2IntEntrySet())
         {
             ItemStack stack = entry.getKey();
-            int count = entry.getValue();
+            int count = entry.getIntValue();
             trackStatByStack(building, statName, stack, count);
         }
     }
