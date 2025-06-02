@@ -374,7 +374,8 @@ public class PathfindingUtils
             block instanceof CampfireBlock ||
             block instanceof MagmaBlock ||
             block instanceof SweetBerryBushBlock ||
-            block instanceof PowderSnowBlock;
+            block instanceof PowderSnowBlock ||
+            block == Blocks.LAVA_CAULDRON;
     }
 
     /**
