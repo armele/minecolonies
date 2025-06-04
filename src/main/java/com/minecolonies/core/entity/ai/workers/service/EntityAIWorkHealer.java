@@ -77,6 +77,8 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
      */
     private Player playerToHeal;
 
+    public static final String DISEASES_TREATED = "diseases_treated";
+
     /**
      * Constructor for the Cook. Defines the tasks the cook executes.
      *
