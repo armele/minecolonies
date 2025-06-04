@@ -3109,7 +3109,8 @@ public class InventoryUtils
                         foundSaturation = requiredSaturation;
                     }
 
-                    if (!ItemStackUtils.isEmpty(extractedFood)) {
+                    if (!ItemStackUtils.isEmpty(extractedFood)) 
+                    {
                         transferredItemMap.addTo(extractedFood, extractedFood.getCount());
                     }
                     
