@@ -8,6 +8,9 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -3035,9 +3038,9 @@ public class InventoryUtils
      * @param target             to insert intems into
      * @param requiredSaturation required saturation value
      * @param foodPredicate      food choosing predicate
-     * @return true if any food was transferred
+     * @returns a map of transferred items
      */
-    public static int transferFoodUpToSaturation(
+    public static Object2IntMap<ItemStack> transferFoodUpToSaturation(
       final IItemHandlerCapProvider source,
       final IItemHandler target,
       final int requiredSaturation,
@@ -3046,7 +3049,10 @@ public class InventoryUtils
         Set<IItemHandler> handlers = getItemHandlersFromProvider(source);
 
         int foundSaturation = 0;
-        int transferedItems = 0;
+
+        Object2IntOpenHashMap<ItemStack> transferredItemMap = new Object2IntOpenHashMap<>();
+        transferredItemMap.defaultReturnValue(0); // avoid nulls on get()
+
         for (final IItemHandler handler : handlers)
         {
             for (int i = 0; i < handler.getSlots(); i++)
@@ -3078,7 +3084,11 @@ public class InventoryUtils
                         foundSaturation = requiredSaturation;
                     }
 
-                    transferedItems += extractedFood.getCount();
+                    if (!ItemStackUtils.isEmpty(extractedFood)) 
+                    {
+                        transferredItemMap.addTo(extractedFood, extractedFood.getCount());
+                    }
+                    
                     if (!ItemStackUtils.isEmpty(extractedFood))
                     {
                         if (!addItemStackToItemHandler(target, extractedFood))
@@ -3096,13 +3106,13 @@ public class InventoryUtils
 
                     if (foundSaturation >= requiredSaturation)
                     {
-                        return transferedItems;
+                        return transferredItemMap;
                     }
                 }
             }
         }
 
-        return transferedItems;
+        return transferredItemMap;
     }
 
     /**
