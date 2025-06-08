@@ -8,6 +8,9 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -3062,7 +3065,7 @@ public class InventoryUtils
      * @param foodPredicate      food choosing predicate
      * @returns a map of transferred items
      */
-    public static Map<ItemStack, Integer> transferFoodUpToSaturation(
+    public static Object2IntMap<ItemStack> transferFoodUpToSaturation(
       final ICapabilityProvider source,
       final IItemHandler target,
       final int requiredSaturation,
@@ -3071,8 +3074,9 @@ public class InventoryUtils
         Set<IItemHandler> handlers = getItemHandlersFromProvider(source);
 
         int foundSaturation = 0;
-        int transferedItems = 0;
-        Map<ItemStack, Integer> transferredItemMap = new HashMap<ItemStack, Integer>();
+
+        Object2IntOpenHashMap<ItemStack> transferredItemMap = new Object2IntOpenHashMap<>();
+        transferredItemMap.defaultReturnValue(0); // avoid nulls on get()
 
         for (final IItemHandler handler : handlers)
         {
@@ -3105,13 +3109,9 @@ public class InventoryUtils
                         foundSaturation = requiredSaturation;
                     }
 
-                    transferedItems += extractedFood.getCount();
-                    if (transferredItemMap.containsKey(extractedFood))
+                    if (!ItemStackUtils.isEmpty(extractedFood)) 
                     {
-                        transferredItemMap.put(extractedFood, transferredItemMap.get(extractedFood) + extractedFood.getCount());
-                    } else 
-                    {
-                        transferredItemMap.put(extractedFood, extractedFood.getCount());
+                        transferredItemMap.addTo(extractedFood, extractedFood.getCount());
                     }
                     
                     if (!ItemStackUtils.isEmpty(extractedFood))

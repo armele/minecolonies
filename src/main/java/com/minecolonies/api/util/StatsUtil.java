@@ -7,6 +7,7 @@ import java.util.Map;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingStatisticsModule;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
@@ -48,14 +49,32 @@ public class StatsUtil
      * @param statName the identifier for the stat.
      * @param itemMap the items to track the stats for.
      */
-    public static void trackStat(IBuilding building, String statName, Map<ItemStack, Integer> itemMap)
+    public static void trackStatByStackMap(IBuilding building, String statName, Object2IntMap<ItemStack> itemMap)
     {
-        for (Map.Entry<ItemStack, Integer> entry : itemMap.entrySet())
+        for (Object2IntMap.Entry<ItemStack> entry : itemMap.object2IntEntrySet())
         {
             ItemStack stack = entry.getKey();
-            int count = entry.getValue();
-            trackStat(building, statName, stack, count);
+            int count = entry.getIntValue();
+            trackStatByStack(building, statName, stack, count);
         }
+    }
+
+    /**
+     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
+     * @param building the building to track the stat for.
+     * @param statIdentifier the identifier for the stat.
+     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
+     * @param count the number of the item to track the stat for.
+     */
+    public static void trackStatByStack(IBuilding building, String statIdentifier, ItemStack stack, int count) 
+    {
+        if (stack == null) 
+        {
+            Log.getLogger().warn("Attempted to track stat '{}' with null stack: ", statIdentifier);
+            return;
+        }
+
+        trackStat(building, statIdentifier, stack.getDescriptionId(), count);
     }
 
     /**
@@ -102,21 +121,4 @@ public class StatsUtil
         trackStat(building, statIdentifier, displayName.getString(), count);
     }
 
-    /**
-     * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * @param building the building to track the stat for.
-     * @param statIdentifier the identifier for the stat.
-     * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
-     * @param count the number of the item to track the stat for.
-     */
-    public static void trackStat(IBuilding building, String statIdentifier, ItemStack stack, int count) 
-    {
-        if (stack == null) 
-        {
-            Log.getLogger().warn("Attempted to track stat '{}' with null stack: ", statIdentifier);
-            return;
-        }
-
-        trackStat(building, statIdentifier, stack.getDescriptionId(), count);
-    }
 }
