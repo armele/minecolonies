@@ -43,5 +43,9 @@ public final class StatisticsConstants
     // Hospital
     public static final String DISEASES_TREATED = "diseases_treated";
     public static final String NUM_DISEASES_TREATED = "num_diseases_treated";
+
+    // Archery Training
+    public static final String ARROWS_FIRED = "arrows_fired";
+    public static final String ARROWS_HIT = "arrows_hit";
 }
 

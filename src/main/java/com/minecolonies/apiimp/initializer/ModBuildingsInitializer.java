@@ -34,6 +34,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(ARCHERY_WORK_HOME)
           .addBuildingModuleProducer(BED)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.bakery = DEFERRED_REGISTER.register(ModBuildings.BAKERY_ID, () -> new BuildingEntry.Builder()
