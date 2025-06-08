@@ -13,7 +13,10 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.StatsUtil;
+<<<<<<< HEAD
 
+=======
+>>>>>>> bb80371ee1 (Added stats the the restaurant)
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.Network;
@@ -37,7 +40,10 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.TranslationConstants.PATIENT_FULL_INVENTORY;
 import static com.minecolonies.api.util.constant.StatisticsConstants.DISEASES_TREATED;
 import static com.minecolonies.api.util.constant.StatisticsConstants.NUM_DISEASES_TREATED;
+<<<<<<< HEAD
 
+=======
+>>>>>>> bb80371ee1 (Added stats the the restaurant)
 
 /**
  * Healer AI class.
@@ -78,8 +84,6 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
      * Player to heal.
      */
     private Player playerToHeal;
-
-    public static final String DISEASES_TREATED = "diseases_treated";
 
     /**
      * Constructor for the Cook. Defines the tasks the cook executes.

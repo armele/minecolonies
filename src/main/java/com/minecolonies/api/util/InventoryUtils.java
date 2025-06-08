@@ -3065,7 +3065,11 @@ public class InventoryUtils
      * @param foodPredicate      food choosing predicate
      * @returns a map of transferred items
      */
+<<<<<<< HEAD
     public static Object2IntMap<ItemStack> transferFoodUpToSaturation(
+=======
+    public static Map<ItemStack, Integer> transferFoodUpToSaturation(
+>>>>>>> bb80371ee1 (Added stats the the restaurant)
       final ICapabilityProvider source,
       final IItemHandler target,
       final int requiredSaturation,
@@ -3074,9 +3078,14 @@ public class InventoryUtils
         Set<IItemHandler> handlers = getItemHandlersFromProvider(source);
 
         int foundSaturation = 0;
+<<<<<<< HEAD
 
         Object2IntOpenHashMap<ItemStack> transferredItemMap = new Object2IntOpenHashMap<>();
         transferredItemMap.defaultReturnValue(0); // avoid nulls on get()
+=======
+        int transferedItems = 0;
+        Map<ItemStack, Integer> transferredItemMap = new HashMap<ItemStack, Integer>();
+>>>>>>> bb80371ee1 (Added stats the the restaurant)
 
         for (final IItemHandler handler : handlers)
         {
@@ -3109,9 +3118,19 @@ public class InventoryUtils
                         foundSaturation = requiredSaturation;
                     }
 
+<<<<<<< HEAD
                     if (!ItemStackUtils.isEmpty(extractedFood)) 
                     {
                         transferredItemMap.addTo(extractedFood, extractedFood.getCount());
+=======
+                    transferedItems += extractedFood.getCount();
+                    if (transferredItemMap.containsKey(extractedFood))
+                    {
+                        transferredItemMap.put(extractedFood, transferredItemMap.get(extractedFood) + extractedFood.getCount());
+                    } else 
+                    {
+                        transferredItemMap.put(extractedFood, extractedFood.getCount());
+>>>>>>> bb80371ee1 (Added stats the the restaurant)
                     }
                     
                     if (!ItemStackUtils.isEmpty(extractedFood))
