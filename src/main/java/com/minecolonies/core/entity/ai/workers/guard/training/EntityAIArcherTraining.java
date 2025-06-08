@@ -32,6 +32,7 @@ import static com.minecolonies.api.util.constant.GuardConstants.*;
 
 import static com.minecolonies.api.util.constant.StatisticsConstants.ARROWS_FIRED;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ARROWS_HIT;
+import static com.minecolonies.api.util.constant.StatisticsConstants.LEVELS_TRAINED;
 
 @SuppressWarnings("squid:MaximumInheritanceDepth")
 public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTraining, BuildingArchery>
@@ -214,6 +215,8 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
 
     private IAIState checkShot()
     {
+        int priorCombinedLevel = getPrimarySkillLevel() + getSecondarySkillLevel();
+        
         if (arrowInProgress.distanceToSqr(new Vec3(currentShootingTarget.getX(), currentShootingTarget.getY(), currentShootingTarget.getZ())) < MIN_DISTANCE_FOR_SUCCESS)
         {
             worker.getCitizenExperienceHandler().addExperience(XP_PER_SUCCESSFUL_SHOT);
@@ -224,6 +227,13 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
             worker.getCitizenExperienceHandler().addExperience(XP_BASE_RATE);
         }
         StatsUtil.trackStat(building, ARROWS_FIRED, 1);
+
+        int postCombinedLevel = getPrimarySkillLevel() + getSecondarySkillLevel();
+
+        if (postCombinedLevel - priorCombinedLevel > 0)
+        {
+            StatsUtil.trackStat(building, LEVELS_TRAINED, postCombinedLevel - priorCombinedLevel);
+        }
 
         worker.getCitizenData().setVisibleStatus(VisibleCitizenStatus.WORKING);
         return ARCHER_SELECT_TARGET;

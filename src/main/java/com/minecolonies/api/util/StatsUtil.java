@@ -2,8 +2,6 @@ package com.minecolonies.api.util;
 
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
 
-import java.util.Map;
-
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingStatisticsModule;
 
@@ -99,7 +97,9 @@ public class StatsUtil
         if (statsModule != null) 
         {
             statsModule.incrementBy(statKey, count);
-        } else {
+        } 
+        else 
+        {
             Log.getLogger().error("Attempt to track stats on a building that has no statistics module: {}", building);
         }
     }
@@ -143,7 +143,9 @@ public class StatsUtil
         if (statsModule != null) 
         {
             statsModule.incrementBy(statIdentifier, count);
-        } else {
+        } 
+        else 
+        {
             Log.getLogger().error("Attempt to track stats on a building that has no statistics module: {}", building);
         }
     }
