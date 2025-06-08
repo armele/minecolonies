@@ -18,8 +18,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -2896,6 +2898,10 @@ public class InventoryUtils
             if (ItemStackUtils.compareItemStacksIgnoreStackSize(invWrapper.getStackInSlot(i), itemStack))
             {
                 invWrapper.getStackInSlot(i).shrink(quantity);
+                if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
+                {
+                    addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET));
+                }
                 return;
             }
         }
