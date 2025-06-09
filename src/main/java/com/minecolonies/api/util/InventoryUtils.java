@@ -2908,6 +2908,44 @@ public class InventoryUtils
     }
 
     /**
+     * Search for a certain itemStack in the inventory and decrease it by 1.
+     * This is "bucket-aware", in that if a full bucket is used by the decrease, an empty
+     * bucket replaces it.
+     *
+     * @param invWrapper the inventory item handler.
+     * @param itemStack  the itemStack to decrease.
+     */
+    public static void reduceBucketAwareStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack)
+    {
+        reduceBucketAwareStackInItemHandler(invWrapper, itemStack, 1);
+    }
+
+    /**
+     * Search for a certain itemStack in the inventory and decrease it by a certain quantity.
+     * This is "bucket-aware", in that if a full bucket is used by the decrease, an empty
+     * bucket replaces it.
+     *
+     * @param invWrapper the inventory item handler.
+     * @param itemStack  the itemStack to decrease.
+     * @param quantity   the quantity.
+     */
+    public static void reduceBucketAwareStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
+    {
+        for (int i = 0; i < invWrapper.getSlots(); i++)
+        {
+            if (ItemStackUtils.compareItemStacksIgnoreStackSize(invWrapper.getStackInSlot(i), itemStack))
+            {
+                invWrapper.getStackInSlot(i).shrink(quantity);
+                if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
+                {
+                    addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET, quantity));
+                }
+                return;
+            }
+        }
+    }
+
+    /**
      * Search for a certain itemStack in the inventory and decrease it by a certain quantity.
      *
      * @param invWrapper the inventory item handler.
