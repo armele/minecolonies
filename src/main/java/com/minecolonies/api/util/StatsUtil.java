@@ -2,8 +2,6 @@ package com.minecolonies.api.util;
 
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
 
-import java.util.Map;
-
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingStatisticsModule;
 
