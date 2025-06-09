@@ -2927,17 +2927,13 @@ public class InventoryUtils
      */
     public static void reduceBucketAwareStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
     {
-        for (int i = 0; i < invWrapper.getSlots(); i++)
+        if  (attemptReduceStackInItemHandler(invWrapper, itemStack, quantity)) 
         {
-            if (ItemStackUtils.compareItemStacksIgnoreStackSize(invWrapper.getStackInSlot(i), itemStack))
+            if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
             {
-                invWrapper.getStackInSlot(i).shrink(quantity);
-                if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
-                {
-                    addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET, quantity));
-                }
-                return;
+                addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET, quantity));
             }
+            return;
         }
     }
 
