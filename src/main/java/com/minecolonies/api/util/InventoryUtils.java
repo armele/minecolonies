@@ -2898,10 +2898,6 @@ public class InventoryUtils
             if (ItemStackUtils.compareItemStacksIgnoreStackSize(invWrapper.getStackInSlot(i), itemStack))
             {
                 invWrapper.getStackInSlot(i).shrink(quantity);
-                if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
-                {
-                    addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET));
-                }
                 return;
             }
         }
