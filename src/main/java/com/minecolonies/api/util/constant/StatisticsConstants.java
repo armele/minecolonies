@@ -31,7 +31,7 @@ public final class StatisticsConstants
     public static final String ITEM_USED     = "item_used";
     public static final String ITEM_OBTAINED = "item_obtained";
     public static final String MOB_KILLED    = "mob_killed";
-    public static final String LEVELS_TRAINED = "levels_trained";
+    public static final String LEVELS_GAINED = "levels_gained";
 
     /**
      * Specific building stats.
