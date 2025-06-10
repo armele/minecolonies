@@ -319,6 +319,8 @@ public final class TranslationConstants
     @NonNls
     public static final String WATER_TOO_FAR                                                        = "entity.fisherman.messagewatertoofar";
     @NonNls
+    public static final String SUBOPTIMAL_POND                                                      = "entity.fisherman.messagesuboptimalpond";
+    @NonNls
     public static final String NO_HIVES                                                             = "entity.beekeeper.messagenohives";
     @NonNls
     public static final String NO_BEES                                                              = "entity.beekeeper.messagenobees";

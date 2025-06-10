@@ -1412,6 +1412,7 @@
   "com.minecolonies.gui.visiblestatus.burying": "Burying a citizen",
 
   "entity.fisherman.messagewatertoofar": "I can't find any suitable water for fishing! There should be an area of water at least 7 blocks long and wide, and 2 blocks deep nearby.",
+  "entity.fisherman.messagesuboptimalpond": "This pond at at position X:%d Y:%d Z:%d isn't great - the currents under the surface are too strong. If you want me to fish there, replace the flowing water with water source blocks.",
   "com.minecolonies.coremod.furnaceuser.nofuel": "Please tell me what kind of fuel I should use in my furnace!",
   "com.minecolonies.coremod.furnaceuser.noore": "Please tell me what kind of ore I should smelt in my furnace!",
   "com.minecolonies.coremod.furnaceuser.nofood": "Please add some food options to the menu so I can start serving food to the citizens!",
