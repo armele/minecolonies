@@ -1,9 +1,0 @@
-{
-  "values": [
-    "minecraft:jungle_log",
-    {
-      "id": "productivebees:jungle_wood_nest",
-      "required": false
-    }
-  ]
-}

@@ -1,9 +1,0 @@
-{
-  "values": [
-    "minecraft:oak_log",
-    {
-      "id": "productivebees:oak_wood_nest",
-      "required": false
-    }
-  ]
-}
