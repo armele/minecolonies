@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:birch_log",
+    {
+      "id": "productivebees:birch_wood_nest",
+      "required": false
+    }
+  ]
+}

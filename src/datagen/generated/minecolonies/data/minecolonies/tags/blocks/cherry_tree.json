@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:cherry_log",
+    {
+      "id": "productivebees:cherry_wood_nest",
+      "required": false
+    }
+  ]
+}
