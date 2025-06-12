@@ -136,36 +136,10 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
 
         tag(ModTags.mangroveTree)
                 .add(Blocks.MANGROVE_LOG)
-                .add(Blocks.MANGROVE_ROOTS)
-                .addOptional(new ResourceLocation("productivebees", "mangrove_wood_nest"));
+                .add(Blocks.MANGROVE_ROOTS);
 
-        tag(ModTags.oakTree)
-                .add(Blocks.OAK_LOG)
-                .addOptional(new ResourceLocation("productivebees", "oak_wood_nest"));
-
-        tag(ModTags.darkOakTree)
-                .add(Blocks.DARK_OAK_LOG)
-                .addOptional(new ResourceLocation("productivebees", "dark_oak_wood_nest"));
-
-        tag(ModTags.spruceTree)
-                .add(Blocks.SPRUCE_LOG)
-                .addOptional(new ResourceLocation("productivebees", "spruce_wood_nest"));
-
-        tag(ModTags.birchTree)
-                .add(Blocks.BIRCH_LOG)
-                .addOptional(new ResourceLocation("productivebees", "birch_wood_nest"));
-
-        tag(ModTags.jungleTree)
-                .add(Blocks.JUNGLE_LOG)
-                .addOptional(new ResourceLocation("productivebees", "jungle_wood_nest"));
-
-        tag(ModTags.acaciaTree)
-                .add(Blocks.ACACIA_LOG)
-                .addOptional(new ResourceLocation("productivebees", "acacia_wood_nest"));
-
-        tag(ModTags.cherryTree)
-                .add(Blocks.CHERRY_LOG)
-                .addOptional(new ResourceLocation("productivebees", "cherry_wood_nest"));
+        tag(ModTags.extraTree)
+                .addOptionalTag(new ResourceLocation("productivebees", "nests/wood_nests"));
 
         // sadly forge doesn't provide the block form of this tag, despite providing an item tag
         tag(ModTags.mushroomBlocks)
@@ -184,7 +158,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
                 .addTag(BlockTags.LOGS)
                 .addTag(ModTags.mangroveTree)
                 .add(Blocks.MUSHROOM_STEM)
-                .addOptionalTag(ResourceLocation.fromNamespaceAndPath("productivebees", "nests/wood_nests"));
+                .addTag(ModTags.extraTree);
 
         tag(ModTags.colonyProtectionException)
                 .addOptionalTag(ResourceLocation.fromNamespaceAndPath("waystones", "waystones"));

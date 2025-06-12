@@ -1,9 +1,0 @@
-{
-  "values": [
-    "minecraft:acacia_log",
-    {
-      "id": "productivebees:acacia_wood_nest",
-      "required": false
-    }
-  ]
-}

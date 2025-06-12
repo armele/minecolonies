@@ -1,10 +1,6 @@
 {
   "values": [
     "minecraft:mangrove_log",
-    "minecraft:mangrove_roots",
-    {
-      "id": "productivebees:mangrove_wood_nest",
-      "required": false
-    }
+    "minecraft:mangrove_roots"
   ]
 }

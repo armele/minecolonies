@@ -130,21 +130,6 @@ public class Tree
      */
     private boolean netherTree = false;
 
-    /*
-     * List of tree family tags. Each tag in a given family represents a block or set of 
-     * blocks that should be considered part of the same tree.
-     */
-    private static final List<TagKey<Block>> TREE_FAMILY_TAGS = List.of(
-        ModTags.mangroveTree,
-        ModTags.oakTree,
-        ModTags.spruceTree,
-        ModTags.birchTree,
-        ModTags.darkOakTree,
-        ModTags.jungleTree,
-        ModTags.acaciaTree,
-        ModTags.cherryTree
-    );
-
     /**
      * Private constructor of the tree. Used by the equals and createFromNBt method.
      */
@@ -762,31 +747,21 @@ public class Tree
     /**
      * Check if this is a log in the same tree type.
      *
-     * @param existingBlock the current block in the tree.
-     * @param newBlock      block to check.
+     * @param checkBlock the current block in the tree being evaluated.
+     * @param stumpBlock the block to compare against.
      * @return true if this is the same type of tree; false if it's something different.
      */
     private boolean isBlockPartOfSameTree(
-      @NotNull final BlockState existingBlock,
-      @NotNull final BlockState newBlock)
+      @NotNull final BlockState checkBlock,
+      @NotNull final BlockState stumpBlock)
     {
-        if (existingBlock.getBlock().equals(newBlock.getBlock())) {
-            return true;
-
+        if (checkBlock.is(ModTags.mangroveTree))
+        {
+            return stumpBlock.is(ModTags.mangroveTree);
         }
 
-        for (TagKey<Block> treeFamilyTag : TREE_FAMILY_TAGS) {
-            Log.getLogger().info("Checking treeFamilyTag {} for {} and {}: ", treeFamilyTag, existingBlock, newBlock);
-            if (existingBlock.is(treeFamilyTag) && newBlock.is(treeFamilyTag)) {
-                Log.getLogger().info("These are the same family.");
-                return true;
-            } else {
-                Log.getLogger().info("Not the same: {} and {}", existingBlock.is(treeFamilyTag), newBlock.is(treeFamilyTag));
-            }
-        }
-
-        return false;
-    }
+        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree);
+	}
 
     /**
      * Adds a leaf and searches for further leaves.
