@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:spruce_log",
+    {
+      "id": "productivebees:spruce_wood_nest",
+      "required": false
+    }
+  ]
+}

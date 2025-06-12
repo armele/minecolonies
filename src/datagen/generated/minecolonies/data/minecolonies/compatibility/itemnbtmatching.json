@@ -1029,56 +1029,80 @@
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_boots"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_cap"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_chest"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_hat"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_leggins"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_legs"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_shoes"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:pirate_top"
   },
@@ -1097,28 +1121,40 @@
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:plate_armor_boots"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:plate_armor_chest"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:plate_armor_helmet"
   },
   {
     "checkednbtkeys": [
       "minecraft:attribute_modifiers",
-      "minecraft:dyed_color"
+      "minecraft:dyed_color",
+      "minecraft:enchantments",
+      "minecraft:max_damage",
+      "minecraft:repair_cost"
     ],
     "item": "minecolonies:plate_armor_legs"
   },
