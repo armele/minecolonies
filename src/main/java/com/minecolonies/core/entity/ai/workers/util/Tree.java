@@ -771,12 +771,15 @@ public class Tree
       @NotNull final BlockState existingBlock,
       @NotNull final BlockState newBlock)
     {
-        if (existingBlock.getBlock().equals(newBlock.getBlock())) {
+        if (existingBlock.getBlock().equals(newBlock.getBlock())) 
+        {
             return true;
         }
 
-        for (TagKey<Block> treeFamilyTag : TREE_FAMILY_TAGS) {
-            if (existingBlock.is(treeFamilyTag) && newBlock.is(treeFamilyTag)) {
+        for (TagKey<Block> treeFamilyTag : TREE_FAMILY_TAGS) 
+        {
+            if (existingBlock.is(treeFamilyTag) && newBlock.is(treeFamilyTag)) 
+            {
                 return true;
             }
         }
