@@ -10,15 +10,19 @@ import com.minecolonies.api.items.ModTags;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.BlockStateUtils;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -35,6 +39,8 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.fml.common.Mod;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -124,6 +130,21 @@ public class Tree
      * If the tree is a Nether Tree
      */
     private boolean netherTree = false;
+
+    /*
+     * List of tree family tags. Each tag in a given family represents a block or set of 
+     * blocks that should be considered part of the same tree.
+     */
+    private static final List<TagKey<Block>> TREE_FAMILY_TAGS = List.of(
+        ModTags.mangroveTree,
+        ModTags.oakTree,
+        ModTags.spruceTree,
+        ModTags.birchTree,
+        ModTags.darkOakTree,
+        ModTags.jungleTree,
+        ModTags.acaciaTree,
+        ModTags.cherryTree
+    );
 
     /**
      * Private constructor of the tree. Used by the equals and createFromNBt method.
@@ -746,16 +767,29 @@ public class Tree
      * @param newBlock      block to check.
      * @return true if this is the same type of tree; false if it's something different.
      */
+    /**
+     * Check if this is a log in the same tree type.
+     *
+     * @param existingBlock the current block in the tree.
+     * @param newBlock      block to check.
+     * @return true if this is the same type of tree; false if it's something different.
+     */
     private boolean isBlockPartOfSameTree(
       @NotNull final BlockState existingBlock,
       @NotNull final BlockState newBlock)
     {
-        if (existingBlock.is(ModTags.mangroveTree))
-        {
-            return newBlock.is(ModTags.mangroveTree);
+        if (existingBlock.getBlock().equals(newBlock.getBlock())) {
+            return true;
         }
 
-        return existingBlock.getBlock().equals(newBlock.getBlock());
+        // TODO: Implement and Test this
+        for (TagKey<Block> treeFamilyTag : TREE_FAMILY_TAGS) {
+            if (existingBlock.is(treeFamilyTag) && newBlock.is(treeFamilyTag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

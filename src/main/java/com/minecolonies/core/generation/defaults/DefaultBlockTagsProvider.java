@@ -168,7 +168,36 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
 
         tag(ModTags.mangroveTree)
                 .add(Blocks.MANGROVE_LOG)
-                .add(Blocks.MANGROVE_ROOTS);
+                .add(Blocks.MANGROVE_ROOTS)
+                .addOptionalTag(new ResourceLocation("productivebees", "mangrove_wood_nest"));
+
+        tag(ModTags.oakTree)
+                .add(Blocks.OAK_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "oak_wood_nest"));
+
+        tag(ModTags.darkOakTree)
+                .add(Blocks.DARK_OAK_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "dark_oak_wood_nest"));
+
+        tag(ModTags.spruceTree)
+                .add(Blocks.SPRUCE_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "spruce_wood_nest"));
+
+        tag(ModTags.birchTree)
+                .add(Blocks.BIRCH_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "birch_wood_nest"));
+
+        tag(ModTags.jungleTree)
+                .add(Blocks.JUNGLE_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "jungle_wood_nest"));
+
+        tag(ModTags.acaciaTree)
+                .add(Blocks.ACACIA_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "acacia_wood_nest"));
+
+        tag(ModTags.cherryTree)
+                .add(Blocks.CHERRY_LOG)
+                .addOptionalTag(new ResourceLocation("productivebees", "cherry_wood_nest"));
 
         // sadly forge doesn't provide the block form of this tag, despite providing an item tag
         tag(ModTags.mushroomBlocks)

@@ -35,6 +35,13 @@ public class ModTags
     public static final TagKey<Block> tier5blocks     = BlockTags.create(TagConstants.TIER5_BLOCKS);
     public static final TagKey<Block> tier6blocks     = BlockTags.create(TagConstants.TIER6_BLOCKS);
     public static final TagKey<Block> mangroveTree    = BlockTags.create(TagConstants.MANGROVE_TREE_BLOCKS);
+    public static final TagKey<Block> oakTree         = BlockTags.create(TagConstants.OAK_TREE_BLOCKS);
+    public static final TagKey<Block> darkOakTree     = BlockTags.create(TagConstants.DARK_OAK_TREE_BLOCKS);
+    public static final TagKey<Block> spruceTree      = BlockTags.create(TagConstants.SPRUCE_TREE_BLOCKS);
+    public static final TagKey<Block> birchTree       = BlockTags.create(TagConstants.BIRCH_TREE_BLOCKS);
+    public static final TagKey<Block> jungleTree      = BlockTags.create(TagConstants.JUNGLE_TREE_BLOCKS);
+    public static final TagKey<Block> acaciaTree      = BlockTags.create(TagConstants.ACACIA_TREE_BLOCKS);
+    public static final TagKey<Block> cherryTree      = BlockTags.create(TagConstants.CHERRY_TREE_BLOCKS);
     public static final TagKey<Block> tree            = BlockTags.create(TagConstants.TREE_BLOCKS);
 
     public static final TagKey<Block> concreteBlocks       = BlockTags.create(TagConstants.CONCRETE_BLOCK);
