@@ -190,7 +190,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
                 .addTag(BlockTags.LOGS)
                 .addTag(ModTags.mangroveTree)
                 .add(Blocks.MUSHROOM_STEM)
-                .addOptionalTag(new ResourceLocation("productivebees", "nests/wood_nests"));
+                .addTag(ModTags.extraTree);
 
         tag(ModTags.colonyProtectionException)
                 .addOptionalTag(new ResourceLocation("waystones", "waystones"));

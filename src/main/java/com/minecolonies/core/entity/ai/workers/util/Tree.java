@@ -748,21 +748,21 @@ public class Tree
     /**
      * Check if this is a log in the same tree type.
      *
-     * @param existingBlock the current block in the tree.
-     * @param newBlock      block to check.
+     * @param checkBlock the current block in the tree being evaluated.
+     * @param stumpBlock the block to check against.
      * @return true if this is the same type of tree; false if it's something different.
      */
     private boolean isBlockPartOfSameTree(
-      @NotNull final BlockState existingBlock,
-      @NotNull final BlockState newBlock)
+      @NotNull final BlockState checkBlock,
+      @NotNull final BlockState stumpBlock)
     {
-        if (existingBlock.is(ModTags.mangroveTree))
+        if (checkBlock.is(ModTags.mangroveTree))
         {
-            return newBlock.is(ModTags.mangroveTree);
+            return stumpBlock.is(ModTags.mangroveTree);
         }
 
-        return existingBlock.getBlock().equals(newBlock.getBlock()) || newBlock.is(ModTags.extraTree);
-    }
+        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree);
+	}
 
     /**
      * Adds a leaf and searches for further leaves.

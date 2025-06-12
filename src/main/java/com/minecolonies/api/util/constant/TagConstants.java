@@ -24,7 +24,7 @@ public final class TagConstants
     public static final ResourceLocation TIER5_BLOCKS              = new ResourceLocation(MOD_ID, "tier5blocks");
     public static final ResourceLocation TIER6_BLOCKS              = new ResourceLocation(MOD_ID, "tier6blocks");
     public static final ResourceLocation MANGROVE_TREE_BLOCKS      = new ResourceLocation(MOD_ID, "mangrove_tree");
-    public static final ResourceLocation EXTRA_TREE_BLOCKS          = new ResourceLocation(MOD_ID, "extra_tree");
+    public static final ResourceLocation EXTRA_TREE_BLOCKS         = new ResourceLocation(MOD_ID, "extra_tree");
     public static final ResourceLocation TREE_BLOCKS               = new ResourceLocation(MOD_ID, "tree");
     public static final ResourceLocation FLORIST_FLOWERS           = new ResourceLocation(MOD_ID, "florist_flowers");
     public static final ResourceLocation EXCLUDED_FOOD             = new ResourceLocation(MOD_ID, "excluded_food");
