@@ -767,13 +767,6 @@ public class Tree
      * @param newBlock      block to check.
      * @return true if this is the same type of tree; false if it's something different.
      */
-    /**
-     * Check if this is a log in the same tree type.
-     *
-     * @param existingBlock the current block in the tree.
-     * @param newBlock      block to check.
-     * @return true if this is the same type of tree; false if it's something different.
-     */
     private boolean isBlockPartOfSameTree(
       @NotNull final BlockState existingBlock,
       @NotNull final BlockState newBlock)
@@ -782,7 +775,6 @@ public class Tree
             return true;
         }
 
-        // TODO: Implement and Test this
         for (TagKey<Block> treeFamilyTag : TREE_FAMILY_TAGS) {
             if (existingBlock.is(treeFamilyTag) && newBlock.is(treeFamilyTag)) {
                 return true;
