@@ -23,16 +23,16 @@ import com.minecolonies.api.configuration.CommonConfiguration;
 import com.minecolonies.api.configuration.ServerConfiguration;
 import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.crafting.registry.RecipeTypeEntry;
-import com.minecolonies.api.entity.mobs.registry.IMobAIRegistry;
 import com.minecolonies.api.entity.citizen.happiness.HappinessRegistry;
+import com.minecolonies.api.entity.mobs.registry.IMobAIRegistry;
 import com.minecolonies.api.entity.pathfinding.registry.IPathNavigateRegistry;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.eventbus.DefaultEventBus;
 import com.minecolonies.api.eventbus.EventBus;
 import com.minecolonies.api.quests.registries.QuestRegistries;
 import com.minecolonies.api.research.IGlobalResearchTree;
-import com.minecolonies.api.research.effects.registry.ResearchEffectEntry;
-import com.minecolonies.api.research.registry.ResearchRequirementEntry;
+import com.minecolonies.api.research.ModResearchEffects;
+import com.minecolonies.api.research.ModResearchRequirements;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.CitizenDataManager;
@@ -44,16 +44,12 @@ import com.minecolonies.core.colony.jobs.registry.JobDataManager;
 import com.minecolonies.core.entity.mobs.registry.MobAIRegistry;
 import com.minecolonies.core.entity.pathfinding.registry.PathNavigateRegistry;
 import com.minecolonies.core.research.GlobalResearchTree;
-import com.minecolonies.core.util.FurnaceRecipes;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.Registry;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.NotNull;
-
-import static com.minecolonies.api.research.ModResearchRequirements.RESEARCH_RESEARCH_REQ_ID;
-import static com.minecolonies.api.research.effects.ModResearchEffects.GLOBAL_EFFECT_ID;
 
 public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
 {
@@ -65,10 +61,10 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     public static final ResourceKey<Registry<ColonyEventTypeRegistryEntry>> COLONY_EVENT_TYPES = key("colonyeventtypes");
     public static final ResourceKey<Registry<ColonyEventDescriptionTypeRegistryEntry>> COLONY_EVENT_DESC_TYPES = key("colonyeventdesctypes");
     public static final ResourceKey<Registry<CraftingType>> CRAFTING_TYPES = key("craftingtypes");
-    public static final ResourceKey<Registry<RecipeTypeEntry>> RECIPE_TYPE_ENTRIES = key("recipetypeentries");
-    public static final ResourceKey<Registry<ResearchRequirementEntry>> RESEARCH_REQUIREMENT_TYPES = key("researchrequirementtypes");
-    public static final ResourceKey<Registry<ResearchEffectEntry>> RESEARCH_EFFECT_TYPES = key("researcheffecttypes");
-    public static final ResourceKey<Registry<QuestRegistries.ObjectiveEntry>> QUEST_OBJECTIVES = key("questobjectives");
+    public static final ResourceKey<Registry<RecipeTypeEntry>>                                  RECIPE_TYPE_ENTRIES        = key("recipetypeentries");
+    public static final ResourceKey<Registry<ModResearchRequirements.ResearchRequirementEntry>> RESEARCH_REQUIREMENT_TYPES = key("researchrequirementtypes");
+    public static final ResourceKey<Registry<ModResearchEffects.ResearchEffectEntry>>           RESEARCH_EFFECT_TYPES      = key("researcheffecttypes");
+    public static final ResourceKey<Registry<QuestRegistries.ObjectiveEntry>>         QUEST_OBJECTIVES           = key("questobjectives");
     public static final ResourceKey<Registry<QuestRegistries.RewardEntry>> QUEST_REWARDS = key("questrewards");
     public static final ResourceKey<Registry<QuestRegistries.TriggerEntry>> QUEST_TRIGGERS = key("questtriggers");
     public static final ResourceKey<Registry<QuestRegistries.DialogueAnswerEntry>> QUEST_ANSWER_RESULTS = key("questanswerresults");
@@ -86,24 +82,24 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     private final IInteractionResponseHandlerDataManager interactionDataManager = new InteractionResponseHandlerManager();
     private final IGlobalResearchTree                    globalResearchTree     = new GlobalResearchTree();
 
-    private Registry<BuildingEntry>          buildingRegistry;
-    private Registry<BuildingExtensionEntry> buildingExtensionEntryRegistry;
-    private Registry<JobEntry>               jobRegistry;
-    private Registry<GuardType>                                  guardTypeRegistry;
-    private Registry<InteractionResponseHandlerEntry>            interactionHandlerRegistry;
-    private Registry<ColonyEventTypeRegistryEntry>               colonyEventRegistry;
-    private Registry<ColonyEventDescriptionTypeRegistryEntry>    colonyEventDescriptionRegistry;
-    private Registry<ResearchRequirementEntry>                   researchRequirementRegistry;
-    private Registry<ResearchEffectEntry>                        researchEffectRegistry;
-    private Registry<RecipeTypeEntry>                            recipeTypeEntryRegistry;
-    private Registry<CraftingType>                               craftingTypeRegistry;
-    private Registry<QuestRegistries.ObjectiveEntry>             questObjectiveRegistry;
-    private Registry<QuestRegistries.RewardEntry>                questRewardRegistry;
-    private Registry<QuestRegistries.TriggerEntry>               questTriggerRegistry;
-    private Registry<QuestRegistries.DialogueAnswerEntry>        questDialogueAnswerRegistry;
-    private Registry<HappinessRegistry.HappinessFactorTypeEntry> happinessFactorTypeRegistry;
-    private Registry<HappinessRegistry.HappinessFunctionEntry>   happinessFunctionRegistry;
-    private Registry<EquipmentTypeEntry>                         equipmentTypeRegistry;
+    private Registry<BuildingEntry>                                    buildingRegistry;
+    private Registry<BuildingExtensionEntry>                           buildingExtensionEntryRegistry;
+    private Registry<JobEntry>                                         jobRegistry;
+    private Registry<GuardType>                                        guardTypeRegistry;
+    private Registry<InteractionResponseHandlerEntry>                  interactionHandlerRegistry;
+    private Registry<ColonyEventTypeRegistryEntry>                     colonyEventRegistry;
+    private Registry<ColonyEventDescriptionTypeRegistryEntry>          colonyEventDescriptionRegistry;
+    private Registry<ModResearchRequirements.ResearchRequirementEntry> researchRequirementRegistry;
+    private Registry<ModResearchEffects.ResearchEffectEntry>           researchEffectRegistry;
+    private Registry<RecipeTypeEntry>                                  recipeTypeEntryRegistry;
+    private Registry<CraftingType>                                     craftingTypeRegistry;
+    private Registry<QuestRegistries.ObjectiveEntry>                   questObjectiveRegistry;
+    private Registry<QuestRegistries.RewardEntry>                      questRewardRegistry;
+    private Registry<QuestRegistries.TriggerEntry>                     questTriggerRegistry;
+    private Registry<QuestRegistries.DialogueAnswerEntry>              questDialogueAnswerRegistry;
+    private Registry<HappinessRegistry.HappinessFactorTypeEntry>       happinessFactorTypeRegistry;
+    private Registry<HappinessRegistry.HappinessFunctionEntry>         happinessFunctionRegistry;
+    private Registry<EquipmentTypeEntry>                               equipmentTypeRegistry;
 
     private EventBus eventBus = new DefaultEventBus();
 
@@ -201,7 +197,7 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     @Override
     public IFurnaceRecipes getFurnaceRecipes()
     {
-        return FurnaceRecipes.getInstance();
+        return IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes();
     }
 
     @Override
@@ -217,10 +213,16 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     }
 
     @Override
-    public Registry<ResearchRequirementEntry> getResearchRequirementRegistry() {return researchRequirementRegistry;}
+    public Registry<ModResearchRequirements.ResearchRequirementEntry> getResearchRequirementRegistry()
+    {
+        return researchRequirementRegistry;
+    }
 
     @Override
-    public Registry<ResearchEffectEntry> getResearchEffectRegistry() {return researchEffectRegistry;}
+    public Registry<ModResearchEffects.ResearchEffectEntry> getResearchEffectRegistry()
+    {
+        return researchEffectRegistry;
+    }
 
     @Override
     public void onRegistryNewRegistry(final NewRegistryEvent event)
@@ -234,8 +236,8 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
         colonyEventDescriptionRegistry = event.create(syncedRegistry(COLONY_EVENT_DESC_TYPES));
         craftingTypeRegistry = event.create(syncedRegistry(CRAFTING_TYPES));
         recipeTypeEntryRegistry = event.create(syncedRegistry(RECIPE_TYPE_ENTRIES, new ResourceLocation(Constants.MOD_ID, "classic")));
-        researchRequirementRegistry = event.create(syncedRegistry(RESEARCH_REQUIREMENT_TYPES, RESEARCH_RESEARCH_REQ_ID));
-        researchEffectRegistry = event.create(syncedRegistry(RESEARCH_EFFECT_TYPES, GLOBAL_EFFECT_ID));
+        researchRequirementRegistry = event.create(syncedRegistry(RESEARCH_REQUIREMENT_TYPES));
+        researchEffectRegistry = event.create(syncedRegistry(RESEARCH_EFFECT_TYPES));
         questObjectiveRegistry = event.create(syncedRegistry(QUEST_OBJECTIVES));
         questRewardRegistry = event.create(syncedRegistry(QUEST_REWARDS));
         questTriggerRegistry = event.create(syncedRegistry(QUEST_TRIGGERS));

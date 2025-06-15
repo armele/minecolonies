@@ -16,7 +16,6 @@ import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.items.ModTags;
 import com.minecolonies.core.util.AdvancementUtils;
-import com.minecolonies.core.util.FurnaceRecipes;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.resources.language.I18n;
@@ -131,23 +130,31 @@ public final class ItemStackUtils
     /**
      * True if this stack is a standard food item (has at least some healing and some saturation, not purely for effects).
      */
+    public static final Predicate<ItemStack> IS_ANY_FOOD =
+            stack ->
+            {
+                final FoodProperties foodProperties = stack.getFoodProperties(null);
+                return ItemStackUtils.isNotEmpty(stack) && foodProperties != null && foodProperties.nutrition() > 0
+                        && foodProperties.saturation() > 0;
+            };
+
+    /**
+     * True if this stack is a standard food item that isn't excluded for colonists.
+     */
     public static final Predicate<ItemStack> ISFOOD =
-      stack ->
-      {
-          final FoodProperties foodProperties = stack.getFoodProperties(null);
-          return ItemStackUtils.isNotEmpty(stack) && foodProperties != null && foodProperties.nutrition() > 0
-                     && foodProperties.saturation() > 0 && !stack.is(ModTags.excludedFood);
-      };
+      stack -> IS_ANY_FOOD.test(stack) && !stack.is(ModTags.excludedFood);
 
     /**
      * Predicate describing things which work in the furnace.
      */
-    public static Predicate<ItemStack> IS_SMELTABLE = itemStack -> !ItemStackUtils.isEmpty(FurnaceRecipes.getInstance().getSmeltingResult(itemStack));
+    public static Predicate<ItemStack> IS_SMELTABLE =
+        itemStack -> !ItemStackUtils.isEmpty(IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes().getSmeltingResult(itemStack));
 
     /**
      * Predicate describing cookables.
      */
-    public static Predicate<ItemStack> ISCOOKABLE = itemStack -> ItemStackUtils.ISFOOD.test(FurnaceRecipes.getInstance().getSmeltingResult(itemStack));
+    public static Predicate<ItemStack> ISCOOKABLE =
+        itemStack -> ItemStackUtils.ISFOOD.test(IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes().getSmeltingResult(itemStack));
 
     /**
      * Predicate to check for compost items.
@@ -867,8 +874,6 @@ public final class ItemStackUtils
             itemUseReturn = ItemStack.EMPTY;
         }
 
-        citizenData.increaseSaturation(satIncrease);
-
         if (!itemUseReturn.isEmpty())
         {
             if (citizenData.getInventory().isFull() || (player != null && !player.getInventory().add(itemUseReturn)))
@@ -918,10 +923,12 @@ public final class ItemStackUtils
 
         return Component.translatable("%sx %s", ingredient.count(), tag.map(t ->
         {
-            final String key = "com.minecolonies.coremod.research.tags." + t.location();
-            return (Component) (I18n.exists(key)
-                    ? Component.translatable(key)
-                    : Component.translatable("com.minecolonies.coremod.research.tags.other", t.location().toString()));
+            final String standardKey = Tags.getTagTranslationKey(t);
+            final String localKey = "com.minecolonies.coremod.research.tags." + t.location();
+            return I18n.exists(localKey) && !I18n.exists(standardKey)
+                    ? (Component) Component.translatable(localKey)
+                    : Component.translatable("com.minecolonies.coremod.research.tags.other",
+                            Component.translatableWithFallback(Tags.getTagTranslationKey(t), t.location().toString()));
         }).orElseGet(() ->
         {
             if (items.length == 1)

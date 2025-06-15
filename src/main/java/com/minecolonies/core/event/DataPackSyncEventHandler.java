@@ -1,6 +1,7 @@
 package com.minecolonies.core.event;
 
 import com.minecolonies.api.IMinecoloniesAPI;
+import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.MineColonies;
@@ -9,16 +10,15 @@ import com.minecolonies.core.compatibility.CraftingTagAuditor;
 import com.minecolonies.core.datalistener.DiseasesListener;
 import com.minecolonies.core.datalistener.QuestJsonListener;
 import com.minecolonies.core.network.messages.client.UpdateClientWithCompatibilityMessage;
-import com.minecolonies.core.util.FurnaceRecipes;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -57,7 +57,7 @@ public class DataPackSyncEventHandler
         private static void discoverCompatLists(@NotNull final MinecraftServer server)
         {
             Log.getLogger().warn("Starting Compat Discovery");
-            FurnaceRecipes.getInstance().loadRecipes(server.getRecipeManager(), server.overworld());
+            IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().getFurnaceRecipes().loadRecipes(server.getRecipeManager(), server.overworld());
             IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().discover(server.getRecipeManager(), server.overworld());
             CustomRecipeManager.getInstance().resolveTemplates(server.registryAccess());
             CustomRecipeManager.getInstance().buildLootData(server.overworld());
@@ -73,10 +73,12 @@ public class DataPackSyncEventHandler
                                         @NotNull final UpdateClientWithCompatibilityMessage compatMsg)
         {
             compatMsg.sendToPlayer(player);
-            CustomRecipeManager.getInstance().sendCustomRecipeManagerPackets(player);
             IGlobalResearchTree.getInstance().sendGlobalResearchTreePackets(player);
             QuestJsonListener.sendGlobalQuestPackets(player);
             DiseasesListener.sendGlobalDiseasesPackets(player);
+
+            // always send this last; we rely on CustomRecipesReloadedEvent signalling that all packets are processed
+            CustomRecipeManager.getInstance().sendCustomRecipeManagerPackets(player);
         }
 
 
@@ -103,21 +105,37 @@ public class DataPackSyncEventHandler
                 final UpdateClientWithCompatibilityMessage compatMsg = new UpdateClientWithCompatibilityMessage(server.registryAccess());
                 for (final ServerPlayer player : event.getPlayerList().getPlayers())
                 {
-                    if (player.getGameProfile() != owner)   // don't need to send them in SP, or LAN owner
+                    if (player.getGameProfile() == owner)
+                    {
+                        // SP 'server' doesn't need most of the packets, but does need compatmgr since we keep separate instances
+                        compatMsg.sendToPlayer(player);
+                    }
+                    else
                     {
                         sendPackets(player, compatMsg);
                     }
                 }
-            }
-            else if (event.getPlayer().getGameProfile() != owner)
-            {
-                sendPackets(event.getPlayer(), new UpdateClientWithCompatibilityMessage(server.registryAccess()));
             }
 
             if (MineColonies.getConfig().getServer().auditCraftingTags.get() &&
                     (event.getPlayer() == null || event.getPlayerList().getPlayers().isEmpty()))
             {
                 CraftingTagAuditor.doRecipeAudit(server, recipeManager);
+            }
+        }
+
+        /**
+         * Sends compat manager data on login, has to be after datapack sync registries are loaded
+         *
+         * @param event
+         */
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public static void sendOnLogin(final PlayerEvent.PlayerLoggedInEvent event)
+        {
+            if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer)
+            {
+                final MinecraftServer server = event.getEntity().getServer();
+                sendPackets((ServerPlayer) event.getEntity(), new UpdateClientWithCompatibilityMessage(server.registryAccess()));
             }
         }
 
@@ -157,16 +175,7 @@ public class DataPackSyncEventHandler
         @SubscribeEvent
         public static void onRecipesLoaded(@NotNull final RecipesUpdatedEvent event)
         {
-            final IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
-            final GameProfile owner = server == null ? null : server.getSingleplayerProfile();
-
-            if (owner != null && owner == Minecraft.getInstance().player.getGameProfile())
-            {
-                // don't need to update on single player, this already happened "server-side".
-                return;
-            }
-
-            FurnaceRecipes.getInstance().loadRecipes(event.getRecipeManager(), Minecraft.getInstance().level);
+            IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes().loadRecipes(event.getRecipeManager(), Minecraft.getInstance().level);
         }
     }
 }

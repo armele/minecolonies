@@ -143,6 +143,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(ITEMLIST_FUEL)
           .addBuildingModuleProducer(RESTAURANT_MENU)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.cowboy = DEFERRED_REGISTER.register(ModBuildings.COWBOY_ID, () -> new BuildingEntry.Builder()
@@ -416,6 +417,7 @@ public final class ModBuildingsInitializer
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.HOSPITAL_ID))
           .addBuildingModuleProducer(HEALER_WORK)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.stash = DEFERRED_REGISTER.register(ModBuildings.STASH_ID, () -> new BuildingEntry.Builder()

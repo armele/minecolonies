@@ -109,7 +109,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
         if (flightCounter > 5 && arrowEntity instanceof CustomArrowEntity)
         {
             ((CustomArrowEntity) arrowEntity).setPlayerArmorPierce();
-            arrowEntity.setRemainingFireTicks(200 * TICKS_PER_SECOND);
+            arrowEntity.setRemainingFireTicks(10 * 20);
             arrowEntity.setBaseDamage(10);
         }
 
