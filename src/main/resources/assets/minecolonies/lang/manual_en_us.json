@@ -2534,6 +2534,9 @@
   "com.minecolonies.coremod.gui.townhall.stats.num_diseases_treated": "Treated Diseases: %d",
   "com.minecolonies.coremod.gui.townhall.stats.diseases_treated": "Treated %d %s",
   "com.minecolonies.coremod.gui.townhall.stats.items_cooked": "Cooked %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.flowers_picked": "Picked %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.items_composted": "Composted %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.product_collected": "Collected %d %s",
 
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",

@@ -79,7 +79,7 @@ public class WorkOrderDecoration extends AbstractWorkOrder
     @SuppressWarnings(UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED)
     public boolean canBuild(@NotNull final ICitizenData citizen)
     {
-        return citizen.getJob() instanceof JobBuilder;
+        return citizen.getJob() instanceof JobBuilder && citizen.getJob().getWorkBuilding().getBuildingLevel() > 0;
     }
 
     @Override
