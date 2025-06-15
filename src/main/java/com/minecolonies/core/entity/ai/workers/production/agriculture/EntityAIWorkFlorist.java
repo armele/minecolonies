@@ -278,7 +278,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
 
         for (final String drop : flowerDrops)
         {
-            StatsUtil.trackStat(building, FLOWERS_PICKED, drop, 1);
+            StatsUtil.trackStatByName(building, FLOWERS_PICKED, drop, 1);
         }
 
         incrementActionsDone();

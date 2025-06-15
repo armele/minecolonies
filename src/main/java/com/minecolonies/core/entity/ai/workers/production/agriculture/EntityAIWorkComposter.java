@@ -286,7 +286,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
             barrel.addItem(worker.getItemInHand(InteractionHand.MAIN_HAND));
             worker.getCitizenExperienceHandler().addExperience(BASE_XP_GAIN);
             
-            StatsUtil.trackStat(building, ITEMS_COMPOSTED, compostingItem, countBefore - worker.getItemInHand(InteractionHand.MAIN_HAND).getCount());
+            StatsUtil.trackStatByName(building, ITEMS_COMPOSTED, compostingItem, countBefore - worker.getItemInHand(InteractionHand.MAIN_HAND).getCount());
 
             this.incrementActionsDoneAndDecSaturation();
             worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStackUtils.EMPTY);
@@ -332,19 +332,19 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
                                                                            .getEffectStrength(PODZOL_CHANCE))))
                 {
                     ItemStack product = new ItemStack(Blocks.PODZOL, 1);
-                    StatsUtil.trackStat(building, PRODUCT_COLLECTED, product.getItem().getDescriptionId(), compost.getCount());
+                    StatsUtil.trackStatByName(building, PRODUCT_COLLECTED, product.getItem().getDescriptionId(), compost.getCount());
                     InventoryUtils.addItemStackToItemHandler(worker.getInventoryCitizen(), product);
                 }
                 else
                 {
                     ItemStack product =  new ItemStack(Blocks.DIRT, 1);
-                    StatsUtil.trackStat(building, PRODUCT_COLLECTED, product.getItem().getDescriptionId(), compost.getCount());
+                    StatsUtil.trackStatByName(building, PRODUCT_COLLECTED, product.getItem().getDescriptionId(), compost.getCount());
                     InventoryUtils.addItemStackToItemHandler(worker.getInventoryCitizen(), product);
                 }
             }
             else
             {
-                StatsUtil.trackStat(building, PRODUCT_COLLECTED, compost.getItem().getDescriptionId(), compost.getCount());
+                StatsUtil.trackStatByName(building, PRODUCT_COLLECTED, compost.getItem().getDescriptionId(), compost.getCount());
                 InventoryUtils.addItemStackToItemHandler(worker.getInventoryCitizen(), compost);
             }
 
