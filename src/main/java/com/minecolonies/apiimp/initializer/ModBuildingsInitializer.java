@@ -130,6 +130,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(COMPOSTER_WORK)
           .addBuildingModuleProducer(COMPOSTER_SETTINGS)
           .addBuildingModuleProducer(ITEMLIST_COMPOSTABLE)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.cook = DEFERRED_REGISTER.register(ModBuildings.COOK_ID, () -> new BuildingEntry.Builder()
@@ -387,6 +388,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(FLORIST_WORK)
           .addBuildingModuleProducer(FLORIST_ITEMS)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.enchanter = DEFERRED_REGISTER.register(ModBuildings.ENCHANTER_ID, () -> new BuildingEntry.Builder()
