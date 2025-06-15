@@ -45,6 +45,14 @@ public final class StatisticsConstants
     public static final String DISEASES_TREATED = "diseases_treated";
     public static final String NUM_DISEASES_TREATED = "num_diseases_treated";
 
+    // Florist
+    public static final String FLOWERS_PICKED = "flowers_picked";
+
+    // Composter
+    public static final String ITEMS_COMPOSTED = "items_composted";
+    public static final String PRODUCT_COLLECTED = "product_collected";
+
+
     // Archery Training
     public static final String ARROWS_FIRED = "arrows_fired";
     public static final String ARROWS_HIT = "arrows_hit";
