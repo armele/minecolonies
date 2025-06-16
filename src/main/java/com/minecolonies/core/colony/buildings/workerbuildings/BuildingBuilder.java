@@ -10,6 +10,7 @@ import com.minecolonies.api.colony.workorders.IServerWorkOrder;
 import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.huts.WindowHutBuilderModule;
 import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
@@ -220,15 +221,24 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
      */
     public void setWorkOrder(int orderId)
     {
+
         final ICitizenData citizen = getModule(BuildingModules.BUILDER_WORK).getFirstCitizen();
         if (citizen == null)
         {
+            Log.getLogger().warn("Attemping to assign a work order at a hut where there is no worker.");
             return;
         }
 
         IServerWorkOrder wo = getColony().getWorkManager().getWorkOrder(orderId);
-        if (!(wo instanceof IBuilderWorkOrder) || (!wo.getClaimedBy().equals(getPosition())))
+        if (!(wo instanceof IBuilderWorkOrder))
         {
+            Log.getLogger().warn("Attempting to assign a work order which is not meant for builders.");
+            return;
+        }
+
+        if (wo.getClaimedBy().equals(getPosition()))
+        {
+            Log.getLogger().warn("Attempting to assign a work order which is already claimed elsewhere.");
             return;
         }
 
@@ -246,6 +256,11 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
             getColony().getWorkManager().setDirty(true);
             markDirty();
         }
+        else 
+        {
+            Log.getLogger().warn("Attempting to assign a work order to a builder who cannot build it.");
+        }
+        
     }
 
     @Override
