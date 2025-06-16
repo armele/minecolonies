@@ -236,9 +236,9 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
             return;
         }
 
-        if (wo.getClaimedBy().equals(getPosition()))
+        if (!wo.getClaimedBy().equals(BlockPos.ZERO))
         {
-            Log.getLogger().warn("Attempting to assign a work order which is already claimed elsewhere.");
+            Log.getLogger().warn("Attempting to assign a work order which is already claimed somewhere.");
             return;
         }
 
