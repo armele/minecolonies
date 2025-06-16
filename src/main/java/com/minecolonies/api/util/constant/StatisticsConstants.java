@@ -31,6 +31,7 @@ public final class StatisticsConstants
     public static final String ITEM_USED     = "item_used";
     public static final String ITEM_OBTAINED = "item_obtained";
     public static final String MOB_KILLED    = "mob_killed";
+    public static final String LEVELS_GAINED = "levels_gained";
 
     /**
      * Specific building stats.
@@ -51,5 +52,9 @@ public final class StatisticsConstants
     public static final String ITEMS_COMPOSTED = "items_composted";
     public static final String PRODUCT_COLLECTED = "product_collected";
 
+
+    // Archery Training
+    public static final String ARROWS_FIRED = "arrows_fired";
+    public static final String ARROWS_HIT = "arrows_hit";
 }
 
