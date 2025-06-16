@@ -2540,6 +2540,9 @@
   "com.minecolonies.coremod.gui.townhall.stats.arrows_fired": "Arrows Fired: %d",
   "com.minecolonies.coremod.gui.townhall.stats.arrows_hit": "Arrows Hit: %d",
   "com.minecolonies.coremod.gui.townhall.stats.levels_gained": "Levels Gained: %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.items_brewed": "Potions Brewed: %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.ingredients_harvested": "Ingredients Harvested: %d %s",
+
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",
   "com.minecolonies.coremod.gui.interval.100days": "Last 100 Days",

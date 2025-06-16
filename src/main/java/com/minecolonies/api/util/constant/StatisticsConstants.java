@@ -56,5 +56,9 @@ public final class StatisticsConstants
     // Archery Training
     public static final String ARROWS_FIRED = "arrows_fired";
     public static final String ARROWS_HIT = "arrows_hit";
+
+    // Alchemist
+    public static final String ITEMS_BREWED = "items_brewed";
+    public static final String INGREDIENTS_HARVESTED = "ingredients_harvested";
 }
 

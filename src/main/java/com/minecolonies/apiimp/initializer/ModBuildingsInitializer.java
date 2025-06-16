@@ -611,6 +611,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(ALCHEMIST_CRAFT)
           .addBuildingModuleProducer(ALCHEMIST_BREW)
           .addBuildingModuleProducer(CRAFT_TASK_VIEW)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.kitchen = DEFERRED_REGISTER.register(ModBuildings.KITCHEN_ID, () -> new BuildingEntry.Builder()
