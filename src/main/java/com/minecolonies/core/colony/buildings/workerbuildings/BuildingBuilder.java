@@ -225,20 +225,20 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
         final ICitizenData citizen = getModule(BuildingModules.BUILDER_WORK).getFirstCitizen();
         if (citizen == null)
         {
-            Log.getLogger().warn("Attemping to assign a work order at a hut where there is no worker.");
+            Log.getLogger().warn("Attemping to assign work order {} at a hut where there is no worker. Colony: {}, Hut at: {}", orderId, getColony().getID(), getLocation());
             return;
         }
 
         IServerWorkOrder wo = getColony().getWorkManager().getWorkOrder(orderId);
         if (!(wo instanceof IBuilderWorkOrder))
         {
-            Log.getLogger().warn("Attempting to assign a work order which is not meant for builders.");
+            Log.getLogger().warn("Attempting to assign work order {} which is not meant for builders. Colony: {}, Hut at: {}", orderId, getColony().getID(), getLocation());
             return;
         }
 
         if (!wo.getClaimedBy().equals(BlockPos.ZERO))
         {
-            Log.getLogger().warn("Attempting to assign a work order which is already claimed somewhere.");
+            Log.getLogger().warn("Attempting to assign work order {} which is already claimed somewhere. Colony: {}, Hut at: {}", orderId, getColony().getID(), getLocation());
             return;
         }
 
@@ -258,7 +258,7 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
         }
         else 
         {
-            Log.getLogger().warn("Attempting to assign a work order to a builder who cannot build it.");
+            Log.getLogger().warn("Attempting to assign work order {} to a builder who cannot build it. Colony: {}, Hut at: {}", orderId, getColony().getID(), getLocation());
         }
         
     }
