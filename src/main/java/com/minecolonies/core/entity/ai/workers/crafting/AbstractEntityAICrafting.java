@@ -16,6 +16,7 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.Network;
@@ -104,6 +105,15 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
     protected int getActionRewardForCraftingSuccess()
     {
         return 1;
+    }
+
+    /**
+     * Provides a hook for implementing building-specific stats logic related to the crafting request.
+     * No-op hook. Override this in your subclass to customize it.
+     */
+    protected void recordCraftingBuildingStats(IRequest<?> request, IRecipeStorage recipe)
+    {
+
     }
 
     /**
@@ -447,7 +457,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
                     resetValues();
                     return START_WORKING;
                 }
-
+                recordCraftingBuildingStats(currentRequest, currentRecipeStorage);
                 currentRequest.addDelivery(currentRecipeStorage.getPrimaryOutput());
                 job.setCraftCounter(job.getCraftCounter() + 1);
                 if (toolSlot != -1)
