@@ -45,6 +45,11 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow
     private static final String TAG_DISTANCE = "dist";
 
     /**
+     * ID of the stage label inside the GUI.
+     */
+    private static final String TAG_STAGE = "stage";
+
+    /**
      * ID of the assign button inside the GUI.
      */
     private static final String TAG_BUTTON_ASSIGN = "assign";
@@ -171,6 +176,7 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow
                 if (field instanceof FarmField farmField && !farmField.getSeed().isEmpty())
                 {
                     rowPane.findPaneOfTypeByID(TAG_ICON, ItemIcon.class).setItem(farmField.getSeed());
+                    rowPane.findPaneOfTypeByID(TAG_STAGE, Text.class).setText(Component.literal(farmField.getFieldStage().toString()));
                 }
 
                 final String distance = Integer.toString(field.getSqDistance(buildingView));

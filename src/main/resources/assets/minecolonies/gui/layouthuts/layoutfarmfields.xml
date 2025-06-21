@@ -15,8 +15,8 @@
     <list id="fields" size="164 143" pos="13 82">
         <box size="100% 24" linewidth="1">
             <itemicon id="icon" size="16 16" pos="4 4"/>
-            <text id="dist" color="black" pos="25 8" size="108 9"/>
-
+            <text id="dist" color="black" pos="25 4" size="108 9"/>
+            <text id="stage" color="black" pos="25 14" size="108 9"/>
             <button id="assign" pos="137 4" size="14 15"
                          source="minecolonies:textures/gui/builderhut/builder_button_mini.png"
                          disabled="minecolonies:textures/gui/builderhut/builder_button_mini_disabled.png"/>
