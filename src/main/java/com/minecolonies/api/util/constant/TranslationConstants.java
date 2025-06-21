@@ -521,6 +521,8 @@ public final class TranslationConstants
     @NonNls
     public static final String BLOCK_HUT_FIELD_DIRECTION_RELATIVE_NEAREST         = "com.minecolonies.coremod.gui.field.near";
     @NonNls
+    public static final String FIELD_STATUS                                       = "com.minecolonies.coremod.gui.field.status";
+    @NonNls
     public static final String LABEL_X_OF_Z                                       = "com.minecolonies.coremod.gui.xofz";
     @NonNls
     public static final String MINER_REPAIR_ENQUEUED                              = "com.minecolonies.coremod.gui.workerhuts.miner.repair.enqueued";
