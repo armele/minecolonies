@@ -13,6 +13,7 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.minecolonies.api.util.constant.StatisticsConstants.BLOCKS_PLACED;
+import static com.minecolonies.api.util.constant.StatisticsConstants.BLOCKS_PLACED_DETAIL;
 
 /**
  * Represents a build task for the StructureIterator AI.
@@ -195,6 +197,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
 
             for (final ItemStack stack : list)
             {
+                StatsUtil.trackStatByName( structureAI.getWorker().getCitizenData().getWorkBuilding(), BLOCKS_PLACED_DETAIL, stack.getHoverName(), 1);
                 structureAI.reduceNeededResources(stack);
                 structureAI.getWorker()
                   .getCitizenColonyHandler()

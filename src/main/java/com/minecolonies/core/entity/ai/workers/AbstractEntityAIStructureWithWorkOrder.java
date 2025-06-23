@@ -402,18 +402,22 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
             switch (wo.getWorkOrderType())
             {
                 case BUILD:
+                    StatsUtil.trackStat(worker.getCitizenData().getWorkBuilding(), BUILD_BUILT, 1);
                     colony.getEventDescriptionManager().addEventDescription(new BuildingBuiltEvent(wo.getLocation(), workOrderName));
                     worker.getCitizenColonyHandler().getColonyOrRegister().getStatisticsManager().increment(BUILD_BUILT, colony.getDay());
                     break;
                 case UPGRADE:
+                    StatsUtil.trackStat(worker.getCitizenData().getWorkBuilding(), BUILD_UPGRADED, 1);
                     colony.getEventDescriptionManager().addEventDescription(new BuildingUpgradedEvent(wo.getLocation(), workOrderName, wo.getTargetLevel()));
                     worker.getCitizenColonyHandler().getColonyOrRegister().getStatisticsManager().increment(BUILD_UPGRADED, colony.getDay());
                     break;
                 case REPAIR:
+                    StatsUtil.trackStat(worker.getCitizenData().getWorkBuilding(), BUILD_REPAIRED, 1);
                     colony.getEventDescriptionManager().addEventDescription(new BuildingRepairedEvent(wo.getLocation(), workOrderName, wo.getCurrentLevel()));
                     worker.getCitizenColonyHandler().getColonyOrRegister().getStatisticsManager().increment(BUILD_REPAIRED, colony.getDay());
                     break;
                 case REMOVE:
+                    StatsUtil.trackStat(worker.getCitizenData().getWorkBuilding(), BUILD_REMOVED, 1);
                     colony.getEventDescriptionManager().addEventDescription(new BuildingDeconstructedEvent(wo.getLocation(), workOrderName, wo.getCurrentLevel()));
                     worker.getCitizenColonyHandler().getColonyOrRegister().getStatisticsManager().increment(BUILD_REMOVED, colony.getDay());
                     break;
