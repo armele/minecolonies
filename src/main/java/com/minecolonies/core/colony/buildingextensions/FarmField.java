@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Locale;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.FIELD_STATUS;
@@ -245,15 +247,15 @@ public class FarmField extends AbstractBuildingExtensionModule
      */
     public enum Stage
     {
-        EMPTY(Items.IRON_HOE), 
-        HOED(Items.WHEAT_SEEDS), 
-        PLANTED(Items.WHEAT);
+        EMPTY(new ResourceLocation("minecraft", "textures/item/iron_hoe.png")), 
+        HOED(new ResourceLocation("minecraft", "textures/item/wheat_seeds.png")), 
+        PLANTED(new ResourceLocation("minecolonies", "textures/item/crops/durum.png"));
 
-        protected final ItemStack stageIcon;
+        protected final ResourceLocation stageIcon;
 
-        private Stage(Item stageIcon)
+        private Stage(ResourceLocation stageIcon)
         {
-            this.stageIcon = new ItemStack(stageIcon);
+            this.stageIcon = stageIcon;
         }
 
         /**
@@ -261,7 +263,7 @@ public class FarmField extends AbstractBuildingExtensionModule
          *
          * @return the status icon of the current stage.
          */
-        public ItemStack getStageIcon()
+        public ResourceLocation getStageIcon()
         {
             return stageIcon;
         }
