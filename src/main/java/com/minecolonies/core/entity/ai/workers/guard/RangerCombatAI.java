@@ -178,7 +178,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
 
             if (bow.getEnchantmentLevel(Utils.getRegistryValue(Enchantments.FLAME, user.level())) > 0)
             {
-                arrow.setRemainingFireTicks(100 * TICKS_PER_SECOND);
+                arrow.setRemainingFireTicks(5 * 20);
             }
 
             double damage = calculateDamage(arrow);

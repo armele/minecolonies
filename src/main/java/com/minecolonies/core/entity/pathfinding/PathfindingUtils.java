@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.pathfinding;
 
+import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.ldtteam.domumornamentum.block.vanilla.TrapdoorBlock;
 import com.minecolonies.api.blocks.huts.AbstractBlockMinecoloniesDefault;
@@ -53,7 +54,7 @@ public class PathfindingUtils
      * Set the set of reached blocks to the client.
      *
      * @param reached the reached blocks.
-     * @param mob     the tracked mob.
+     * @param players the tracking players.
      */
     public static void syncDebugReachedPositions(final HashSet<BlockPos> reached, final List<ServerPlayer> players)
     {
@@ -85,10 +86,17 @@ public class PathfindingUtils
             Mth.floor(entity.getZ()));
         final Level level = entity.level();
         BlockState bs = level.getBlockState(pos);
+        final Block b = bs.getBlock();
 
         // Check if the entity is standing ontop of another block with part of its bb
         final BlockPos.MutableBlockPos below = new BlockPos.MutableBlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
-        if (entity.onGround() && SurfaceType.getSurfaceType(level, level.getBlockState(below), below) != SurfaceType.WALKABLE)
+        if (b instanceof CarpetBlock || b instanceof FloatingCarpetBlock)
+        {
+            return pos.above().immutable();
+        }
+
+        final BlockState belowState = level.getBlockState(below);
+        if (entity.onGround() && SurfaceType.getSurfaceType(level, belowState, below) != SurfaceType.WALKABLE)
         {
             int minX = Mth.floor(entity.getBoundingBox().minX);
             int minZ = Mth.floor(entity.getBoundingBox().minZ);
@@ -148,8 +156,6 @@ public class PathfindingUtils
             }
         }
 
-        final Block b = bs.getBlock();
-
         if (entity.isInWater() && !(entity instanceof AbstractDrownedEntityPirateRaider))
         {
             while (!bs.getFluidState().isEmpty())
@@ -193,8 +199,12 @@ public class PathfindingUtils
      */
     private static boolean canStandInSolidBlock(final BlockState state)
     {
-        return state.getBlock() instanceof DoorBlock || state.getBlock() instanceof TrapDoorBlock || (state.getBlock() instanceof PanelBlock && state.getValue(PanelBlock.OPEN))
-            || !state.getBlock().hasCollision;
+        return state.getBlock() instanceof DoorBlock
+            || state.getBlock() instanceof TrapDoorBlock
+            || (state.getBlock() instanceof PanelBlock && state.getValue(PanelBlock.OPEN))
+            || !state.getBlock().hasCollision
+            || state.getBlock() instanceof CarpetBlock
+            || state.getBlock() instanceof FloatingCarpetBlock;
     }
 
     /**

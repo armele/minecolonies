@@ -23,6 +23,7 @@ public final class StatisticsConstants
     public static final String BUILD_UPGRADED  = "build_upgraded";
     public static final String BUILD_REPAIRED  = "build_repaired";
     public static final String BUILD_REMOVED   = "build_removed";
+    public static final String ITEMS_COOKED    = "items_cooked";
 
     /**
      * Generic building Stats
@@ -30,9 +31,52 @@ public final class StatisticsConstants
     public static final String ITEM_USED     = "item_used";
     public static final String ITEM_OBTAINED = "item_obtained";
     public static final String MOB_KILLED    = "mob_killed";
+    public static final String LEVELS_GAINED = "levels_gained";
 
     /**
      * Specific building stats.
      */
     public static final String INT_LEVELED = "int_leveled";
+
+    /**
+     * Crafting building stats.
+     */
+    public static final String ITEMS_CRAFTED_DETAIL = "items_crafted_detail";
+
+    /**
+     * Smelting building stats.
+     */
+    public static final String ITEMS_SMELTED_DETAIL = "items_smelted_detail";
+
+    // Cook
+    public static final String FOOD_SERVED_DETAIL = "food_served_detail";
+
+    // Hospital
+    public static final String DISEASES_TREATED = "diseases_treated";
+    public static final String NUM_DISEASES_TREATED = "num_diseases_treated";
+
+    // Florist
+    public static final String FLOWERS_PICKED = "flowers_picked";
+
+    // Composter
+    public static final String ITEMS_COMPOSTED = "items_composted";
+    public static final String PRODUCT_COLLECTED = "product_collected";
+
+    // Archery Training
+    public static final String ARROWS_FIRED = "arrows_fired";
+    public static final String ARROWS_HIT = "arrows_hit";
+
+    // Alchemist
+    public static final String ITEMS_BREWED = "items_brewed";
+    public static final String INGREDIENTS_HARVESTED = "ingredients_harvested";
+
+    // Bakery
+    public static final String ITEMS_BAKED_DETAIL = "items_baked_detail";
+
+    // Apiary
+    public static final String ITEMS_COLLECTED = "items_collected";
+    public static final String BREEDING_ATTEMPTS_BEES = "breeding_attempts_bees";
 }
+
+
+

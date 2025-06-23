@@ -5,7 +5,12 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Interface used to describe classes that function as Factory controllers.
@@ -153,6 +158,22 @@ public interface IFactoryController
     <Output extends Object> CompoundTag serializeTag(@NotNull final HolderLookup.Provider provider, @NotNull final Output object) throws IllegalArgumentException;
 
     /**
+     * Serialize a collection to nbt util.
+     * @param list the collection to serialize.
+     * @return an nbt tag.
+     * @param <Output> the thing being serialized.
+     */
+    default <Output> Tag serializeList(@NotNull final HolderLookup.Provider provider, Collection<Output> list)
+    {
+        final ListTag tag = new ListTag();
+        for (final Output value : list)
+        {
+            tag.add(this.serializeTag(provider, value));
+        }
+        return tag;
+    }
+
+    /**
      * Method used to quickly deserialize a object if it is known to this controller.
      *
      * @param compound The data to deserialize an object from.
@@ -171,6 +192,22 @@ public interface IFactoryController
      * @throws IllegalArgumentException is thrown when the requested type is unknown to this controller.
      */
     <Output> Output deserialize(@NotNull final RegistryFriendlyByteBuf buffer) throws IllegalArgumentException;
+
+    /**
+     * Deserialize a collection from nbt util.
+     * @param listTag the nbt tag to deserialize from.
+     * @return a collection.
+     * @param <Output> the thing being serialized.
+     */
+    default <Output> Collection<Output> deserializeList(@NotNull final HolderLookup.Provider provider, ListTag listTag)
+    {
+        final Collection<Output> values = new ArrayList<>();
+        for (final Tag subCompound : listTag)
+        {
+            values.add(this.deserializeTag(provider, ((CompoundTag) subCompound)));
+        }
+        return values;
+    }
 
     /**
      * Method used to quickly write an object into the given {@link ByteBuf}.
