@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.minecolonies.api.util.constant.StatisticsConstants.BLOCKS_PLACED;
-import static com.minecolonies.api.util.constant.StatisticsConstants.BLOCKS_PLACED_DETAIL;
 
 /**
  * Represents a build task for the StructureIterator AI.
@@ -197,7 +196,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
 
             for (final ItemStack stack : list)
             {
-                StatsUtil.trackStatByName( structureAI.getWorker().getCitizenData().getWorkBuilding(), BLOCKS_PLACED_DETAIL, stack.getHoverName(), 1);
+                StatsUtil.trackStat( structureAI.getWorker().getCitizenData().getWorkBuilding(), BLOCKS_PLACED,  1);
                 structureAI.reduceNeededResources(stack);
                 structureAI.getWorker()
                   .getCitizenColonyHandler()
