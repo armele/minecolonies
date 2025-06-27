@@ -5,6 +5,7 @@ import com.ldtteam.blockui.controls.ButtonImage;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.modules.IModuleWindow;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
+import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -89,7 +90,7 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
 
             final String icon = view.getIcon();
             final ButtonImage iconImage = new ButtonImage();
-            iconImage.setImage(new ResourceLocation("minecolonies", "textures/gui/modules/" + icon + ".png"));
+            iconImage.setImage(resourceForIcon(icon), false);
             iconImage.setSize(20, 20);
             iconImage.setID(icon);
             iconImage.setPosition(-15, 13 + offset);
@@ -105,5 +106,31 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
 
             PaneBuilders.tooltipBuilder().hoverPane(iconImage).build().setText(Component.translatableEscape(view.getDesc().toLowerCase(Locale.US)));
         }
+    }
+
+    /**
+     * Tries to interpret the given string as a resource location.
+     * If it cannot, it creates a resource location with the given string as path
+     * in the "minecolonies:textures/gui/modules/" namespace in a backwards-compatible way..
+     * @param icon the string to parse or convert into a resource location.
+     * @return the parsed or created resource location.
+     */
+    protected ResourceLocation resourceForIcon(String icon)
+    {
+        ResourceLocation loc = null;
+        
+        if (icon.indexOf(ResourceLocation.NAMESPACE_SEPARATOR, 0) > 0)
+        {
+            loc = ResourceLocation.tryParse(icon);
+        }
+
+        if (loc == null) 
+        { 
+            loc = new ResourceLocation(
+                    Constants.MOD_ID,
+                    "textures/gui/modules/" + icon + ".png");
+        }
+
+        return loc;
     }
 }
