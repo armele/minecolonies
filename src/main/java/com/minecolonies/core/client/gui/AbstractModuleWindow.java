@@ -88,11 +88,11 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
                 view.getWindow().open();
             });
 
-            final String icon = view.getIcon();
+            final ResourceLocation icon = view.getIconResourceLocation();
             final ButtonImage iconImage = new ButtonImage();
-            iconImage.setImage(resourceForIcon(icon), false);
+            iconImage.setImage(icon, false);
             iconImage.setSize(20, 20);
-            iconImage.setID(icon);
+            iconImage.setID(icon.getPath());
             iconImage.setPosition(-15, 13 + offset);
             iconImage.setHandler(button -> {
                 mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
@@ -106,31 +106,5 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
 
             PaneBuilders.tooltipBuilder().hoverPane(iconImage).build().setText(Component.translatableEscape(view.getDesc().toLowerCase(Locale.US)));
         }
-    }
-
-    /**
-     * Tries to interpret the given string as a resource location.
-     * If it cannot, it creates a resource location with the given string as path
-     * in the "minecolonies:textures/gui/modules/" namespace in a backwards-compatible way..
-     * @param icon the string to parse or convert into a resource location.
-     * @return the parsed or created resource location.
-     */
-    protected ResourceLocation resourceForIcon(String icon)
-    {
-        ResourceLocation loc = null;
-        
-        if (icon.indexOf(ResourceLocation.NAMESPACE_SEPARATOR, 0) > 0)
-        {
-            loc = ResourceLocation.tryParse(icon);
-        }
-
-        if (loc == null) 
-        { 
-            loc = new ResourceLocation(
-                    Constants.MOD_ID,
-                    "textures/gui/modules/" + icon + ".png");
-        }
-
-        return loc;
     }
 }

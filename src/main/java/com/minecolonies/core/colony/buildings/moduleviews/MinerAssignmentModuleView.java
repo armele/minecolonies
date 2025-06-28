@@ -68,9 +68,9 @@ public class MinerAssignmentModuleView extends AbstractBuildingModuleView implem
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return "entity";
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/entity.png");
     }
 
     @Override

@@ -31,9 +31,9 @@ public abstract class RequestTaskModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return "info";
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/info.png");
     }
 
     @Override

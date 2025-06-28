@@ -4,6 +4,7 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.colony.workorders.IWorkOrderView;
+import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.WindowHutMinerModule;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import com.minecolonies.core.colony.workorders.view.WorkOrderMinerView;
@@ -68,9 +69,9 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return "info";
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/info.png");
     }
 
     @Override

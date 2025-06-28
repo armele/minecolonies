@@ -50,9 +50,9 @@ public class ToolModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return "scepter";
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/scepter.png");
     }
 
     /**

@@ -46,9 +46,9 @@ public class RestaurantMenuModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return FOOD_EXCLUSION_LIST;
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/" + FOOD_EXCLUSION_LIST + ".png");
     }
 
     @Override

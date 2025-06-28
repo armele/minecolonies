@@ -143,8 +143,8 @@ public class ItemListModuleView extends AbstractBuildingModuleView implements II
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return this.getId();
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/" + this.getId() + ".png");
     }
 }
