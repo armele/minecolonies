@@ -11,7 +11,6 @@ import com.minecolonies.api.colony.workorders.IServerWorkOrder;
 import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.huts.WindowHutBuilderModule;
@@ -28,9 +27,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -225,26 +224,25 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
      *
      * @param orderId the id of the work order to select.
      */
-    public void setWorkOrder(int orderId, final NetworkEvent.Context ctxIn)
+    public void setWorkOrder(int orderId, final ServerPlayer serverPlayer)
     {
-
         final ICitizenData citizen = getModule(BuildingModules.BUILDER_WORK).getFirstCitizen();
         if (citizen == null)
         {
-            MessageUtils.format(MESSAGE_WARNING_NO_WORKER_ASSIGNED).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_NO_WORKER_ASSIGNED).sendTo(serverPlayer);
             return;
         }
 
         IServerWorkOrder wo = getColony().getWorkManager().getWorkOrder(orderId);
         if (!(wo instanceof IBuilderWorkOrder))
         {
-            MessageUtils.format(MESSAGE_WARNING_NOTFORBUILDER).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_NOTFORBUILDER).sendTo(serverPlayer);
             return;
         }
 
         if (!wo.getClaimedBy().equals(BlockPos.ZERO))
         {
-            MessageUtils.format(MESSAGE_WARNING_ALREADY_CLAIMED).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_ALREADY_CLAIMED).sendTo(serverPlayer);
             return;
         }
 
@@ -265,7 +263,7 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
         }
         else 
         {
-            MessageUtils.format(MESSAGE_WARNING_CANNOTBUILD).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_CANNOTBUILD).sendTo(serverPlayer);
         }
         
     }
