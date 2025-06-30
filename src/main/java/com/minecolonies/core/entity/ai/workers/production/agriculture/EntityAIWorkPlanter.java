@@ -100,10 +100,10 @@ public class EntityAIWorkPlanter extends AbstractEntityAICrafting<JobPlanter, Bu
      */
     private IAIState pickField()
     {
-        worker.getCitizenData().setIdleAtJob(true);
 
         if (building == null || building.getBuildingLevel() < 1)
         {
+            worker.getCitizenData().setIdleAtJob(true);
             return IDLE;
         }
 
@@ -116,6 +116,7 @@ public class EntityAIWorkPlanter extends AbstractEntityAICrafting<JobPlanter, Bu
             {
                 worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(NO_FREE_FIELDS), ChatPriority.BLOCKING));
             }
+            worker.getCitizenData().setIdleAtJob(true);
             return IDLE;
         }
 
