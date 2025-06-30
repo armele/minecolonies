@@ -1,12 +1,14 @@
 package com.minecolonies.core.entity.ai.workers.crafting;
 
 import com.google.common.collect.ImmutableList;
+import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.request.RequestState;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.util.SoundUtils;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingCrusher;
@@ -25,6 +27,7 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.CitizenConstants.TICKS_20;
 import static com.minecolonies.api.util.constant.Constants.DEFAULT_SPEED;
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
+import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_CRAFTED_DETAIL;
 
 /**
  * Crusher AI class.
@@ -164,6 +167,7 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
 
                 worker.decreaseSaturationForContinuousAction();
                 worker.getCitizenExperienceHandler().addExperience(0.1);
+                recordCraftingBuildingStats(currentRequest, currentRecipeStorage);
             }
             else if (getState() != CRAFT)
             {
@@ -261,5 +265,20 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
         }
 
         return getState();
+    }
+
+    /**
+     * Records the crafting request in the building's statistics.
+     * @param request the request to record.
+     */
+    @Override
+    public void recordCraftingBuildingStats(IRequest<?> request, IRecipeStorage recipe)
+    {
+        if (recipe == null) 
+        {
+            return;
+        }
+
+        StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getDescriptionId(), recipe.getPrimaryOutput().getCount());
     }
 }
