@@ -114,7 +114,6 @@ public class EntityAIWorkCowboy extends AbstractEntityAIHerder<JobCowboy, Buildi
         return result;
     }
 
-    @NotNull
     @Override
     public List<ItemStorage> getExtraItemsNeeded()
     {

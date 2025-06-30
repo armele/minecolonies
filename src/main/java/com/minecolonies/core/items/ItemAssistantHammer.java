@@ -8,6 +8,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.workorders.IWorkOrder;
@@ -17,6 +18,7 @@ import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
 import com.minecolonies.core.colony.interactionhandling.SimpleNotificationInteraction;
+import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
 import com.minecolonies.core.network.messages.server.PlayerAssistantBuildRequestMessage;
 import com.minecolonies.core.placementhandlers.SolidPlaceholderPlacementHandler;
 import net.minecraft.ChatFormatting;
@@ -124,6 +126,13 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
     {
         if (workOrder.isClaimed())
         {
+            final BuildingProgressStage stage = workOrder.getStage();
+            if (stage == BuildingProgressStage.CLEAR || stage == BuildingProgressStage.CLEAR_NON_SOLIDS)
+            {
+                player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.notcleared"), true);
+                return;
+            }
+
             // Fallback incase the builder did not load it yet for reasons
             if (workOrder.getBlueprint() == null)
             {
@@ -292,6 +301,15 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                         if (result == IPlacementHandler.ActionProcessingResult.DENY)
                         {
                             continue;
+                        }
+
+                        if (!colony.getWorld().isClientSide())
+                        {
+                            final IBuilding building = colony.getBuildingManager().getBuilding(workOrder.getLocation());
+                            if (building != null)
+                            {
+                                building.registerBlockPosition(blockInfo.getState(), workPos, colony.getWorld());
+                            }
                         }
 
                         if (!player.isCreative())

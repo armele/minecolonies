@@ -14,6 +14,7 @@ import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.colony.workorders.view.*;
+import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ROTATION_MIRROR;
+import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_STAGE;
 import static com.minecolonies.api.util.constant.Suppression.UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED;
 
 /**
@@ -137,6 +139,11 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
      * The amount of resources the work order its structure still requires.
      */
     private int amountOfResources;
+
+    /**
+     * The building stage this workorder is in
+     */
+    private BuildingProgressStage stage = null;
 
     /**
      * The iterator type (building method) of this work order.
@@ -654,6 +661,11 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         cleared = compound.getBoolean(TAG_IS_CLEARED);
         requested = compound.getBoolean(TAG_IS_REQUESTED);
 
+        if (compound.contains(TAG_STAGE))
+        {
+            stage = BuildingProgressStage.values()[compound.getInt(TAG_STAGE)];
+        }
+
         if (compound.contains(TAG_BB))
         {
             CompoundTag tag = (CompoundTag) compound.get(TAG_BB);
@@ -685,6 +697,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         compound.putString(TAG_ITERATOR, iteratorType);
         compound.putBoolean(TAG_IS_CLEARED, cleared);
         compound.putBoolean(TAG_IS_REQUESTED, requested);
+        compound.putInt(TAG_STAGE, stage == null ? 0 : stage.ordinal());
 
         if (box != Constants.EMPTY_AABB)
         {
@@ -719,6 +732,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         buf.writeByte(rotationMirror.ordinal());
         buf.writeInt(currentLevel);
         buf.writeInt(targetLevel);
+        buf.writeInt(stage == null ? 0 : stage.ordinal());
         buf.writeDouble(getBoundingBox().minX);
         buf.writeDouble(getBoundingBox().minY);
         buf.writeDouble(getBoundingBox().minZ);
@@ -817,5 +831,21 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     public boolean tooFarFromAnyBuilder(final IColony colony, final int level)
     {
         return false;
+    }
+
+    @Override
+    public BuildingProgressStage getStage()
+    {
+        return stage;
+    }
+
+    @Override
+    public void setStage(final BuildingProgressStage stage)
+    {
+        if (stage != this.stage)
+        {
+            changed = true;
+            this.stage = stage;
+        }
     }
 }

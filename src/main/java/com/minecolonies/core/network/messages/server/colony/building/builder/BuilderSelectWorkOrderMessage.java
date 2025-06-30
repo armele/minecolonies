@@ -42,9 +42,16 @@ public class BuilderSelectWorkOrderMessage extends AbstractBuildingServerMessage
         buf.writeInt(workOrder);
     }
 
+    /**
+     * Executes the action of setting a workorder on the builder.
+     *
+     * @param ctxIn            NetworkEvent.Context of the packet.
+     * @param colony           Colony the building is in.
+     * @param building         The builder to set the workorder on.
+     */
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final BuildingBuilder building)
     {
-        building.setWorkOrder(workOrder);
+        building.setWorkOrder(workOrder, player);
     }
 }
