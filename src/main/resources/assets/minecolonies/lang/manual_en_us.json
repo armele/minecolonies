@@ -2558,6 +2558,10 @@
   "com.minecolonies.coremod.gui.townhall.stats.items_collected": "Collected: %d %s",
   "com.minecolonies.coremod.gui.townhall.stats.breeding_attempts": "Breeding Attempts: %d",
   "com.minecolonies.coremod.gui.townhall.stats.animals_butchered": "Animals Butchered: %d",
+  "com.minecolonies.coremod.gui.townhall.stats.items_enchanted": "Enchanted: %d %s",
+  "com.minecolonies.coremod.gui.townhall.stats.citizens_drained": "Citizens Drained: %d",
+  "com.minecolonies.coremod.gui.townhall.stats.graves_dug": "Graves Dug: %d",
+  "com.minecolonies.coremod.gui.townhall.stats.citizens_resurrected": "Citizens Resurrected: %d",
 
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",
