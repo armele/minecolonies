@@ -11,6 +11,7 @@ import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.MessageUtils;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.core.colony.buildings.modules.GraveyardManagementModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGraveyard;
@@ -44,6 +45,8 @@ import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_IN
 import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_INFO_CITIZEN_UNDERTAKER_RESURRECTED_SUCCESS;
 import static com.minecolonies.api.util.constant.UndertakerConstants.*;
 
+import static com.minecolonies.api.util.constant.StatisticsConstants.GRAVES_DUG;
+import static com.minecolonies.api.util.constant.StatisticsConstants.CITIZENS_RESURRECTED;
 /**
  * Undertaker AI class.
  */
@@ -255,6 +258,8 @@ public class EntityAIWorkUndertaker extends AbstractEntityAIInteract<JobUndertak
 
             worker.decreaseSaturationForAction();
             worker.getCitizenData().getCitizenSkillHandler().addXpToSkill(getModuleForJob().getPrimarySkill(), XP_PER_DIG, worker.getCitizenData());
+            StatsUtil.trackStat(building, GRAVES_DUG, 1);
+            building.getColony().getStatisticsManager().increment(GRAVES_DUG, worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
             return BURY_CITIZEN;
         }
 
@@ -347,6 +352,8 @@ public class EntityAIWorkUndertaker extends AbstractEntityAIInteract<JobUndertak
                                                    .getCitizenManager()
                                                    .resurrectCivilianData(graveData.getCitizenDataNBT(), true, world, gravePos);
                 MessageUtils.format(MESSAGE_INFO_CITIZEN_UNDERTAKER_RESURRECTED_SUCCESS, citizenData.getName()).sendTo(buildingGraveyard.getColony()).forManagers();
+                StatsUtil.trackStat(building, CITIZENS_RESURRECTED, 1);
+                building.getColony().getStatisticsManager().increment(CITIZENS_RESURRECTED, worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
                 worker.getCitizenColonyHandler().getColony().getCitizenManager().updateCitizenMourn(citizenData, false);
                 AdvancementUtils.TriggerAdvancementPlayersForColony(worker.getCitizenColonyHandler().getColony(),
                   playerMP -> AdvancementTriggers.CITIZEN_RESURRECT.get().trigger(playerMP));

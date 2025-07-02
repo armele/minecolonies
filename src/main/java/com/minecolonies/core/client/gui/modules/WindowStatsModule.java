@@ -1,6 +1,9 @@
 package com.minecolonies.core.client.gui.modules;
 
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.ScrollingList;
@@ -115,6 +118,7 @@ public class WindowStatsModule extends AbstractModuleWindow
                 {
                     resourceLabel.setText(Component.translatableEscape(PARTIAL_STATS_MODIFIER_NAME + id, stat));
                 }
+                PaneBuilders.tooltipBuilder().hoverPane(resourceLabel).build().setText(resourceLabel.getText());
             }
         });
 

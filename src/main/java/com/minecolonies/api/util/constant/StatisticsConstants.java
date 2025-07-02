@@ -76,6 +76,14 @@ public final class StatisticsConstants
     // Apiary
     public static final String ITEMS_COLLECTED = "items_collected";
     public static final String BREEDING_ATTEMPTS_BEES = "breeding_attempts_bees";
+
+    // Enchanter
+    public static final String ITEMS_ENCHANTED = "items_enchanted";
+    public static final String CITIZENS_DRAINED = "citizens_drained";
+
+    // Undertaker
+    public static final String GRAVES_DUG = "graves_dug";
+    public static final String CITIZENS_RESURRECTED = "citizens_resurrected";
 }
 
 
