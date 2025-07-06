@@ -121,7 +121,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
             return;
         }
 
-        StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getDescriptionId(), recipe.getPrimaryOutput().getCount());
+        StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getHoverName(), recipe.getPrimaryOutput().getCount());
     }
 
 
