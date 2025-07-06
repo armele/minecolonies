@@ -121,8 +121,8 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     }
 
     @Override
-    public String getIcon()
+    public ResourceLocation getIconResourceLocation()
     {
-        return "workers";
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/workers.png");
     }
 }

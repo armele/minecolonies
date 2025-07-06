@@ -4,9 +4,13 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
+import com.minecolonies.api.util.constant.Constants;
+
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -42,10 +46,24 @@ public interface IBuildingModuleView
 
     /**
      * Get the icon string for the module view.
+     * @Deprecated in favor of getIconResourceLocation
      * @return the icon identifier.
      */
-    String getIcon();
+    @Deprecated
+    default String getIcon()
+    {
+        return "custom";
+    }
 
+    /**
+     * Get the resource location of the icon for the module view.
+     * @return the resource location.
+     */
+    default ResourceLocation getIconResourceLocation()
+    {
+        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
+    }
+    
     /**
      * Get the lang string for the title.
      * @return the lang string.
