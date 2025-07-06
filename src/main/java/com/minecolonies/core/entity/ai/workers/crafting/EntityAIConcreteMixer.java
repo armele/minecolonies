@@ -1,8 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.crafting;
 
-import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.request.RequestState;
-import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.util.InventoryUtils;
@@ -258,20 +256,5 @@ public class EntityAIConcreteMixer extends AbstractEntityAICrafting<JobConcreteM
         }
 
         return CONCRETE_MIXER_PLACING;
-    }
-
-    /**
-     * Records the crafting request in the building's statistics.
-     * @param request the request to record.
-     */
-    @Override
-    public void recordCraftingBuildingStats(IRequest<?> request, IRecipeStorage recipe)
-    {
-        if (recipe == null) 
-        {
-            return;
-        }
-
-        StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getDescriptionId(), recipe.getPrimaryOutput().getCount());
     }
 }

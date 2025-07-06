@@ -87,7 +87,7 @@ public final class StatisticsConstants
 
     // Enchanter
     public static final String ITEMS_ENCHANTED = "items_enchanted";
-    public static final String CITIZENS_DRAINED = "citizens_drained";
+    public static final String CITIZENS_VISITED = "citizens_visited";
 
     // Undertaker
     public static final String GRAVES_DUG = "graves_dug";
