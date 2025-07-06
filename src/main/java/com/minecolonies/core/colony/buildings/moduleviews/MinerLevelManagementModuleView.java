@@ -7,6 +7,8 @@ import com.minecolonies.api.colony.workorders.IWorkOrderView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.WindowHutMinerModule;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
 import com.minecolonies.core.colony.workorders.view.WorkOrderMinerView;
 import com.minecolonies.core.colony.workorders.AbstractWorkOrder;
 import net.minecraft.util.Tuple;

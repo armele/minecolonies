@@ -6,6 +6,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.ExpeditionLogModuleWindow;
 import com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;

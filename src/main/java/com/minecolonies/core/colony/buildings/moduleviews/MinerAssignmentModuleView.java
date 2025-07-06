@@ -13,6 +13,8 @@ import com.minecolonies.core.client.gui.modules.SpecialAssignmentModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.HireFireMessage;
 import com.minecolonies.core.network.messages.server.colony.building.QuarryHiringModeMessage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

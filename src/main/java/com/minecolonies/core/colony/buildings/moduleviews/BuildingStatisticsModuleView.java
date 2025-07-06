@@ -7,6 +7,8 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.WindowStatsModule;
 import com.minecolonies.core.colony.managers.StatisticsManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 
 /**

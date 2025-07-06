@@ -9,7 +9,6 @@ import com.minecolonies.api.colony.buildings.modules.IAssignmentModuleView;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.util.constant.Constants;
-import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.huts.WindowHutWorkerModulePlaceholder;
 import com.minecolonies.core.network.messages.server.colony.building.HireFireMessage;
 import com.minecolonies.core.network.messages.server.colony.building.worker.BuildingHiringModeMessage;

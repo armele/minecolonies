@@ -90,7 +90,7 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
 
             final ResourceLocation icon = view.getIconResourceLocation();
             final ButtonImage iconImage = new ButtonImage();
-            iconImage.setImage(icon, false);
+            iconImage.setImage(icon);
             iconImage.setSize(20, 20);
             iconImage.setID(icon.getPath());
             iconImage.setPosition(-15, 13 + offset);
