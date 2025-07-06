@@ -31,10 +31,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.phys.Vec3;
@@ -42,7 +40,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -50,7 +47,7 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.TranslationConstants.NO_WORKERS_TO_DRAIN_SET;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_ENCHANTED;
-import static com.minecolonies.api.util.constant.StatisticsConstants.CITIZENS_DRAINED;
+import static com.minecolonies.api.util.constant.StatisticsConstants.CITIZENS_VISITED;
 
 /**
  * Enchanter AI class.
@@ -409,7 +406,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
             worker.getCitizenData().getCitizenSkillHandler().incrementLevel(Skill.Mana, 1);
             worker.getCitizenExperienceHandler().addExperience(XP_PER_DRAIN);
             worker.getCitizenData().markDirty(80);
-            StatsUtil.trackStat(building, CITIZENS_DRAINED, 1);
+            StatsUtil.trackStat(building, CITIZENS_VISITED, 1);
         }
         resetDraining();
         return IDLE;
