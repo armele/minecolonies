@@ -622,6 +622,10 @@
   "com.minecolonies.coremod.gui.workerhuts.fields.plantation.research": "You do not have the required research to assign this field to the plantation.",
   "com.minecolonies.coremod.gui.workerhuts.fields.plantation.direction.exact": "Current Plantation",
   "com.minecolonies.coremod.gui.workerhuts.fields.farmer.noseed": "Field has no seed set",
+  "com.minecolonies.coremod.gui.field.status":  "Stage:",
+  "com.minecolonies.coremod.gui.field.status.empty":  "Harvested",
+  "com.minecolonies.coremod.gui.field.status.hoed":   "Hoed",
+  "com.minecolonies.coremod.gui.field.status.planted":"Planted",
 
   "com.minecolonies.coremod.gui.workerhuts.plantationfields.repair": "Repair field",
   "com.minecolonies.coremod.gui.workerhuts.plantationfields.plants": "Plants on this field:",
