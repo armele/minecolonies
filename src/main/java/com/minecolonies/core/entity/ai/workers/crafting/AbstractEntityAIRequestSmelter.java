@@ -888,11 +888,12 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      */
     protected void recordSmeltingBuildingStats(ItemStack cookedStack)
     {
+
         if (cookedStack == null) 
         {
             return;
         }
-        
-        StatsUtil.trackStatByName(building, ITEMS_SMELTED_DETAIL, cookedStack.getDescriptionId(),cookedStack.getCount());
+
+        StatsUtil.trackStatByName(building, ITEMS_SMELTED_DETAIL, cookedStack.getHoverName(), cookedStack.getCount());
     }
 }
