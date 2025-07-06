@@ -180,6 +180,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             this.alreadyKept = new ArrayList<>();
             this.currentSlot = 0;
             job.finishRequest(true);
+            StatsUtil.trackStatByName(this.building, PICKUPS_MADE, pickupBuilding.getBuildingDisplayName(), 1);
 
             if (currentTask.getRequest().getPriority() >= PRIORITY_FORCING_DUMP)
             {
@@ -257,7 +258,6 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         // The worker gets a little bit of exp for every itemstack he grabs.
         worker.getCitizenExperienceHandler().addExperience(0.01D);
         CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
-        StatsUtil.trackStatByName(this.building, PICKUPS_MADE, targetBuilding.getBuildingDisplayName(), 1);
 
         return false;
     }

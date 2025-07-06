@@ -27,7 +27,6 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.CitizenConstants.TICKS_20;
 import static com.minecolonies.api.util.constant.Constants.DEFAULT_SPEED;
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
-import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_CRAFTED_DETAIL;
 
 /**
  * Crusher AI class.
@@ -267,18 +266,4 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
         return getState();
     }
 
-    /**
-     * Records the crafting request in the building's statistics.
-     * @param request the request to record.
-     */
-    @Override
-    public void recordCraftingBuildingStats(IRequest<?> request, IRecipeStorage recipe)
-    {
-        if (recipe == null) 
-        {
-            return;
-        }
-
-        StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getDescriptionId(), recipe.getPrimaryOutput().getCount());
-    }
 }
