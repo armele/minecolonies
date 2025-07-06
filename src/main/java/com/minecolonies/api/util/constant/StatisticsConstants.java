@@ -48,6 +48,12 @@ public final class StatisticsConstants
      */
     public static final String ITEMS_SMELTED_DETAIL = "items_smelted_detail";
 
+   /**
+    * Husbandry building stats.
+    */    
+    public static final String BREEDING_ATTEMPTS = "breeding_attempts";
+    public static final String ANIMALS_BUTCHERED = "animals_butchered";
+
     // Cook
     public static final String FOOD_SERVED_DETAIL = "food_served_detail";
 
@@ -75,7 +81,9 @@ public final class StatisticsConstants
 
     // Apiary
     public static final String ITEMS_COLLECTED = "items_collected";
-    public static final String BREEDING_ATTEMPTS_BEES = "breeding_attempts_bees";
+
+    // Builder
+    public static final String BLOCKS_PLACED_DETAIL   = "blocks_placed_detail";
 }
 
 
