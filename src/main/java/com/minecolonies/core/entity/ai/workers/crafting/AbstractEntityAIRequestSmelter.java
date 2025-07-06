@@ -894,6 +894,6 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
             return;
         }
 
-        StatsUtil.trackStatByName(building, ITEMS_SMELTED_DETAIL, cookedStack.getDescriptionId(), cookedStack.getCount());
+        StatsUtil.trackStatByName(building, ITEMS_SMELTED_DETAIL, cookedStack.getHoverName(), cookedStack.getCount());
     }
 }
