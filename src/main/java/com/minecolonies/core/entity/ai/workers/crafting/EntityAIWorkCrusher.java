@@ -259,4 +259,5 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
 
         return getState();
     }
+
 }
