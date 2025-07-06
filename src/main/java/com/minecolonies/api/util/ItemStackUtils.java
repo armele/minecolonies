@@ -459,7 +459,7 @@ public final class ItemStackUtils
     }
 
     /**
-     * get the size of the stac
+     * get the size of the stack
      *
      * @param stack to get the size from
      * @return the size of the stack

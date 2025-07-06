@@ -163,20 +163,15 @@ public class Stack implements IConcreteDeliverable
     {
         if (ItemStackUtils.isEmpty(stack))
         {
-            Log.getLogger().error("Created Empty Stack:" + stack, new Exception());
+            Log.getLogger().error("Created Empty Stack: {}", stack, new Exception());
         }
 
-        if (stack.getCount() > stack.getMaxStackSize())
+        if (stack.getCount() != 1 && stack.getCount() != count)
         {
-            Log.getLogger().error("Stack with ItemStack with too large stack size.: ", new Exception());
-            this.theStack = stack.copy();
-            this.theStack.setCount(this.theStack.getMaxStackSize());
-        }
-        else
-        {
-            this.theStack = stack.copy();
+            Log.getLogger().warn("Stack count mismatch (stack={}, count={}). ItemStack's count will be ignored.", stack, count, new Exception("Stack constructor"));
         }
 
+        this.theStack = stack.copyWithCount(1);
         this.matchDamage = matchDamage;
         this.matchNBT = matchNBT;
         this.result = result;
@@ -236,7 +231,7 @@ public class Stack implements IConcreteDeliverable
 
         if (stack.isEmpty())
         {
-            Log.getLogger().error("Deserialized bad stack", compound.toString());
+            Log.getLogger().error("Deserialized bad stack: {}", compound.toString());
         }
 
         return new Stack(stack, matchMeta, matchNBT, result, count, minCount, canBeResolved);
@@ -286,7 +281,7 @@ public class Stack implements IConcreteDeliverable
 
         if (stack.isEmpty())
         {
-            Log.getLogger().error("Deserialized bad stack", stack.toString());
+            Log.getLogger().error("Deserialized bad stack {}", stack.toString());
         }
 
         return new Stack(stack, matchMeta, matchNBT, result, count, minCount, canBeResolved);

@@ -457,9 +457,9 @@ public class WindowColonyMap extends AbstractWindowSkeleton
         if (buildingTuple.getB() != null)
         {
             final int range = buildingView.getRange();
-            final BlockPos UIPos1 = worldPosToUIPos(buildingView.getPosition().offset(-range / 2, 0, -range / 2));
-            final BlockPos UIPos2 = worldPosToUIPos(buildingView.getPosition().offset(range / 2, 0, range / 2));
-            putPaneTopLeftCornerAtWorldPos(buildingTuple.getA(), buildingView.getPosition().offset(-range / 2, 0, -range / 2));
+            final BlockPos UIPos1 = worldPosToUIPos(buildingView.getPosition().offset(-range, 0, -range));
+            final BlockPos UIPos2 = worldPosToUIPos(buildingView.getPosition().offset(range, 0, range));
+            putPaneTopLeftCornerAtWorldPos(buildingTuple.getA(), buildingView.getPosition().offset(-range, 0, -range));
             buildingTuple.getB().setPosition(UIPos1.getX(), UIPos1.getZ());
             buildingTuple.getB().setSize(UIPos2.getX() - UIPos1.getX(), UIPos2.getZ() - UIPos1.getZ());
         }
