@@ -124,6 +124,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         StatsUtil.trackStatByName(building, ITEMS_CRAFTED_DETAIL, recipe.getPrimaryOutput().getHoverName(), recipe.getPrimaryOutput().getCount());
     }
 
+
     /**
      * Initialize the crafter job and add all his tasks.
      *

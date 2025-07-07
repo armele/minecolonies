@@ -888,7 +888,6 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      */
     protected void recordSmeltingBuildingStats(ItemStack cookedStack)
     {
-
         if (cookedStack == null) 
         {
             return;
