@@ -215,7 +215,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             return false;
         }
 
-        final IItemHandler handler = building.getItemHandlerCap();
+        final IItemHandler handler = targetBuilding.getItemHandlerCap();
         if (handler == null)
         {
             return false;
