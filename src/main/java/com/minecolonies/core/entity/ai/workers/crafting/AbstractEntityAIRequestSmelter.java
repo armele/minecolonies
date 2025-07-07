@@ -15,7 +15,6 @@ import com.minecolonies.api.entity.ai.statemachine.states.AIBlockingEventType;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.translation.RequestSystemTranslationConstants;
@@ -49,7 +48,6 @@ import static com.minecolonies.api.util.constant.CitizenConstants.TICKS_20;
 import static com.minecolonies.api.util.constant.Constants.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.BAKER_HAS_NO_FURNACES_MESSAGE;
 import static com.minecolonies.api.util.constant.TranslationConstants.FURNACE_USER_NO_FUEL;
-import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_SMELTED_DETAIL;
 
 /**
  * Crafts furnace stone related block when needed.

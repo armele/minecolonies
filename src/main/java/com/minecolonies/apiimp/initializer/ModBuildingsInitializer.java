@@ -60,6 +60,7 @@ public final class ModBuildingsInitializer
           .setBuildingViewProducer(() -> BuildingBarracks.View::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.BARRACKS_ID))
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(BARRACKS_STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.barracksTower = DEFERRED_REGISTER.register(ModBuildings.BARRACKS_TOWER_ID, () -> new BuildingEntry.Builder()
@@ -87,6 +88,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(BLACKSMITH_CRAFT)
           .addBuildingModuleProducer(SETTINGS_CRAFTER_RECIPE)
           .addBuildingModuleProducer(CRAFT_TASK_VIEW)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.builder = DEFERRED_REGISTER.register(ModBuildings.BUILDER_ID, () -> new BuildingEntry.Builder()
@@ -100,6 +102,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(BUILDER_SETTINGS)
           .addBuildingModuleProducer(WORKORDER_VIEW)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.chickenHerder = DEFERRED_REGISTER.register(ModBuildings.CHICKENHERDER_ID, () -> new BuildingEntry.Builder()
@@ -170,6 +173,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(CRUSHER_CRAFT)
           .addBuildingModuleProducer(CRUSHER_SETTINGS)
           .addBuildingModuleProducer(CRAFT_TASK_VIEW)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.deliveryman = DEFERRED_REGISTER.register(ModBuildings.DELIVERYMAN_ID, () -> new BuildingEntry.Builder()
@@ -179,6 +183,7 @@ public final class ModBuildingsInitializer
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.DELIVERYMAN_ID))
           .addBuildingModuleProducer(COURIER_WORK)
           .addBuildingModuleProducer(COURIER_TASK_VIEW)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.farmer = DEFERRED_REGISTER.register(ModBuildings.FARMER_ID, () -> new BuildingEntry.Builder()
@@ -470,6 +475,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(FURNACE)
           .addBuildingModuleProducer(ITEMLIST_FUEL)
           .addBuildingModuleProducer(CRAFT_TASK_VIEW)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.fletcher = DEFERRED_REGISTER.register(ModBuildings.FLETCHER_ID, () -> new BuildingEntry.Builder()
