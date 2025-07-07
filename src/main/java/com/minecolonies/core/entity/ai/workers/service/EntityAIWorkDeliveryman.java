@@ -15,6 +15,7 @@ import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
@@ -45,6 +46,8 @@ import java.util.stream.Collectors;
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_DELIVERED;
+import static com.minecolonies.api.util.constant.StatisticsConstants.DELIVERIES_MADE;
+import static com.minecolonies.api.util.constant.StatisticsConstants.PICKUPS_MADE;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
 /**
@@ -176,6 +179,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             this.alreadyKept = new ArrayList<>();
             this.currentSlot = 0;
             job.finishRequest(true);
+            StatsUtil.trackStatByName(this.building, PICKUPS_MADE, pickupBuilding.getBuildingDisplayName(), 1);
 
             if (currentTask.getRequest().getPriority() >= PRIORITY_FORCING_DUMP)
             {
@@ -204,7 +208,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
      * @param building building to gather it from.
      * @return true when finished.
      */
-    private boolean pickupFromBuilding(@NotNull final IBuilding building)
+    private boolean pickupFromBuilding(@NotNull final IBuilding targetBuilding)
     {
         if (cannotHoldMoreItems() || InventoryUtils.openSlotCount(worker.getInventoryCitizen()) <= 0)
         {
@@ -234,7 +238,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             stack = handler.getStackInSlot(currentSlot);
         }
 
-        final int amount = workerRequiresItem(building, stack, alreadyKept);
+        final int amount = workerRequiresItem(targetBuilding, stack, alreadyKept);
         if (amount <= 0)
         {
             return false;
@@ -247,12 +251,13 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
 
         final ItemStack activeStack = handler.extractItem(currentSlot, amount, false);
         InventoryUtils.transferItemStackIntoNextBestSlotInItemHandler(activeStack, worker.getInventoryCitizen());
-        building.markDirty();
+        targetBuilding.markDirty();
         worker.decreaseSaturationForContinuousAction();
 
         // The worker gets a little bit of exp for every itemstack he grabs.
         worker.getCitizenExperienceHandler().addExperience(0.01D);
         CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
+
         return false;
     }
 
@@ -438,6 +443,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
               .getColonyOrRegister()
               .getStatisticsManager()
               .incrementBy(ITEMS_DELIVERED, count - insertionResultStack.getCount(), worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
+            StatsUtil.trackStatByName(building, DELIVERIES_MADE, targetBuilding.getBuildingDisplayName(), 1);
         }
 
         if (!extracted)
