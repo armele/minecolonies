@@ -33,6 +33,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.phys.Vec3;
@@ -433,7 +434,6 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
 
     /**
      * Records stats for items enchanted by the enchanter.
-     *
      * @param loot the items to record stats for
      */
     public void recordEnchantmentStats(List<ItemStack> loot)
@@ -444,20 +444,20 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
 
             if (stack.is(Items.ENCHANTED_BOOK))
             {
-                var enchants = EnchantmentHelper.getEnchantments(stack);
+                ItemEnchantments ench = EnchantmentHelper.getEnchantmentsForCrafting(stack);
 
-                if (!enchants.isEmpty())
+                if (!ench.isEmpty())
                 {
-                    if (enchants.size() == 1)
+                    if (ench.size() == 1)
                     {
-                        var e = enchants.entrySet().iterator().next();
-                        name = e.getKey().getFullname(e.getValue());
+                        Holder<Enchantment> h = ench.keySet().iterator().next();
+                        int lvl = ench.getLevel(h);
+                        name = Enchantment.getFullname(h, lvl);
                     }
                     else
                     {
-                        name = ComponentUtils.formatList(
-                            enchants.entrySet().stream().map(e -> e.getKey().getFullname(e.getValue())).toList(),
-                            Component.literal(", "));
+                        List<Component> parts = ench.keySet().stream().map(h -> Enchantment.getFullname(h, ench.getLevel(h))).toList();
+                        name = ComponentUtils.formatList(parts, Component.literal(", "));
                     }
                 }
             }
