@@ -2562,7 +2562,7 @@
   "com.minecolonies.coremod.gui.townhall.stats.citizens_visited": "Citizens Visited: %d",
   "com.minecolonies.coremod.gui.townhall.stats.graves_dug": "Graves Dug: %d",
   "com.minecolonies.coremod.gui.townhall.stats.citizens_resurrected": "Citizens Resurrected: %d",
-  "com.minecolonies.coremod.gui.townhall.stats.milking_attempts": "Milking Attempts: %d",
+  "com.minecolonies.coremod.gui.townhall.stats.milking_attempts": "Milking Attempts: %d",  "com.minecolonies.coremod.gui.townhall.stats.milking_attempts": "Milking Attempts: %d",
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",
   "com.minecolonies.coremod.gui.interval.100days": "Last 100 Days",
