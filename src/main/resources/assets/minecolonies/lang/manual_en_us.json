@@ -434,6 +434,7 @@
   "com.minecolonies.command.citizeninfo.desc": "§2ID: §f %d §2 Name: §f %s",
   "com.minecolonies.command.citizeninfo.skills": "§2Athletics: §f%s §2Dexterity: §f%s §2Strength: §f%s\n§2Agility: §f%s §2Stamina: §f%s §2Mana: §f%s\n§2Adaptability: §f%s §2Focus: §f%s §2Creativity: §f%s\n§2Knowledge: §f%s §2Intelligence: §f%s",
   "com.minecolonies.command.citizeninfo.job": "§2Job: §f%s",
+  "com.minecolonies.command.citizeninfo.food": "§2Full food history: §f%s, §2Quality: §f%d, §2Diversity: §f%d, §2Last Eaten: §f%s",
   "com.minecolonies.command.citizeninfo.jobnull": "§2Job: §fUnemployed",
   "com.minecolonies.command.citizeninfo.health": "§2Health: §f%s §2Max Health: §f%s",
   "com.minecolonies.command.citizeninfo.activity": "§2Citizen state: §f%s §2Job: §f%s §2Jobstate: §f%s",
