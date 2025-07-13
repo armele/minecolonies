@@ -49,6 +49,7 @@ import static com.minecolonies.api.util.constant.CitizenConstants.TICKS_20;
 import static com.minecolonies.api.util.constant.Constants.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.BAKER_HAS_NO_FURNACES_MESSAGE;
 import static com.minecolonies.api.util.constant.TranslationConstants.FURNACE_USER_NO_FUEL;
+
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEMS_SMELTED_DETAIL;
 
 /**
@@ -888,11 +889,12 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      */
     protected void recordSmeltingBuildingStats(ItemStack cookedStack)
     {
+
         if (cookedStack == null) 
         {
             return;
         }
-        
+
         StatsUtil.trackStatByName(building, ITEMS_SMELTED_DETAIL, cookedStack.getHoverName(), cookedStack.getCount());
     }
 }
