@@ -8,6 +8,7 @@ import com.minecolonies.api.colony.buildings.modules.stat.IStat;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.sounds.TavernSounds;
 import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.huts.WindowHutLiving;
 import com.minecolonies.core.colony.buildings.views.LivingBuildingView;
@@ -37,7 +38,7 @@ import static com.minecolonies.api.util.constant.Constants.TAG_COMPOUND;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_VISITORS;
 import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_SITTING;
 import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_WORK;
-
+import static com.minecolonies.api.util.constant.StatisticsConstants.NEW_VISITORS;
 /**
  * Tavern building for the colony. Houses 4 citizens Plays a tavern theme on entering Spawns/allows citizen recruitment Spawns trader/quest npcs
  */
@@ -200,6 +201,8 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
             newCitizen.getEntity().get().setItemSlot(EquipmentSlot.FEET, cost.boots().getDefaultInstance());
         }
         building.getColony().getEventDescriptionManager().addEventDescription(new VisitorSpawnedEvent(spawnPos, newCitizen.getName()));
+
+        StatsUtil.trackStat(building, NEW_VISITORS, 1);
 
         externalCitizens.add(newCitizen.getId());
         return newCitizen;
