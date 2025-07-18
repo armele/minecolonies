@@ -1686,6 +1686,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
         {
             return true;
         }
+
         final int updatedCount = count - invCount;
         final int updatedMinCount = Math.min(updatedCount, minCount);
 
@@ -1703,7 +1704,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
               && building.getCompletedRequestsOfTypeFiltered(worker.getCitizenData(), TypeConstants.DELIVERABLE,
           (IRequest<? extends IDeliverable> r) -> r.getRequest().matches(stack)).isEmpty())
         {
-            final Stack stackRequest = new Stack(stack, updatedCount, updatedMinCount, matchNBT);
+            ItemStack updatedStack = stack.copy();
+            updatedStack.setCount(updatedCount);
+            final Stack stackRequest = new Stack(updatedStack, updatedCount, updatedMinCount, matchNBT);
             worker.getCitizenData().createRequestAsync(stackRequest);
         }
 

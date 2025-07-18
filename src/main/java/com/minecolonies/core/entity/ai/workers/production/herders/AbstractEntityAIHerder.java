@@ -312,7 +312,9 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
 
         for (final ItemStack breedingItem : current_module.getBreedingItems())
         {
-            checkIfRequestForItemExistOrCreateAsync(breedingItem, breedingItem.getCount() * EXTRA_BREEDING_ITEMS_REQUEST, breedingItem.getCount());
+            int amountToRequest = breedingItem.getCount() * EXTRA_BREEDING_ITEMS_REQUEST;
+            ItemStack breedingStack = new ItemStack(breedingItem.getItem(), amountToRequest);
+            checkIfRequestForItemExistOrCreateAsync(breedingStack, amountToRequest, breedingItem.getCount());
         }
 
         for (final ItemStorage items : getExtraItemsNeeded())
