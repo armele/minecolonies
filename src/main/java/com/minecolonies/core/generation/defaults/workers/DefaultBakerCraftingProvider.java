@@ -74,7 +74,7 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
 
         recipe(BAKER, MODULE_CRAFTING, "sugary_bread")
-          .inputs(List.of(new ItemStorage(new ItemStack(Items.WHEAT, 8)),
+          .inputs(List.of(new ItemStorage(new ItemStack(ModBlocks.blockDurum, 8)),
             new ItemStorage(new ItemStack(Items.HONEY_BOTTLE))))
           .result(new ItemStack(ModItems.sugaryBread, 4))
           .lootTable(DefaultRecipeLootProvider.LOOT_TABLE_GLASS_BOTTLE)
@@ -83,7 +83,7 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
 
         recipe(BAKER, MODULE_CRAFTING, "milky_bread")
-          .inputs(List.of(new ItemStorage(new ItemStack(Items.WHEAT, 8)),
+          .inputs(List.of(new ItemStorage(new ItemStack(ModBlocks.blockDurum, 8)),
             new ItemStorage(new ItemStack(ModItems.large_milk_bottle))))
           .result(new ItemStack(ModItems.milkyBread, 4))
           .lootTable(DefaultRecipeLootProvider.LOOT_TABLE_LARGE_BOTTLE)
@@ -92,7 +92,7 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
 
         recipe(BAKER, MODULE_CRAFTING, "smilky_bread")
-          .inputs(List.of(new ItemStorage(new ItemStack(Items.WHEAT, 8)),
+          .inputs(List.of(new ItemStorage(new ItemStack(ModBlocks.blockDurum, 8)),
             new ItemStorage(new ItemStack(ModItems.large_soy_milk_bottle))))
           .result(new ItemStack(ModItems.milkyBread, 4))
           .lootTable(DefaultRecipeLootProvider.LOOT_TABLE_LARGE_BOTTLE)
@@ -101,7 +101,7 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
 
         recipe(BAKER, MODULE_CRAFTING, "golden_bread")
-          .inputs(List.of(new ItemStorage(new ItemStack(Items.WHEAT, 8)),
+          .inputs(List.of(new ItemStorage(new ItemStack(ModBlocks.blockDurum, 8)),
             new ItemStorage(new ItemStack(Items.GOLD_INGOT))))
           .result(new ItemStack(ModItems.goldenBread, 4))
           .minBuildingLevel(5)
@@ -109,7 +109,7 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
 
         recipe(BAKER, MODULE_CRAFTING, "chorus_bread")
-          .inputs(List.of(new ItemStorage(new ItemStack(Items.WHEAT, 8)),
+          .inputs(List.of(new ItemStorage(new ItemStack(ModBlocks.blockDurum, 8)),
             new ItemStorage(new ItemStack(Items.CHORUS_FRUIT))))
           .result(new ItemStack(ModItems.chorusBread, 4))
           .minResearchId(ResearchConstants.THE_END)

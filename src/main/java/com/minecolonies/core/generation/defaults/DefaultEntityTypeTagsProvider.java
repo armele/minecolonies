@@ -31,6 +31,7 @@ public class DefaultEntityTypeTagsProvider extends EntityTypeTagsProvider
     {
         tag(ModTags.hostile).add(EntityType.SLIME);
         tag(ModTags.mobAttackBlacklist).add(EntityType.ENDERMAN, EntityType.LLAMA);
+        tag(ModTags.freeToInteractWith).addOptional(new ResourceLocation("corpse", "corpse"));
 
         final TagAppender<EntityType<?>> raiderTagAppender = tag(ModTags.raiders);
         ModEntities.getRaiders().forEach(raiderType -> raiderTagAppender.add(TagEntry.element(EntityType.getKey(raiderType))));

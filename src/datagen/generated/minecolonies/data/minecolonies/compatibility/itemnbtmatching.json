@@ -36,6 +36,12 @@
     "checkednbtkeys": [
       "domum_ornamentum:texture_data"
     ],
+    "item": "domum_ornamentum:blocktiledpaperwall"
+  },
+  {
+    "checkednbtkeys": [
+      "domum_ornamentum:texture_data"
+    ],
     "item": "domum_ornamentum:blockypillar"
   },
   {
@@ -109,6 +115,12 @@
       "domum_ornamentum:texture_data"
     ],
     "item": "domum_ornamentum:down_gated"
+  },
+  {
+    "checkednbtkeys": [
+      "domum_ornamentum:texture_data"
+    ],
+    "item": "domum_ornamentum:dynamic_timberframe"
   },
   {
     "checkednbtkeys": [

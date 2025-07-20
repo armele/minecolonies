@@ -85,6 +85,7 @@ public final class NbtTagConstants
     public static final String TAG_TYPE           = "Type";
     public static final String TAG_MERCENARY_TIME = "mercenaryUseTime";
     public static final String TAG_IDLE           = "idle";
+    public static final String TAG_JOB_STATUS     = "jobStatus";
     public static final String TAG_PURGED_MOBS    = "purgedMobs";
     public static final String TAG_RESERVED       = "reserved";
     public static final String TAG_DESC           = "desc";
@@ -744,10 +745,14 @@ public final class NbtTagConstants
     /**
      * Supplycamp related things.
      */
-    public static final String TAG_SAW_STORY     = "sawstory";
-    public static final String TAG_RANDOM_KEY    = "randkey";
+    public static final String TAG_SAW_STORY  = "sawstory";
+    public static final String TAG_RANDOM_KEY = "randkey";
 
-    public static final String TAG_LAST_FOODS    = "lastfoods";
+    public static final String TAG_LAST_FOODS          = "lastfoods";
+    public static final String TRAVELER_DATA           = "travelerData";
+    public static final String TAG_INITIAL_TRAVEL_TIME = "initialTravelTime";
+    public static final String TAG_REMAINING_TRAVEL_TIME = "remainingTravelTime";
+    public static final String TAG_TRAVELLING_DATA     = "travellingData";
 
     /**
      * Farmer building related things.

@@ -87,11 +87,11 @@ public abstract class AbstractModuleWindow extends AbstractWindowSkeleton implem
                 view.getWindow().open();
             });
 
-            final String icon = view.getIcon();
+            final ResourceLocation icon = view.getIconResourceLocation();
             final ButtonImage iconImage = new ButtonImage();
-            iconImage.setImage(new ResourceLocation("minecolonies", "textures/gui/modules/" + icon + ".png"));
+            iconImage.setImage(icon);
             iconImage.setSize(20, 20);
-            iconImage.setID(icon);
+            iconImage.setID(icon.getPath());
             iconImage.setPosition(-15, 13 + offset);
             iconImage.setHandler(button -> {
                 mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
