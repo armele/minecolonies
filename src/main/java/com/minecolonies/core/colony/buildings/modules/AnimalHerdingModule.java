@@ -28,11 +28,11 @@ public class AnimalHerdingModule extends AbstractBuildingModule
 
     public AnimalHerdingModule(@NotNull final JobEntry jobEntry,
                                @NotNull final Predicate<Animal> animalPredicate,
-                               @NotNull final ItemStack breedingItem)
+                               @NotNull final ItemStorage breedingItem)
     {
         this.jobEntry = jobEntry;
         this.animalPredicate = animalPredicate;
-        this.breedingItem = new ItemStorage(breedingItem.getItem(), breedingItem.getCount());
+        this.breedingItem = breedingItem;
     }
 
     /**
