@@ -49,6 +49,8 @@ public final class ModCreativeTabs
           output.accept(ModBlocks.blockDecorationPlaceholder);
           output.accept(ModBlocks.blockCompostedDirt);
           output.accept(ModBlocks.blockConstructionTape);
+          //todo enable in the future
+          //output.accept(ModBlocks.blockColonySign);
 
           output.accept(ModItems.scepterLumberjack);
           output.accept(ModItems.permTool);

@@ -305,10 +305,11 @@ public final class ModBuildingsInitializer
           .setBuildingBlock(ModBlocks.blockHutSifter)
           .setBuildingProducer(BuildingSifter::new)
           .setBuildingViewProducer(() -> EmptyView::new)
+          .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.SIFTER_ID))
           .addBuildingModuleProducer(SIFTER_WORK)
           .addBuildingModuleProducer(SIFTER_CRAFT)
           .addBuildingModuleProducer(MIN_STOCK)
-          .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.SIFTER_ID))
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.smeltery = DEFERRED_REGISTER.register(ModBuildings.SMELTERY_ID, () -> new BuildingEntry.Builder()
@@ -421,6 +422,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(UNIVERSITY_WORK)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.UNIVERSITY_ID))
           .addBuildingModuleProducer(UNIVERSITY_RESEARCH)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.hospital = DEFERRED_REGISTER.register(ModBuildings.HOSPITAL_ID, () -> new BuildingEntry.Builder()
@@ -448,6 +450,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(TEACHER_WORK)
           .addBuildingModuleProducer(PUPIL_WORK)
           .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.glassblower = DEFERRED_REGISTER.register(ModBuildings.GLASSBLOWER_ID, () -> new BuildingEntry.Builder()
@@ -502,6 +505,7 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(TAVERN_LIVING)
           .addBuildingModuleProducer(TAVERN_VISITOR)
           .addBuildingModuleProducer(BED)
+          .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
 
         ModBuildings.mechanic = DEFERRED_REGISTER.register(ModBuildings.MECHANIC_ID, () -> new BuildingEntry.Builder()
@@ -647,5 +651,20 @@ public final class ModBuildingsInitializer
                                                                                            .addBuildingModuleProducer(ITEMLIST_FUEL)
                                                                                            .addBuildingModuleProducer(STATS_MODULE)
                                                                                            .createBuildingEntry());
+
+        ModBuildings.gateHouse = DEFERRED_REGISTER.register(ModBuildings.GATE_HOUSE_ID, () -> new BuildingEntry.Builder()
+            .setBuildingBlock(ModBlocks.blockHutGateHouse)
+            .setBuildingProducer(BuildingGateHouse::new)
+            .setBuildingViewProducer(() -> BuildingGateHouse.View::new)
+            .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.GATE_HOUSE_ID))
+            .addBuildingModuleProducer(KNIGHT_GATE_WORK)
+            .addBuildingModuleProducer(RANGER_GATE_WORK)
+            .addBuildingModuleProducer(GUARD_ENTITY_LIST)
+            .addBuildingModuleProducer(GATE_GUARD_SETTINGS)
+            .addBuildingModuleProducer(MIN_STOCK)
+            .addBuildingModuleProducer(BED)
+            .addBuildingModuleProducer(STATS_MODULE)
+            .addBuildingModuleProducer(CONNECTION_MODULE)
+            .createBuildingEntry());
     }
 }

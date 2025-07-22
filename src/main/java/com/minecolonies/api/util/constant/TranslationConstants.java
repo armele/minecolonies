@@ -672,14 +672,36 @@ public final class TranslationConstants
     public static final String COM_MINECOLONIES_MAP_COLONY_SET                    = "com.minecolonies.core.item.colonymap.registered";
     @NonNls
     public static final String VANILLA_FOOD_QUALITY_TOOLTIP                       = "com.minecolonies.core.gui.restaurant.vanillafoodquality";
-
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_COLONY_SET          = "com.minecolonies.core.item.sign.registered";
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_TOO_FAR             = "com.minecolonies.core.item.sign.toofar";
+    @NonNls
+    public static final String COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP = "com.minecolonies.core.item.colonysign.tip";
+    @NonNls
+    public static final String COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP_COLONY = "com.minecolonies.core.item.colonysign.tip.colony";
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_NULL_COLONY                  = "com.minecolonies.core.item.sign.nullcolony";
     @NonNls
     public static final String FOOD_QUALITY                                       = "foodquality";
     @NonNls
     public static final String FOOD_DIVERSITY                                     = "fooddiversity";
     @NonNls
     public static final String URGENT                                             = ".urgent";
-
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_COLONY_NO_PERM            = "com.minecolonies.core.item.sign.noperm";
+    @NonNls
+    public static final String COM_MINECOLONIES_CONNECTION_FAIL                = "com.minecolonies.core.colonyconnection.fail";
+    @NonNls
+    public static final String COM_MINECOLONIES_CONNECTION_SUCCESS             = "com.minecolonies.core.colonyconnection.success";
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_MISSING_LINK              = "com.minecolonies.core.item.sign.missinglink";
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_CONNECTED                 = "com.minecolonies.core.item.sign.connected";
+    @NonNls
+    public static final String COM_MINECOLONIES_SIGN_DISRUPTED                 = "com.minecolonies.core.item.sign.disrupted";
+    @NonNls
+    public static final String COM_MINECOLONIES_CONNECTION_PATH_FAILURE        = "com.minecolonies.core.colonyconnection.path.failure";
     //<editor-fold desc="Partial keys">
 
     @NonNls
