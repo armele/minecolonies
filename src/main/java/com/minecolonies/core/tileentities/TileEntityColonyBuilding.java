@@ -404,9 +404,9 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
             }
         }
 
-        if (path == null || path.isEmpty() || path.contains("null"))
+        if ((path == null || path.isEmpty() || path.contains("null")) && getBlockState().getBlock() instanceof AbstractBlockHut<?> abstractBlockHut)
         {
-            path = BlueprintMapping.getPathMapping("", ((AbstractBlockHut) getBlockState().getBlock()).getBlueprintName()) + "1.blueprint";
+            path = BlueprintMapping.getPathMapping("", abstractBlockHut.getBlueprintName()) + "1.blueprint";
         }
 
         if (!path.endsWith(".blueprint"))
