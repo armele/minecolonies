@@ -746,6 +746,37 @@ public class Tree
     }
 
     /**
+     * Determines if two given block states represent the same type of log.
+     *
+     * @param checkBlock The block state to check.
+     * @param stumpBlock The block state of the stump to compare against.
+     * @return true if both block states are of the same type of log, false otherwise.
+     */
+    private boolean isSameTypeOfLog(@NotNull final BlockState checkBlock, @NotNull final BlockState stumpBlock)
+    {
+        boolean same = false;
+
+        if (
+            (checkBlock.is(ModTags.mangroveTree) && stumpBlock.is(ModTags.mangroveTree))
+            || (checkBlock.is(BlockTags.JUNGLE_LOGS) && stumpBlock.is(BlockTags.JUNGLE_LOGS))
+            || (checkBlock.is(BlockTags.DARK_OAK_LOGS) && stumpBlock.is(BlockTags.DARK_OAK_LOGS))
+            || (checkBlock.is(BlockTags.OAK_LOGS) && stumpBlock.is(BlockTags.OAK_LOGS))
+            || (checkBlock.is(BlockTags.BIRCH_LOGS) && stumpBlock.is(BlockTags.BIRCH_LOGS))
+            || (checkBlock.is(BlockTags.ACACIA_LOGS) && stumpBlock.is(BlockTags.ACACIA_LOGS))
+            || (checkBlock.is(BlockTags.CHERRY_LOGS) && stumpBlock.is(BlockTags.CHERRY_LOGS))
+            || (checkBlock.is(BlockTags.SPRUCE_LOGS) && stumpBlock.is(BlockTags.SPRUCE_LOGS))
+            || (checkBlock.is(BlockTags.CRIMSON_STEMS) && stumpBlock.is(BlockTags.CRIMSON_STEMS))
+            || (checkBlock.is(BlockTags.WARPED_STEMS) && stumpBlock.is(BlockTags.WARPED_STEMS))
+            || (checkBlock.is(BlockTags.BAMBOO_BLOCKS) && stumpBlock.is(BlockTags.BAMBOO_BLOCKS))
+        )
+        {
+            same = true;
+        }
+
+        return same;
+    }
+
+    /**
      * Check if this is a log in the same tree type.
      *
      * @param checkBlock the current block in the tree being evaluated.
@@ -756,12 +787,7 @@ public class Tree
       @NotNull final BlockState checkBlock,
       @NotNull final BlockState stumpBlock)
     {
-        if (checkBlock.is(ModTags.mangroveTree))
-        {
-            return stumpBlock.is(ModTags.mangroveTree);
-        }
-
-        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree);
+        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree) || isSameTypeOfLog(checkBlock, stumpBlock);
 	}
 
     /**
