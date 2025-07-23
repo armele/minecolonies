@@ -14,6 +14,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -40,6 +41,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -746,34 +748,15 @@ public class Tree
     }
 
     /**
-     * Determines if two given block states represent the same type of log.
+     * Get the prefix of a log block, which is the path of the block in the
+     * registries, with "_log" or "_wood" removed from the end.
      *
-     * @param checkBlock The block state to check.
-     * @param stumpBlock The block state of the stump to compare against.
-     * @return true if both block states are of the same type of log, false otherwise.
+     * @param block the block to get the prefix from.
+     * @return the prefix of the log block.
      */
-    private boolean isSameTypeOfLog(@NotNull final BlockState checkBlock, @NotNull final BlockState stumpBlock)
-    {
-        boolean same = false;
-
-        if (
-            (checkBlock.is(ModTags.mangroveTree) && stumpBlock.is(ModTags.mangroveTree))
-            || (checkBlock.is(BlockTags.JUNGLE_LOGS) && stumpBlock.is(BlockTags.JUNGLE_LOGS))
-            || (checkBlock.is(BlockTags.DARK_OAK_LOGS) && stumpBlock.is(BlockTags.DARK_OAK_LOGS))
-            || (checkBlock.is(BlockTags.OAK_LOGS) && stumpBlock.is(BlockTags.OAK_LOGS))
-            || (checkBlock.is(BlockTags.BIRCH_LOGS) && stumpBlock.is(BlockTags.BIRCH_LOGS))
-            || (checkBlock.is(BlockTags.ACACIA_LOGS) && stumpBlock.is(BlockTags.ACACIA_LOGS))
-            || (checkBlock.is(BlockTags.CHERRY_LOGS) && stumpBlock.is(BlockTags.CHERRY_LOGS))
-            || (checkBlock.is(BlockTags.SPRUCE_LOGS) && stumpBlock.is(BlockTags.SPRUCE_LOGS))
-            || (checkBlock.is(BlockTags.CRIMSON_STEMS) && stumpBlock.is(BlockTags.CRIMSON_STEMS))
-            || (checkBlock.is(BlockTags.WARPED_STEMS) && stumpBlock.is(BlockTags.WARPED_STEMS))
-            || (checkBlock.is(BlockTags.BAMBOO_BLOCKS) && stumpBlock.is(BlockTags.BAMBOO_BLOCKS))
-        )
-        {
-            same = true;
-        }
-
-        return same;
+    private String logPrefix(BlockState block) {
+        String path = ForgeRegistries.BLOCKS.getKey(block.getBlock()).getPath();
+        return path.replaceFirst("(_log|_wood)$", "");
     }
 
     /**
@@ -787,7 +770,12 @@ public class Tree
       @NotNull final BlockState checkBlock,
       @NotNull final BlockState stumpBlock)
     {
-        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree) || isSameTypeOfLog(checkBlock, stumpBlock);
+        if (checkBlock.is(ModTags.mangroveTree))
+        {
+            return stumpBlock.is(ModTags.mangroveTree);
+        }
+
+        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree) || (logPrefix(checkBlock).equals(logPrefix(stumpBlock)));
 	}
 
     /**
