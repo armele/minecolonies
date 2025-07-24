@@ -26,9 +26,26 @@ public final class JobDataManager implements IJobDataManager
     @Override
     public IJob<?> createFrom(final ICitizenData citizen, @NotNull final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
     {
+        String jobTypeName = compound.getString(NbtTagConstants.TAG_JOB_TYPE);
+
         final ResourceLocation jobType =
-          compound.contains(NbtTagConstants.TAG_JOB_TYPE) ? ResourceLocation.parse(compound.getString(NbtTagConstants.TAG_JOB_TYPE)) : ModJobs.PLACEHOLDER_ID;
-        final IJob<?> job = Optional.ofNullable(IJobRegistry.getInstance().get(jobType)).map(r -> r.produceJob(citizen)).orElse(null);
+          compound.contains(NbtTagConstants.TAG_JOB_TYPE) ? ResourceLocation.parse(jobTypeName) : ModJobs.PLACEHOLDER_ID;
+
+        if (jobType == null)
+        {
+            Log.getLogger().error(String.format("Unknown job type '%s'.", jobTypeName), new Exception());
+            return null;
+        }
+
+        Optional<JobEntry> jobEntry = IJobRegistry.getInstance().getOptional(jobType);
+
+        if (jobEntry == null || jobEntry.isEmpty())
+        {
+            Log.getLogger().error(String.format("Unknown job entry for type '%s'.", jobTypeName), new Exception());
+            return null;
+        }
+
+        final IJob<?> job = Optional.ofNullable(jobEntry.get()).map(r -> r.produceJob(citizen)).orElse(null);
 
         if (job != null)
         {

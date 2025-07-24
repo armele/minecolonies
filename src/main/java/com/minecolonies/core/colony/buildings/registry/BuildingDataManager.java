@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BUILDING_TYPE;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_LOCATION;
 
+import java.util.Optional;
+
 public class BuildingDataManager implements IBuildingDataManager
 {
     @Override
@@ -32,6 +34,11 @@ public class BuildingDataManager implements IBuildingDataManager
         final BlockPos pos = BlockPosUtil.read(compound, TAG_LOCATION);
 
         IBuilding building = this.createFrom(colony, pos, type);
+
+        if (building == null)
+        {
+            return null;
+        }
 
         try
         {
@@ -56,8 +63,8 @@ public class BuildingDataManager implements IBuildingDataManager
     @Override
     public IBuilding createFrom(final IColony colony, final BlockPos position, final ResourceLocation buildingName)
     {
-        final BuildingEntry entry = IBuildingRegistry.getInstance().get(buildingName);
-        if (entry == null)
+        final Optional<BuildingEntry> entry = IBuildingRegistry.getInstance().getOptional(buildingName);
+        if (entry == null || entry.isEmpty())
         {
             if (buildingName.getPath().equals("home"))
             {
@@ -66,7 +73,7 @@ public class BuildingDataManager implements IBuildingDataManager
             Log.getLogger().error(String.format("Unknown building type '%s'.", buildingName), new Exception());
             return null;
         }
-        return entry.produceBuilding(position, colony);
+        return entry.get().produceBuilding(position, colony);
     }
 
     @Override
