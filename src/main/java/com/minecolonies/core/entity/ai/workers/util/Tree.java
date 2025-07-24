@@ -754,7 +754,8 @@ public class Tree
      * @param block the block to get the prefix from.
      * @return the prefix of the log block.
      */
-    private String logPrefix(BlockState block) {
+    private String logPrefix(BlockState block) 
+    {
         String path = ForgeRegistries.BLOCKS.getKey(block.getBlock()).getPath();
         return path.replaceFirst("(_log|_wood)$", "");
     }
@@ -775,7 +776,7 @@ public class Tree
             return stumpBlock.is(ModTags.mangroveTree);
         }
 
-        return checkBlock.getBlock().equals(stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree) || (logPrefix(checkBlock).equals(logPrefix(stumpBlock)));
+        return (checkBlock.getBlock() == stumpBlock.getBlock()) || checkBlock.is(ModTags.extraTree) || (logPrefix(checkBlock).equals(logPrefix(stumpBlock)));
 	}
 
     /**
