@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BUILDING_TYPE;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_LOCATION;
 
-import java.util.Optional;
-
 public class BuildingDataManager implements IBuildingDataManager
 {
     @Override
