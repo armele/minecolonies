@@ -234,19 +234,21 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             return getState();
         }
 
-        // This got moved downwards compared to the AICrafting-implementation,
-        // because in this case waiting for dumping is more important
-        // than restarting chopping
-        if (job.getTaskQueue().isEmpty())
+        if (!building.isCraftOnly())
         {
-            return LUMBERJACK_START_WORKING;
-        }
+            // This got moved downwards compared to the AICrafting-implementation,
+            // because in this case waiting for dumping is more important
+            // than restarting chopping
+            if (job.getTaskQueue().isEmpty())
+            {
+                return LUMBERJACK_START_WORKING;
+            }
 
-        if (job.getCurrentTask() == null)
-        {
-            return LUMBERJACK_START_WORKING;
+            if (job.getCurrentTask() == null)
+            {
+                return LUMBERJACK_START_WORKING;
+            }
         }
-
         return getNextCraftingState();
     }
 

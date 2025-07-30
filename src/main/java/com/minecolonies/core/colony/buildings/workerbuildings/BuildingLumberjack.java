@@ -57,6 +57,7 @@ public class BuildingLumberjack extends AbstractBuilding
     public static final ISettingKey<BoolSetting> RESTRICT = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "restrict"));
     public static final ISettingKey<BoolSetting> DEFOLIATE = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "defoliate"));
     public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
+    public static final ISettingKey<BoolSetting> CRAFT_ONLY = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "craft_only"));
 
     /**
      * NBT tag for lj restriction start
@@ -224,6 +225,17 @@ public class BuildingLumberjack extends AbstractBuilding
     {
         return getSetting(DEFOLIATE).getValue();
     }
+
+    /**
+     * Whether or not the LJ is dedicated only to crafting.
+     *
+     * @return true if so.
+     */
+    public boolean isCraftOnly()
+    {
+        return getSetting(CRAFT_ONLY).getValue();
+    }
+
 
     /**
      * Whether or not the LJ should be restricted.
