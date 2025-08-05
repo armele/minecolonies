@@ -391,7 +391,7 @@ public class Colony implements IColony
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::checkDayTime, () -> ACTIVE, UPDATE_DAYTIME_INTERVAL));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::updateWayPoints, () -> ACTIVE, CHECK_WAYPOINT_EVERY));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::worldTickSlow, () -> ACTIVE, MAX_TICKRATE));
-        colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, () -> { connectionManager.tick(); return false; }, () -> ACTIVE, TICKS_SECOND));
+        colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::tickWorkManager, () -> ACTIVE, 20));
         colonyStateMachine.addTransition(new TickingTransition<>(UNLOADED, this::worldTickUnloaded, () -> UNLOADED, MAX_TICKRATE));
     }
 
@@ -476,7 +476,6 @@ public class Colony implements IColony
         eventManager.onColonyTick(this);
         buildingManager.onColonyTick(this);
         graveManager.onColonyTick(this);
-        workManager.onColonyTick(this);
         reproductionManager.onColonyTick(this);
         questManager.onColonyTick();
 
@@ -496,6 +495,15 @@ public class Colony implements IColony
 
         updateChildTime();
         updateChunkLoadTimer();
+        return false;
+    }
+
+    /**
+     * Tick the work Manager.
+     */
+    private boolean tickWorkManager()
+    {
+        workManager.onColonyTick(this);
         return false;
     }
 
@@ -1159,6 +1167,11 @@ public class Colony implements IColony
              * This should not be a problem for minecolonies as long as we take care to do nothing in that moment.
              */
             return;
+        }
+
+        if (!event.level.isClientSide && (event.level.getGameTime() + id) % 20 == 0)
+        {
+            connectionManager.tick();
         }
 
         colonyStateMachine.tick();

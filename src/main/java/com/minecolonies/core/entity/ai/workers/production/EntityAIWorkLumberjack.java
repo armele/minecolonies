@@ -208,6 +208,12 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         return BuildingLumberjack.class;
     }
 
+    @Override
+    public boolean hasWorkToDo()
+    {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      * <p>

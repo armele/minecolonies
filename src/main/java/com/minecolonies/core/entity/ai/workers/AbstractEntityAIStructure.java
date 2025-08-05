@@ -178,7 +178,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
           /*
            * Check if we have to build something.
            */
-          new AITarget(IDLE, this::isThereAStructureToBuild, () -> START_BUILDING, 100),
+          new AITarget(IDLE, this::isThereAStructureToBuild, () -> START_BUILDING, 10),
           /*
            * Build the structure and foundation of the building.
            */
@@ -1011,7 +1011,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      */
     protected boolean isThereAStructureToBuild()
     {
-        if (structurePlacer == null || !structurePlacer.getB().hasBluePrint())
+        if (structurePlacer == null || !structurePlacer.getB().hasBluePrint() || job.getWorkOrder() == null)
         {
             return false;
         }

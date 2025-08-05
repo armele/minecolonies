@@ -111,7 +111,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
             return getState();
         }
 
-        if (job.getWorkOrder().getBlueprint() == null || structurePlacer == null)
+        if (job.getWorkOrder() == null || job.getWorkOrder().getBlueprint() == null || structurePlacer == null)
         {
             loadStructure();
             final IBuilderWorkOrder wo = job.getWorkOrder();
