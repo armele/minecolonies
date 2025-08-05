@@ -2144,7 +2144,6 @@
   "com.minecolonies.coremod.setting.minecolonies:replant": "Replanting:",
   "com.minecolonies.coremod.setting.minecolonies:restrict": "Zoning Mode:",
   "com.minecolonies.coremod.setting.minecolonies:defoliate": "Break Leaves:",
-  "com.minecolonies.coremod.setting.minecolonies:craft_only": "Craft Only:",
   "com.minecolonies.coremod.gui.tooldesc.scepterlumberjack": "Restrict the Forester's working zone (in 3D) by right-clicking one corner and left-clicking the opposite corner with the tool (allowing for height).",
   "com.minecolonies.coremod.gui.tooldesc.scepterguard": "Right click positions to mark as guard or patrol points. Right-click the same position to close and discard.",
 

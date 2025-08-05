@@ -443,7 +443,6 @@ public class BuildingModules
         .with(BuildingLumberjack.REPLANT, new BoolSetting(true))
         .with(BuildingLumberjack.RESTRICT, new BoolSetting(false))
         .with(BuildingLumberjack.DEFOLIATE, new BoolSetting(false))
-        .with(BuildingLumberjack.CRAFT_ONLY, new BoolSetting(false))
         .with(AbstractCraftingBuildingModule.RECIPE_MODE, new CrafterRecipeSetting())
         .with(BuildingLumberjack.DYNAMIC_TREES_SIZE, new DynamicTreesSetting())
         .with(AbstractBuilding.USE_SHEARS, new BoolSetting(false)), () -> SettingsModuleView::new);

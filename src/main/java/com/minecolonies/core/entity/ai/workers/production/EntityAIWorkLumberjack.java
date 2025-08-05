@@ -240,21 +240,19 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             return getState();
         }
 
-        if (!building.isCraftOnly())
+        // This got moved downwards compared to the AICrafting-implementation,
+        // because in this case waiting for dumping is more important
+        // than restarting chopping
+        if (job.getTaskQueue().isEmpty())
         {
-            // This got moved downwards compared to the AICrafting-implementation,
-            // because in this case waiting for dumping is more important
-            // than restarting chopping
-            if (job.getTaskQueue().isEmpty())
-            {
-                return LUMBERJACK_START_WORKING;
-            }
-
-            if (job.getCurrentTask() == null)
-            {
-                return LUMBERJACK_START_WORKING;
-            }
+            return LUMBERJACK_START_WORKING;
         }
+
+        if (job.getCurrentTask() == null)
+        {
+            return LUMBERJACK_START_WORKING;
+        }
+
         return getNextCraftingState();
     }
 
@@ -341,7 +339,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
 
         // Reset everything, maybe there are new crafting requests
         resetGatheringItems();
-        if (ColonyConstants.rand.nextInt(100) <= 10)
+        if ((ColonyConstants.rand.nextInt(100) <= 10))
         {
             return START_WORKING;
         }
@@ -364,14 +362,18 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
     }
 
     /**
-     * Checks if lumberjack has already found some trees. If not search trees.
-     *
+     * Checks if lumberjack has already found some trees. If not, check task queue for crafting
+     * requests - if none, search trees.
      * @return next IAIState
      */
     private IAIState findTrees()
     {
         if (job.getTree() == null)
         {
+            if (!job.getTaskQueue().isEmpty())
+            {
+                return START_WORKING;
+            }
 
             return findTree();
         }
