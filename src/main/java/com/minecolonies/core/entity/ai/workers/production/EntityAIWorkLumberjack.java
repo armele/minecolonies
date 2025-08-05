@@ -240,17 +240,20 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             return getState();
         }
 
-        // This got moved downwards compared to the AICrafting-implementation,
-        // because in this case waiting for dumping is more important
-        // than restarting chopping
-        if (job.getTaskQueue().isEmpty())
+        if (building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getList().size() > 0)
         {
-            return LUMBERJACK_START_WORKING;
-        }
+            // This got moved downwards compared to the AICrafting-implementation,
+            // because in this case waiting for dumping is more important
+            // than restarting chopping
+            if (job.getTaskQueue().isEmpty())
+            {
+                return LUMBERJACK_START_WORKING;
+            }
 
-        if (job.getCurrentTask() == null)
-        {
-            return LUMBERJACK_START_WORKING;
+            if (job.getCurrentTask() == null)
+            {
+                return LUMBERJACK_START_WORKING;
+            }
         }
 
         return getNextCraftingState();
@@ -339,7 +342,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
 
         // Reset everything, maybe there are new crafting requests
         resetGatheringItems();
-        if ((ColonyConstants.rand.nextInt(100) <= 10))
+        if (ColonyConstants.rand.nextInt(100) <= 10)
         {
             return START_WORKING;
         }
