@@ -114,6 +114,11 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
     private boolean shouldDumpInventory = false;
 
     /**
+     * If the farmer actually did any work on the field.
+     */
+    private boolean didWork = false;
+
+    /**
      * Constructor for the Farmer. Defines the tasks the Farmer executes.
      *
      * @param job a farmer job to use.
@@ -169,7 +174,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
     {
         IAIState state = super.decide();
 
-        if (state == IDLE)
+        if (state == IDLE || state == START_WORKING)
         {
             return PREPARING;
         }
@@ -204,8 +209,6 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         }
 
         final BuildingExtensionsModule module = building.getFirstModuleOccurance(BuildingExtensionsModule.class);
-        module.claimExtensions();
-
         if (module.getOwnedExtensions().size() == building.getMaxBuildingLevel())
         {
             AdvancementUtils.TriggerAdvancementPlayersForColony(building.getColony(), AdvancementTriggers.MAX_FIELDS.get()::trigger);
@@ -263,7 +266,6 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                 return FARMER_HOE;
             }
             farmField.nextState();
-            module.resetCurrentExtension();
         }
         else if (fieldToWork != null)
         {
@@ -522,6 +524,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                     {
                         if (!hoeIfAble(position, farmField))
                         {
+                            didWork = true;
                             return getState();
                         }
                     }
@@ -529,6 +532,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                     {
                         if (!tryToPlant(farmField, position))
                         {
+                            didWork = true;
                             return PREPARING;
                         }
                     }
@@ -536,6 +540,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                     {
                         if (!harvestIfAble(position))
                         {
+                            didWork = true;
                             return getState();
                         }
                     }
@@ -554,7 +559,11 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                 shouldDumpInventory = true;
                 farmField.nextState();
                 module.markDirty();
-                module.resetCurrentExtension();
+                if (didWork)
+                {
+                    module.resetCurrentExtension();
+                }
+                didWork = false;
                 building.setPrevPos(null);
                 return IDLE;
             }

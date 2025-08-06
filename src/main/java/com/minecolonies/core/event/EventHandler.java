@@ -715,7 +715,6 @@ public class EventHandler
             final IColony colony = IColonyManager.getInstance().getIColony(world, entity.blockPosition());
             if (colony != null && colony.hasBuilding("tavern", 1, false))
             {
-                event.setCanceled(true);
                 if (EventHooks.canLivingConvert(entity, ModEntities.VISITOR, null))
                 {
                     final BlockPos tavernPos = colony.getBuildingManager().getRandomBuilding(b -> !b.getModulesByType(TavernBuildingModule.class).isEmpty());
@@ -731,9 +730,11 @@ public class EventHandler
                     {
                         return;
                     }
+                    event.setCanceled(true);
                     visitorData.triggerInteraction(new RecruitmentInteraction(Component.translatable(
                         "com.minecolonies.coremod.gui.chat.recruitstorycured", visitorData.getName().split(" ")[0]), ChatPriority.IMPORTANT));
 
+                    visitorData.getEntity().ifPresent(e -> e.setPos(entity.getX(), entity.getY(), entity.getZ()));
                     if (!entity.isSilent())
                     {
                         world.levelEvent(null, 1027, entity.blockPosition(), 0);
