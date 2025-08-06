@@ -12,6 +12,7 @@ import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
+import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.ItemListModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLumberjack;
 import com.minecolonies.core.colony.jobs.JobLumberjack;
@@ -240,7 +241,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             return getState();
         }
 
-        if (building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getList().size() > 0)
+        if (building.getModule(BuildingModules.ITEMLIST_SAPLING).getList().size() > 0)
         {
             // This got moved downwards compared to the AICrafting-implementation,
             // because in this case waiting for dumping is more important
