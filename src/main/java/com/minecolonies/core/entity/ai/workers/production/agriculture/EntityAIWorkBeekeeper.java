@@ -32,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
@@ -321,11 +322,11 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
      */
     private IAIState harvestHoney()
     {
-        final List<BlockPos> hives = building
-                                       .getHives()
-                                       .stream()
-                                       .filter(pos -> BeehiveBlockEntity.getHoneyLevel(world.getBlockState(pos)) >= 5)
-                                       .collect(Collectors.toList());
+        final List<BlockPos> hives = building.getHives().stream().filter(pos -> 
+        {
+            BlockState state = world.getBlockState(pos);
+            return state.getBlock() instanceof BeehiveBlock && BeehiveBlockEntity.getHoneyLevel(state) >= 5;
+        }).collect(Collectors.toList());
 
         if (hives.isEmpty())
         {
