@@ -2,6 +2,7 @@ package com.minecolonies.core.client.gui.modules;
 
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.controls.AbstractTextBuilder;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
@@ -183,7 +184,14 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow
                 {
                     rowPane.findPaneOfTypeByID(TAG_ICON, ItemIcon.class).setItem(farmField.getSeed());
                     rowPane.findPaneOfTypeByID(TAG_STAGE_TEXT, Text.class).setText(Component.translatable(FIELD_STATUS));
-                    rowPane.findPaneOfTypeByID(TAG_STAGE_ICON, Image.class).setImage(farmField.getFieldStage().getNextStage().getStageIcon(), true);
+                    Image iconPane = rowPane.findPaneOfTypeByID(TAG_STAGE_ICON, Image.class);
+                    iconPane.setImage(farmField.getFieldStage().getStageIcon(), true);
+                    AbstractTextBuilder.TooltipBuilder hoverText = PaneBuilders.tooltipBuilder().hoverPane(iconPane);
+                    hoverText.append(Component.translatable(FIELD_STATUS_CURRENT));
+                    hoverText.append(farmField.getFieldStage().getStageText()).paragraphBreak();
+                    hoverText.append(Component.translatable(FIELD_STATUS_NEXT));
+                    hoverText.append(farmField.getFieldStage().getNextStage().getStageText());
+                    hoverText.build();
                 }
 
                 final String distance = Integer.toString(field.getSqDistance(buildingView));
