@@ -187,10 +187,8 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow
                     Image iconPane = rowPane.findPaneOfTypeByID(TAG_STAGE_ICON, Image.class);
                     iconPane.setImage(farmField.getFieldStage().getStageIcon(), true);
                     AbstractTextBuilder.TooltipBuilder hoverText = PaneBuilders.tooltipBuilder().hoverPane(iconPane);
-                    hoverText.append(Component.translatable(FIELD_STATUS_CURRENT));
-                    hoverText.append(farmField.getFieldStage().getStageText()).paragraphBreak();
-                    hoverText.append(Component.translatable(FIELD_STATUS_NEXT));
-                    hoverText.append(farmField.getFieldStage().getNextStage().getStageText());
+                    hoverText.append(Component.translatable(FIELD_STATUS_CURRENT, farmField.getFieldStage().getStageText())).paragraphBreak();
+                    hoverText.append(Component.translatable(FIELD_STATUS_NEXT, farmField.getFieldStage().getNextStage().getStageText()));
                     hoverText.build();
                 }
 
