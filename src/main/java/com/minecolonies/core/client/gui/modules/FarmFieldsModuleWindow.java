@@ -180,16 +180,21 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final IBuildingExtension field = moduleView.getFields().get(index);
+                Image iconPane = rowPane.findPaneOfTypeByID(TAG_STAGE_ICON, Image.class);
+
                 if (field instanceof FarmField farmField && !farmField.getSeed().isEmpty())
                 {
                     rowPane.findPaneOfTypeByID(TAG_ICON, ItemIcon.class).setItem(farmField.getSeed());
                     rowPane.findPaneOfTypeByID(TAG_STAGE_TEXT, Text.class).setText(Component.translatable(FIELD_STATUS));
-                    Image iconPane = rowPane.findPaneOfTypeByID(TAG_STAGE_ICON, Image.class);
                     iconPane.setImage(farmField.getFieldStage().getStageIcon(), true);
                     AbstractTextBuilder.TooltipBuilder hoverText = PaneBuilders.tooltipBuilder().hoverPane(iconPane);
                     hoverText.append(Component.translatable(FIELD_STATUS_CURRENT, farmField.getFieldStage().getStageText())).paragraphBreak();
                     hoverText.append(Component.translatable(FIELD_STATUS_NEXT, farmField.getFieldStage().getNextStage().getStageText()));
                     hoverText.build();
+                }
+                else
+                {
+                    iconPane.hide();
                 }
 
                 final String distance = Integer.toString(field.getSqDistance(buildingView));
