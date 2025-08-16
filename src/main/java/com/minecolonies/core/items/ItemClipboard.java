@@ -26,6 +26,11 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 public class ItemClipboard extends AbstractItemMinecolonies
 {
     /**
+     * Tag of the colony.
+     */
+    public static final String TAG_COLONY = "colony";
+
+    /**
      * Sets the name, creative tab, and registers the Clipboard item.
      *
      * @param properties the properties.
@@ -96,7 +101,14 @@ public class ItemClipboard extends AbstractItemMinecolonies
         final IColonyView colonyView = ColonyId.readColonyViewFromItemStack(stack);
         if (colonyView != null)
         {
-            new WindowClipBoard(colonyView).open();
+            boolean hide = false;
+
+            if (compound.contains(TAG_HIDEUNIMPORTANT))
+            {
+                hide = compound.getBoolean(TAG_HIDEUNIMPORTANT);
+            }
+
+            new WindowClipBoard(colonyView, hide).open();
         }
         else
         {
