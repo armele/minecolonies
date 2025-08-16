@@ -3,6 +3,9 @@ package com.minecolonies.core.client.gui;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
+import com.ldtteam.blockui.Color;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.views.ZoomDragView;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
@@ -16,10 +19,14 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
+import com.minecolonies.core.items.ItemClipboard;
+import com.minecolonies.core.network.messages.server.ItemSettingMessage;
 import com.minecolonies.core.network.messages.server.colony.UpdateRequestStateMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -56,10 +63,12 @@ public class WindowClipBoard extends AbstractWindowRequestTree
      *
      * @param colony the colony to check the requests for.
      */
-    public WindowClipBoard(final IColonyView colony)
+    public WindowClipBoard(final IColonyView colony, boolean hidestate)
     {
         super(null, Constants.MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, colony);
         this.colony = colony;
+        this.hide = hidestate;
+
         for (final ICitizenDataView view : this.colony.getCitizens().values())
         {
             if (view.getJobView() != null)
@@ -67,12 +76,47 @@ public class WindowClipBoard extends AbstractWindowRequestTree
                 asyncRequest.addAll(view.getJobView().getAsyncRequests());
             }
         }
+        
         registerButton(CLIPBOARD_TOGGLE, this::toggleImportant);
+        paintButtonState();
     }
 
+    /**
+     * Toggles the visibility of non-important requests and sends a message to
+     * the server to save that setting on the clipboard item.
+     *
+     * @see ItemSettingMessage
+     */
     private void toggleImportant()
     {
         this.hide = !this.hide;
+
+        paintButtonState();
+
+        ItemSettingMessage hideSetting = new ItemSettingMessage();
+        hideSetting.setSetting(ItemClipboard.TAG_HIDEUNIMPORTANT, this.hide ? 1 : 0);
+        Network.getNetwork().sendToServer(hideSetting);
+    }
+
+
+    /**
+     * Paints the button state of the important toggle.
+     *
+     * This function finds the important toggle button and sets its colors based on the state of hide.
+     * If hide is true, the button is set to green. Otherwise, it is set to red.
+     */
+    private void paintButtonState()
+    {
+        final Button importantToggle = findPaneOfTypeByID("important", Button.class);
+
+        if (this.hide)
+        {
+            importantToggle.setColors(Color.getByName("green", 0));
+        }
+        else
+        {
+            importantToggle.setColors(Color.getByName("red", 0));
+        }
     }
 
     @Override
@@ -105,7 +149,7 @@ public class WindowClipBoard extends AbstractWindowRequestTree
             {
                 IRequest<?> request = requestManager.getRequestForToken(token);
 
-                if (request.getType().equals(TypeToken.of(MinimumStack.class)))
+                if (hide && request.getType().equals(TypeToken.of(MinimumStack.class)))
                 {
                     continue;
                 }
