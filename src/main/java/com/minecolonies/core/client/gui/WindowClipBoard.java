@@ -2,12 +2,14 @@ package com.minecolonies.core.client.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.request.RequestState;
+import com.minecolonies.api.colony.requestsystem.requestable.MinimumStack;
 import com.minecolonies.api.colony.requestsystem.resolver.player.IPlayerRequestResolver;
 import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequestResolver;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
@@ -102,6 +104,11 @@ public class WindowClipBoard extends AbstractWindowRequestTree
             for (final IToken<?> token : requestTokens)
             {
                 IRequest<?> request = requestManager.getRequestForToken(token);
+
+                if (request.getType().equals(TypeToken.of(MinimumStack.class)))
+                {
+                    continue;
+                }
 
                 while (request != null && request.hasParent())
                 {
