@@ -6,6 +6,9 @@ import com.minecolonies.core.client.gui.WindowClipBoard;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
+
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,6 +16,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +33,11 @@ public class ItemClipboard extends AbstractItemMinecolonies
      * Tag of the colony.
      */
     public static final String TAG_COLONY = "colony";
+
+    /**
+     * Tag of the "hide unimportant" UI toggle.
+     */
+    public static final String TAG_HIDEUNIMPORTANT = "hideunimportant";
 
     /**
      * Sets the name, creative tab, and registers the Clipboard item.
@@ -102,6 +111,9 @@ public class ItemClipboard extends AbstractItemMinecolonies
         if (colonyView != null)
         {
             boolean hide = false;
+
+            final CustomData current = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+            final CompoundTag compound = current.copyTag();
 
             if (compound.contains(TAG_HIDEUNIMPORTANT))
             {

@@ -92,9 +92,7 @@ public class WindowClipBoard extends AbstractWindowRequestTree
 
         paintButtonState();
 
-        ItemSettingMessage hideSetting = new ItemSettingMessage();
-        hideSetting.setSetting(ItemClipboard.TAG_HIDEUNIMPORTANT, this.hide ? 1 : 0);
-        Network.getNetwork().sendToServer(hideSetting);
+        new ItemSettingMessage(ItemClipboard.TAG_HIDEUNIMPORTANT, this.hide ? 1 : 0).sendToServer();
     }
 
 

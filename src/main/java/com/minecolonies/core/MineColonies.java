@@ -460,6 +460,9 @@ public class MineColonies
 
         // Resource scroll NBT share message
         ResourceScrollSaveWarehouseSnapshotMessage.TYPE.register(registry);
+
+        // Item Setting message
+        ItemSettingMessage.TYPE.register(registry);
     }
 
     @SubscribeEvent

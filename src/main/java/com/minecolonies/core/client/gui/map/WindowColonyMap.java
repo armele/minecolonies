@@ -52,8 +52,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import static com.minecolonies.api.research.util.ResearchConstants.COLOR_TEXT_FULFILLED;
 import static com.minecolonies.api.util.constant.CitizenConstants.LOW_SATURATION;
 import static com.minecolonies.api.util.constant.TranslationConstants.COLONYMAP_PLAYER_RESOLVED_REQUESTS;
@@ -65,6 +63,7 @@ import static com.minecolonies.core.client.gui.questlog.Constants.HIGHLIGHT_QUES
 public class WindowColonyMap extends AbstractWindowSkeleton
 {
     public static final int HIGHLIGHT_RANGE = 2;
+    public static final int STATUS_ICON_SIZE = 6;
 
     /**
      * Holds information about the map decorations that may be associated with each building.
@@ -524,10 +523,10 @@ public class WindowColonyMap extends AbstractWindowSkeleton
             if (playerResolvedRequests.size() > 0)
             {
                 statusImage = new Image();
-                statusImage.setImage(new ResourceLocation("minecolonies:textures/icons/information.png"), false);
-                statusImage.setSize(6, 6);
+                statusImage.setImage(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/information.png"), false);
+                statusImage.setSize(STATUS_ICON_SIZE, STATUS_ICON_SIZE);
                 final BlockPos uiPos = worldPosToUIPos(buildingView.getPosition());
-                statusImage.setPosition(uiPos.getX() - 4, uiPos.getY() - 4);
+                statusImage.setPosition(uiPos.getX() - uiBuilding.getWidth() / 2, uiPos.getY() - uiBuilding.getHeight() / 2);
                 statusImage.setVisible(true);
 
                 AbstractTextBuilder.TooltipBuilder statustip = PaneBuilders.tooltipBuilder();
@@ -596,29 +595,32 @@ public class WindowColonyMap extends AbstractWindowSkeleton
 
         final BlockPos newPos = worldPosToUIPos(buildingView.getID());
         buildingDecorations.icon.setPosition(newPos.getX(), newPos.getZ());
+
+        putPaneCenterAtWorldPos(buildingDecorations.icon, buildingView.getID());
+
         if (buildingDecorations.rangeBox != null)
         {
             final int range = buildingView.getRange();
             final BlockPos UIPos1 = worldPosToUIPos(buildingView.getPosition().offset(-range, 0, -range));
             final BlockPos UIPos2 = worldPosToUIPos(buildingView.getPosition().offset(range, 0, range));
-            putPaneTopLeftCornerAtWorldPos(buildingDecorations.icon, buildingView.getPosition().offset(-range, 0, -range));
             buildingDecorations.rangeBox.setPosition(UIPos1.getX(), UIPos1.getZ());
             buildingDecorations.rangeBox.setSize(UIPos2.getX() - UIPos1.getX(), UIPos2.getZ() - UIPos1.getZ());
         }
 
         if (buildingDecorations.highlightBox != null)
         {
-            final BlockPos UIPos1 = worldPosToUIPos(buildingView.getPosition());
-            buildingDecorations.highlightBox.setPosition(UIPos1.getX(), UIPos1.getZ());
             buildingDecorations.highlightBox.setSize(buildingDecorations.icon.getWidth(), buildingDecorations.icon.getHeight());
+            putPaneCenterAtWorldPos(buildingDecorations.highlightBox, buildingView.getPosition());
         }
 
         if (buildingDecorations.statusImage != null)
         {
-            final BlockPos UIPos1 = worldPosToUIPos(buildingView.getPosition());
-            buildingDecorations.statusImage.setPosition(UIPos1.getX() - 4, UIPos1.getZ() - 4);
+            // The status icon needs to be just outside the top left corner of the building icon, to minimize tooltip overlap while retaining visual proximity.
+            applyWorldPosToPane(buildingDecorations.statusImage, buildingView.getPosition(), 
+                - ((buildingDecorations.icon.getWidth() + buildingDecorations.statusImage.getWidth()) / 2), 
+                - ((buildingDecorations.icon.getHeight() + buildingDecorations.statusImage.getHeight()) / 2));
         }
-        putPaneCenterAtWorldPos(buildingDecorations.icon, buildingView.getID());
+
     }
 
     /**
