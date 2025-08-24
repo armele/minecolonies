@@ -3,18 +3,18 @@
   "costs": [
     {
       "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond_axe",
+      "quantity": 1
+    },
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:enchanted_book",
+      "quantity": 1
+    },
+    {
+      "type": "minecolonies:item_simple",
       "item": "minecraft:anvil",
       "quantity": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:enchanting_table",
-      "quantity": 1
-    },
-    {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond_axe",
-      "quantity": 5
     }
   ],
   "effects": [
@@ -29,12 +29,12 @@
     {
       "type": "minecolonies:building",
       "building": "enchanter",
-      "level": 3
+      "level": 2
     },
     {
       "type": "minecolonies:building",
       "building": "blacksmith",
-      "level": 3
+      "level": 2
     }
   ],
   "researchLevel": 2,

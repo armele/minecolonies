@@ -12,7 +12,12 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.Enchantments;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -1293,11 +1298,11 @@ public class DefaultResearchProvider extends AbstractResearchProvider
                                         .setTranslatedName("Skilled Butcher")
                                         .setTranslatedSubtitle("Measure twice, cut once!")
                                         .setIcon(Items.BEEF)
-                                        .addBuildingRequirement(ModBuildings.ENCHANTER_ID, 3)
-                                        .addBuildingRequirement(ModBuildings.BLACKSMITH_ID, 3)
+                                        .addBuildingRequirement(ModBuildings.ENCHANTER_ID, 2)
+                                        .addBuildingRequirement(ModBuildings.BLACKSMITH_ID, 2)
+                                        .addItemCost(Items.DIAMOND_AXE, 1)
+                                        .addItemCost(Items.ENCHANTED_BOOK, 1)
                                         .addItemCost(Items.ANVIL, 1)
-                                        .addItemCost(Items.ENCHANTING_TABLE, 1)
-                                        .addItemCost(Items.DIAMOND_AXE, 5)
                                         .addEffect(LOOTING, 1)
                                         .addToList(r);
 
