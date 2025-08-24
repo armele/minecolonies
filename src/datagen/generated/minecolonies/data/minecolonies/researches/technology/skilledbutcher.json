@@ -1,0 +1,42 @@
+{
+  "branch": "minecolonies:technology",
+  "costs": [
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:anvil",
+      "quantity": 1
+    },
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:enchanting_table",
+      "quantity": 1
+    },
+    {
+      "type": "minecolonies:item_simple",
+      "item": "minecraft:diamond_axe",
+      "quantity": 5
+    }
+  ],
+  "effects": [
+    {
+      "id": "minecolonies:effects/looting",
+      "level": 1
+    }
+  ],
+  "icon": "minecraft:beef",
+  "parentResearch": "minecolonies:technology/biodegradable",
+  "requirements": [
+    {
+      "type": "minecolonies:building",
+      "building": "enchanter",
+      "level": 3
+    },
+    {
+      "type": "minecolonies:building",
+      "building": "blacksmith",
+      "level": 3
+    }
+  ],
+  "researchLevel": 2,
+  "subtitle": "com.minecolonies.research.technology.skilledbutcher.subtitle"
+}
