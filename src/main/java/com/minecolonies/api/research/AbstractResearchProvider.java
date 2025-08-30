@@ -409,10 +409,10 @@ public abstract class AbstractResearchProvider implements DataProvider
          * @param level         The required sum of levels across the colony.
          * @return this
          */
-        public Research addBuildingRequirement(final String buildingName, final int level)
+        public Research addBuildingRequirement(final ResourceLocation buildingName, final int level)
         {
             final JsonArray reqArray = getRequirementsArray();
-            reqArray.add(makeSafeBuildingProperty("building", buildingName, level));
+            reqArray.add(makeSafeBuildingProperty("building", buildingName.toString(), level));
             this.json.add("requirements", reqArray);
             return this;
         }
@@ -427,10 +427,10 @@ public abstract class AbstractResearchProvider implements DataProvider
          * @param level         The required sum of levels across the colony.
          * @return this
          */
-        public Research addMandatoryBuildingRequirement(final String buildingName, final int level)
+        public Research addMandatoryBuildingRequirement(final ResourceLocation buildingName, final int level)
         {
             final JsonArray reqArray = getRequirementsArray();
-            reqArray.add(makeSafeBuildingProperty("mandatory-building", buildingName, level));
+            reqArray.add(makeSafeBuildingProperty("mandatory-building", buildingName.toString(), level));
             this.json.add("requirements", reqArray);
             return this;
         }

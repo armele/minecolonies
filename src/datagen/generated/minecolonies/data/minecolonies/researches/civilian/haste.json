@@ -18,7 +18,7 @@
   "requirements": [
     {
       "type": "minecolonies:building",
-      "building": "townhall",
+      "building": "minecolonies:townhall",
       "level": 3
     }
   ],

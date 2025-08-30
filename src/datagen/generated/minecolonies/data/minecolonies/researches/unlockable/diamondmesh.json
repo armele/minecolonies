@@ -15,7 +15,7 @@
     {
       "type": "minecolonies:mandatory-building",
       "level": 5,
-      "mandatory-building": "sifter"
+      "mandatory-building": "minecolonies:sifter"
     }
   ],
   "researchLevel": 4

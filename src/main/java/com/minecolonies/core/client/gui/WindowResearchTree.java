@@ -9,8 +9,6 @@ import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.research.*;
-import com.minecolonies.api.research.IResearchCost;
-import com.minecolonies.api.research.IResearchEffect;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
@@ -21,6 +19,7 @@ import com.minecolonies.core.client.gui.blockui.RotatingItemIcon;
 import com.minecolonies.core.client.gui.modules.UniversityModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.university.TryResearchMessage;
 import com.minecolonies.api.research.requirements.BuildingAlternatesResearchRequirement;
+import com.minecolonies.api.research.requirements.BuildingMandatoryResearchRequirement;
 import com.minecolonies.api.research.requirements.BuildingResearchRequirement;
 import com.minecolonies.core.research.GlobalResearchEffect;
 import net.minecraft.client.Minecraft;
@@ -838,6 +837,8 @@ public class WindowResearchTree extends AbstractWindowSkeleton
       final IGlobalResearch research,
       final ResearchButtonState state)
     {
+        Log.getLogger().info("Research: " + research.getId());
+
         if (state == ResearchButtonState.ABANDONED || state == ResearchButtonState.IN_PROGRESS || state == ResearchButtonState.FINISHED)
         {
             return;
@@ -845,7 +846,8 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         int storageXOffset = ICON_WIDTH;
 
         final List<BuildingAlternatesResearchRequirement> alternateBuildingRequirements = new ArrayList<>();
-        final List<BuildingResearchRequirement> buildingRequirements = new ArrayList<>();
+        final List<BuildingMandatoryResearchRequirement> mandatoryBuildingRequirements = new ArrayList<>();
+        final List<IBuildingResearchRequirement> buildingRequirements = new ArrayList<>();
         final List<IResearchCost> itemRequirements = research.getCostList();
 
         research.getResearchRequirements().forEach(requirement -> {
@@ -858,6 +860,10 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             {
                 buildingRequirements.add(buildingRequirement);
             }
+            else if (requirement instanceof BuildingMandatoryResearchRequirement mandatoryRequirement)
+            {
+                buildingRequirements.add(mandatoryRequirement);
+            }
         });
 
         for (final BuildingAlternatesResearchRequirement requirement : alternateBuildingRequirements)
@@ -865,14 +871,23 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             for (Map.Entry<String, Integer> building : requirement.getBuildings().entrySet())
             {
                 final Item item;
-                if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(
-                  new ResourceLocation(Constants.MOD_ID, building.getKey())))
+
+                ResourceLocation buildingResourceLocation = ResourceLocation.tryParse(building.getKey());
+
+                // Try to maintain backwards compatibility with non-namespaced research entries.
+                if (buildingResourceLocation == null)
                 {
-                    item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(
-                      new ResourceLocation(Constants.MOD_ID, building.getKey())).getBuildingBlock().asItem();
+                    buildingResourceLocation = new ResourceLocation(Constants.MOD_ID, building.getKey());
+                }
+
+                if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(buildingResourceLocation))
+                {
+                    Log.getLogger().info("Building found: " + buildingResourceLocation);
+                    item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(buildingResourceLocation).getBuildingBlock().asItem();
                 }
                 else
                 {
+                    Log.getLogger().info("Building NOT found: " + buildingResourceLocation);
                     item = Items.AIR.asItem();
                 }
                 final ItemStack stack = new ItemStack(item);
@@ -906,17 +921,20 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             storageXOffset += ICON_X_OFFSET;
         }
 
-        for (final BuildingResearchRequirement requirement : buildingRequirements)
+        for (final IBuildingResearchRequirement requirement : buildingRequirements)
         {
             final Item item;
-            if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(
-              new ResourceLocation(Constants.MOD_ID, requirement.getBuilding())))
+
+            Log.getLogger().info("Building: " + requirement.getBuilding());
+
+            if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(requirement.getBuilding()))
             {
-                item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(
-                  new ResourceLocation(Constants.MOD_ID, requirement.getBuilding())).getBuildingBlock().asItem();
+                Log.getLogger().info("Registry contained: " + requirement.getBuilding());
+                item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(requirement.getBuilding()).getBuildingBlock().asItem();
             }
             else
             {
+                Log.getLogger().info("Registry did not contain: " + requirement.getBuilding());
                 item = Items.AIR.asItem();
             }
             final ItemStack stack = new ItemStack(item);
