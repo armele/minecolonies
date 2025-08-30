@@ -2,6 +2,7 @@ package com.minecolonies.api.research.requirements;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.research.IResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -107,13 +109,35 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
         while (iterator.hasNext())
         {
             final Map.Entry<String, Integer> kvp = iterator.next();
-            requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.level",
-                Component.translatable("block.minecolonies.blockhut" + kvp.getKey()),
-                kvp.getValue()));
-            if (iterator.hasNext())
+            ResourceLocation buildingResourceLocation = ResourceLocation.tryParse(kvp.getKey());
+
+            // Try to maintain backwards compatibility with non-namespaced research entries.
+            if (buildingResourceLocation == null)
             {
-                requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.or"));
+                buildingResourceLocation = new ResourceLocation(Constants.MOD_ID, kvp.getKey());
             }
+
+            if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(buildingResourceLocation))
+            {
+                requirementList.append(Component.translatable("com." + buildingResourceLocation.getNamespace() + ".coremod.research.requirement.building.level",
+                    Component.translatable("block." + buildingResourceLocation.getNamespace() + ".blockhut" + buildingResourceLocation.getPath()),
+                    kvp.getValue()));
+                if (iterator.hasNext())
+                {
+                    requirementList.append(Component.translatable("com." + buildingResourceLocation.getNamespace() + ".coremod.research.requirement.building.or"));
+                }
+            }
+            else
+            {
+                requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.level",
+                    Component.translatable("block.minecolonies.blockhut" + kvp.getKey()),
+                    kvp.getValue()));
+                if (iterator.hasNext())
+                {
+                    requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.or"));
+                }
+            }
+
         }
         return requirementList;
     }

@@ -2,17 +2,19 @@ package com.minecolonies.api.research.requirements;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.research.IResearchRequirement;
+import com.minecolonies.api.research.IBuildingResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
+import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Certain building research requirements.
  */
-public class BuildingMandatoryResearchRequirement implements IResearchRequirement
+public class BuildingMandatoryResearchRequirement implements IBuildingResearchRequirement
 {
     /**
      * The NBT tag for an individual building's name.
@@ -67,11 +69,19 @@ public class BuildingMandatoryResearchRequirement implements IResearchRequiremen
     }
 
     /**
-     * @return the building description
+     * @return the building registry resource location
      */
-    public String getBuilding()
+    public ResourceLocation getBuilding()
     {
-        return building;
+        ResourceLocation buldingResourceLocation = ResourceLocation.tryParse(building);
+        
+        // Try to maintain backwards compatibility with non-namespaced research entries.
+        if (buldingResourceLocation != null)
+        {
+            return buldingResourceLocation;
+        }
+
+        return new ResourceLocation(Constants.MOD_ID, this.building);
     }
 
     /**
@@ -91,8 +101,8 @@ public class BuildingMandatoryResearchRequirement implements IResearchRequiremen
     @Override
     public MutableComponent getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.research.requirement.building.mandatory.level",
-            Component.translatable("com.minecolonies.building." + building),
+        return Component.translatable("com." + this.getBuilding().getNamespace() + ".coremod.research.requirement.building.mandatory.level",
+            Component.translatable("com." + this.getBuilding().getNamespace() + ".building." + this.getBuilding().getPath()),
             this.buildingLevel);
     }
 

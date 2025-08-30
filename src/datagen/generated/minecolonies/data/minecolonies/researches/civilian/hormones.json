@@ -17,7 +17,7 @@
   "requirements": [
     {
       "type": "minecolonies:building",
-      "building": "school",
+      "building": "minecolonies:school",
       "level": 3
     }
   ],
