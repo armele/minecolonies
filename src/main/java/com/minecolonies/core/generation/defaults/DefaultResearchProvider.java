@@ -13,7 +13,12 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.Enchantments;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -1289,6 +1294,18 @@ public class DefaultResearchProvider extends AbstractResearchProvider
                                         .addItemCost(Items.SUGAR_CANE, 32, provider)
                                         .addItemCost(Items.CACTUS, 32, provider)
                                         .addEffect(PLANTATION_LARGE, 1)
+                                        .addToList(r);
+
+        final Research skilledButcher = new Research(new ResourceLocation(Constants.MOD_ID, "technology/skilledbutcher"), TECH).setParentResearch(biodegradable)
+                                        .setTranslatedName("Skilled Butcher")
+                                        .setTranslatedSubtitle("Measure twice, cut once!")
+                                        .setIcon(Items.BEEF)
+                                        .addBuildingRequirement(ModBuildings.ENCHANTER_ID, 2)
+                                        .addBuildingRequirement(ModBuildings.BLACKSMITH_ID, 2)
+                                        .addItemCost(Items.DIAMOND_AXE, 1)
+                                        .addItemCost(Items.ENCHANTED_BOOK, 1)
+                                        .addItemCost(Items.ANVIL, 1)
+                                        .addEffect(LOOTING, 1)
                                         .addToList(r);
 
         new Research(new ResourceLocation(Constants.MOD_ID, "technology/junglemaster"), TECH).setParentResearch(letItGrow)

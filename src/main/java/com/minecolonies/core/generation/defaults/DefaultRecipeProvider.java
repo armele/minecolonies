@@ -1078,5 +1078,14 @@ public class DefaultRecipeProvider extends RecipeProvider
           .requires(Items.EGG)
           .unlockedBy("has_butter", has(ModItems.butter))
           .save(consumer, new ResourceLocation(MOD_ID, "plain_cheesecake"));
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.fried_rice, 1)
+          .requires(ModBlocks.blockOnion)
+          .requires(Items.CARROT)
+          .requires(ModItems.cooked_rice)
+          .requires(Items.EGG)
+          .requires(ModTags.rawMeat)
+          .unlockedBy("has_onion", has(ModBlocks.blockOnion))
+          .save(consumer, new ResourceLocation(MOD_ID, "fried_rice"));
     }
 }
