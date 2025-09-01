@@ -837,7 +837,6 @@ public class WindowResearchTree extends AbstractWindowSkeleton
       final IGlobalResearch research,
       final ResearchButtonState state)
     {
-        Log.getLogger().info("Research: " + research.getId());
 
         if (state == ResearchButtonState.ABANDONED || state == ResearchButtonState.IN_PROGRESS || state == ResearchButtonState.FINISHED)
         {
@@ -846,7 +845,6 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         int storageXOffset = ICON_WIDTH;
 
         final List<BuildingAlternatesResearchRequirement> alternateBuildingRequirements = new ArrayList<>();
-        final List<BuildingMandatoryResearchRequirement> mandatoryBuildingRequirements = new ArrayList<>();
         final List<IBuildingResearchRequirement> buildingRequirements = new ArrayList<>();
         final List<IResearchCost> itemRequirements = research.getCostList();
 
@@ -882,12 +880,10 @@ public class WindowResearchTree extends AbstractWindowSkeleton
 
                 if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(buildingResourceLocation))
                 {
-                    Log.getLogger().info("Building found: " + buildingResourceLocation);
                     item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(buildingResourceLocation).getBuildingBlock().asItem();
                 }
                 else
                 {
-                    Log.getLogger().info("Building NOT found: " + buildingResourceLocation);
                     item = Items.AIR.asItem();
                 }
                 final ItemStack stack = new ItemStack(item);
@@ -925,16 +921,12 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         {
             final Item item;
 
-            Log.getLogger().info("Building: " + requirement.getBuilding());
-
             if (IMinecoloniesAPI.getInstance().getBuildingRegistry().containsKey(requirement.getBuilding()))
             {
-                Log.getLogger().info("Registry contained: " + requirement.getBuilding());
                 item = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(requirement.getBuilding()).getBuildingBlock().asItem();
             }
             else
             {
-                Log.getLogger().info("Registry did not contain: " + requirement.getBuilding());
                 item = Items.AIR.asItem();
             }
             final ItemStack stack = new ItemStack(item);
