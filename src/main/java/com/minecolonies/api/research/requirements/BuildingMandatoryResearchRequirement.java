@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.research.IBuildingResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -109,7 +110,9 @@ public class BuildingMandatoryResearchRequirement implements IBuildingResearchRe
     @Override
     public boolean isFulfilled(final IColony colony)
     {
-        return colony.hasBuilding(this.building, this.buildingLevel, true);
+        ResourceLocation buildingResourceLocation = this.getBuilding();
+
+        return colony.hasBuilding(buildingResourceLocation.getPath(), this.buildingLevel, true);
     }
 
     @Override
