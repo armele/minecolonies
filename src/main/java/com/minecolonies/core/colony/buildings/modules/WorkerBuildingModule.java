@@ -194,7 +194,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
             citizen.getJob().onRemoval();
         }
 
-        building.cancelAllRequestsOfCitizen(citizen);
+        building.cancelAllRequestsOfCitizenOrBuilding(citizen);
         citizen.setVisibleStatus(null);
     }
 

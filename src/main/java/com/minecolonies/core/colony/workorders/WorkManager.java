@@ -18,7 +18,6 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.StringSetting;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
-import com.minecolonies.core.colony.jobs.JobBuilder;
 import com.minecolonies.core.util.AdvancementUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -95,6 +94,15 @@ public class WorkManager implements IWorkManager
         final IWorkOrder workOrder = workOrders.get(orderId);
         if (workOrder != null)
         {
+            if (workOrder.isClaimed())
+            {
+                final IBuilding building = colony.getBuildingManager().getBuilding(workOrder.getClaimedBy());
+                if (building instanceof AbstractBuildingStructureBuilder abstractBuildingStructureBuilder)
+                {
+                    abstractBuildingStructureBuilder.onWorkOrderCancellation(workOrder);
+                }
+            }
+
             dirty = true;
             workOrders.remove(orderId);
             colony.removeWorkOrderInView(orderId);
