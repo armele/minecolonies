@@ -126,6 +126,12 @@ public final class ModJobsInitializer
           .setRegistryName(ModJobs.KNIGHT_ID)
           .createJobEntry());
 
+        ModJobs.cavalry = register(DEFERRED_REGISTER, ModJobs.CAVALRY_ID.getPath(), () -> new JobEntry.Builder()
+          .setJobProducer(JobCavalry::new)
+          .setJobViewProducer(() -> DefaultJobView::new)
+          .setRegistryName(ModJobs.CAVALRY_ID)
+          .createJobEntry());
+
         ModJobs.composter = register(DEFERRED_REGISTER, ModJobs.COMPOSTER_ID.getPath(), () -> new JobEntry.Builder()
           .setJobProducer(JobComposter::new)
           .setJobViewProducer(() -> DefaultJobView::new)

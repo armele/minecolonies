@@ -529,6 +529,8 @@ public class BuildingModules
       new BuildingEntry.ModuleProducer<>("ranger_tower_work", () -> new GuardBuildingModule(ModGuardTypes.ranger.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> DRUID_TOWER_WORK  =
       new BuildingEntry.ModuleProducer<>("druid_tower_work", () -> new GuardBuildingModule(ModGuardTypes.druid.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
+    public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CAVALRY_TOWER_WORK =
+      new BuildingEntry.ModuleProducer<>("cavalry_tower_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> KNIGHT_GATE_WORK = new BuildingEntry.ModuleProducer<>(
         "knight_gate_work", () -> new GuardBuildingModule(ModGuardTypes.knight.get(), true, (b) -> 2),
