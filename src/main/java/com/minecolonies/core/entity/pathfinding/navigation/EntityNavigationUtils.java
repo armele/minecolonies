@@ -1,5 +1,7 @@
 package com.minecolonies.core.entity.pathfinding.navigation;
 
+import javax.annotation.Nonnull;
+
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -9,6 +11,9 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobRandomPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 public class EntityNavigationUtils
 {
@@ -290,4 +295,113 @@ public class EntityNavigationUtils
 
         return false;
     }
+
+    /**
+     * Check if an entity can stand at the given BlockPos without clipping into any blocks or fluids or falling through the ground.
+     *
+     * @param level the level to check
+     * @param feet the position to check
+     * @return true if the entity can stand at the given position
+     */
+    public static boolean isStandable(Level level, BlockPos feet)
+    {
+        // Two blocks of headroom at feet and head
+        if (!level.isEmptyBlock(feet) || !level.isEmptyBlock(feet.above())) return false;
+        // Not in liquid
+        if (!level.getFluidState(feet).isEmpty()) return false;
+
+        // Solid (or at least collision) support under feet
+        BlockPos below = feet.below();
+        BlockState belowState = level.getBlockState(below);
+        return !belowState.getCollisionShape(level, below).isEmpty();
+    }
+
+    /**
+     * Find a reasonable "ground" position at the given X/Z. 
+     * Starts at the heightmap surface and nudges up/down a few blocks if needed.
+     */
+    public static BlockPos surfaceAt(Level level, int x, int z)
+    {
+        // Heightmap gives first air block above motion-blocking (ignores leaves): good for pathing.
+        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        BlockPos pos = new BlockPos(x, y, z);
+
+        // Fast path
+        if (isStandable(level, pos)) 
+        {
+            return pos;
+        }
+
+        // Tiny local search up/down to land on something standable
+        final int minY = level.getMinBuildHeight() + 1;
+        final int maxY = level.getMaxBuildHeight() - 2;
+
+        // Try stepping downward first (e.g., if we’re on tall grass/bush)
+        BlockPos.MutableBlockPos m = pos.mutable();
+        for (int i = 0; i < 6 && m.getY() > minY; i++)
+        {
+            m.move(0, -1, 0);
+            if (isStandable(level, m)) return m.immutable();
+        }
+
+        // If that failed, try stepping upward (e.g., if we landed inside a fence/crop)
+        m.set(pos);
+        for (int i = 0; i < 6 && m.getY() < maxY; i++)
+        {
+            m.move(0, 1, 0);
+            if (isStandable(level, m)) return m.immutable();
+        }
+
+        // Fallback: return the original surface; caller can decide to skip if not standable
+        return pos;
+    }
+
+    /**
+     * Find the closest valid surface position outside the given building that is a corner of its footprint.
+     * If the building does not have a valid corner, return the first corner of its footprint.
+     * @param building the building to find a corner for
+     * @param referencePos the position to find the closest corner to
+     * @return the closest valid surface position outside the building that is a corner of its footprint
+     */
+    public static BlockPos closestOutsideCornerofBuilding(@Nonnull IBuilding building, @Nonnull BlockPos referencePos)
+    {
+        Tuple<BlockPos, BlockPos> box = building.getCorners();
+        BlockPos a = box.getA();
+        BlockPos b = box.getB();
+
+        // All 4 corners of the building’s footprint
+        BlockPos[] cornersXZ = new BlockPos[] {new BlockPos(a.getX(), 0, a.getZ()),
+            new BlockPos(a.getX(), 0, b.getZ()),
+            new BlockPos(b.getX(), 0, a.getZ()),
+            new BlockPos(b.getX(), 0, b.getZ())};
+
+        Level level = building.getColony().getWorld(); // or buildingGuards.getLevel()/getEntity().level()
+
+        // Surface each corner
+        BlockPos[] surfaced = new BlockPos[cornersXZ.length];
+        for (int i = 0; i < cornersXZ.length; i++)
+        {
+            BlockPos xz = cornersXZ[i];
+            surfaced[i] = EntityNavigationUtils.surfaceAt(level, xz.getX(), xz.getZ());
+        }
+
+        // Choose the closest valid surfaced corner to the guard
+
+        BlockPos best = surfaced[0];
+        double bestDist2 = Double.POSITIVE_INFINITY;
+
+        for (BlockPos p : surfaced)
+        {
+            if (!EntityNavigationUtils.isStandable(level, p)) continue; // skip clearly bad spots
+            double d2 = p.distSqr(referencePos);
+            if (d2 < bestDist2)
+            {
+                bestDist2 = d2;
+                best = p;
+            }
+        }
+
+        return best;
+    }
+
 }
