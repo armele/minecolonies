@@ -78,6 +78,9 @@
     "minecolonies:flatbread": {
       "chance": 0.6666667
     },
+    "minecolonies:fried_rice": {
+      "chance": 1.0
+    },
     "minecolonies:garlic": {
       "chance": 0.5
     },

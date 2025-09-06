@@ -8,8 +8,8 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.StatsUtil;
+import com.minecolonies.api.util.Utils;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
@@ -19,6 +19,7 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -26,11 +27,11 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +51,7 @@ import static com.minecolonies.api.util.constant.StatisticsConstants.*;
  */
 public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B extends AbstractBuilding> extends AbstractEntityAIInteract<J, B>
 {
+        
     /**
      * How many animals per hut level the worker should max have.
      */
@@ -761,24 +763,19 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
     }
 
     /**
-     * Ensures that the provided ItemStack has at least Looting I.
-     * If the ItemStack does not have Looting, it will be added.
-     * If the ItemStack has Looting but with a level less than 1, it will be increased to 1.
-     * This method will NOT increase the level of Looting if it is already 1 or higher.
-     *
-     * @param stack the ItemStack to check and modify if necessary.
+     * Ensures that the given itemStack has looting I
      */
-    private static void ensureLootingI(ItemStack stack)
-    {
-        Map<Enchantment, Integer> ench = new HashMap<>(EnchantmentHelper.getEnchantments(stack));
-        int current = ench.getOrDefault(Enchantments.MOB_LOOTING, 0);
+    private void ensureLootingI(ItemStack stack)
+    {        
+        int enchantLevel = 1;
 
-        // Force at least Looting I
-        if (current < 1)
+        Holder<Enchantment> enchantment =  Utils.getRegistryValue(Enchantments.LOOTING, world);
+        
+        if (stack.supportsEnchantment(enchantment) && enchantLevel >= enchantment.value().getMinLevel() && enchantLevel <= enchantment.value().getMaxLevel())
         {
-            ench.put(Enchantments.MOB_LOOTING, 1);
-            EnchantmentHelper.setEnchantments(ench, stack);
+            stack.enchant(enchantment, enchantLevel);
         }
+
     }
 
     /**
@@ -790,7 +787,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
     protected void butcherSwing(FakePlayer fakePlayer, Animal animal)
     {
         worker.swing(InteractionHand.MAIN_HAND); // visual only
-        DamageSource ds = animal.level.damageSources().playerAttack(fakePlayer);
+        DamageSource ds = animal.level().damageSources().playerAttack(fakePlayer);
         animal.hurt(ds, (float) getButcheringAttackDamage());
         CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
     }

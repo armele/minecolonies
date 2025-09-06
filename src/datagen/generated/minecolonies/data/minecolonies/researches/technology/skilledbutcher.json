@@ -2,19 +2,16 @@
   "branch": "minecolonies:technology",
   "costs": [
     {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond_axe",
-      "quantity": 1
+      "count": 1,
+      "item": "minecraft:diamond_axe"
     },
     {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:enchanted_book",
-      "quantity": 1
+      "count": 1,
+      "item": "minecraft:enchanted_book"
     },
     {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:anvil",
-      "quantity": 1
+      "count": 1,
+      "item": "minecraft:anvil"
     }
   ],
   "effects": [
@@ -28,12 +25,12 @@
   "requirements": [
     {
       "type": "minecolonies:building",
-      "building": "enchanter",
+      "building": "minecolonies:enchanter",
       "level": 2
     },
     {
       "type": "minecolonies:building",
-      "building": "blacksmith",
+      "building": "minecolonies:blacksmith",
       "level": 2
     }
   ],

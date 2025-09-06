@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecolonies:onion"
-            ]
+            "items": "minecolonies:onion"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_onion",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_onion"
     ]
   ],
   "rewards": {
     "recipes": [
       "minecolonies:fried_rice"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }
