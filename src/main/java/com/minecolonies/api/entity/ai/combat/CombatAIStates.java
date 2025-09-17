@@ -9,6 +9,7 @@ public enum CombatAIStates implements IAIState
 {
     ATTACKING(false),
     FIND_MOUNT(false),
+    FIND_STABLE(false),
     NO_TARGET(true);
 
     /**

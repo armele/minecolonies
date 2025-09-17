@@ -1,14 +1,23 @@
 package com.minecolonies.core.entity.other;
 
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.ai.minimal.CavalryHorseNavigationGoal;
+import com.minecolonies.core.entity.ai.minimal.CavalryHorseReturnToStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -26,10 +35,8 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStandGoal;
-import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -43,10 +50,33 @@ public class CavalryHorseEntity extends Horse
     public int logCooldown = 0;
     public static final int LOG_COOLDOWN_INTERVAL = 200;
 
+    @Nullable private BlockPos stablePos = null;
+    @Nullable private ResourceKey<Level> stableDim = null;
+
+    private static final String NBT_STABLE_POS = "stablePos";
+    private static final String NBT_STABLE_DIM = "stableDim";
+
     public CavalryHorseEntity(EntityType<? extends Horse> type, Level level)
     {
         super(type, level);
     }
+
+    public void setStable(BlockPos pos, ResourceKey<Level> dim)
+    {
+        this.stablePos = pos.immutable();
+        this.stableDim = dim;
+    }
+
+    public Optional<BlockPos> getStablePos()
+    {
+        return Optional.ofNullable(stablePos);
+    }
+
+    public Optional<ResourceKey<Level>> getStableDimension()
+    {
+        return Optional.ofNullable(stableDim);
+    }
+
 
     /**
      * Checks if the rider is a guard and if they have a JobCavalry job. If true, the horse will be slim.
@@ -170,11 +200,14 @@ public class CavalryHorseEntity extends Horse
         // TODO: Create research that improves speed.
         this.goalSelector.addGoal(1, new CavalryHorseNavigationGoal(this, 1.2));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.7D));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(5, new BreedGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new CavalryHorseReturnToStableGoal(this, 1.15, 8.0, 2.0));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+
         if (this.canPerformRearing()) {
-            this.goalSelector.addGoal(9, new RandomStandGoal(this));
+            this.goalSelector.addGoal(10, new RandomStandGoal(this));
         }
     }
 
@@ -360,5 +393,55 @@ public class CavalryHorseEntity extends Horse
                     new RuntimeException("who-discarded-me?"));
         }
         super.remove(reason);
+    }
+
+    /**
+     * Adds additional data to the CompoundTag that is specific to this entity type.
+     * This data is saved to disk and can be read back in when the entity is loaded.
+     * The data added is as follows:
+     *   - stablePos: The position of the stable block, or null if not set.
+     *   - stableDim: The dimension of the stable block, or null if not set.
+     */
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag)
+    {
+        super.addAdditionalSaveData(tag);
+        if (stablePos != null)
+        {
+            tag.put(NBT_STABLE_POS, net.minecraft.nbt.NbtUtils.writeBlockPos(stablePos));
+        }
+        if (stableDim != null)
+        {
+            tag.putString(NBT_STABLE_DIM, stableDim.location().toString());
+        }
+    }
+
+    /**
+     * Read additional data from a CompoundTag.
+     * This method reads the following additional data from the tag:
+     *   - stablePos: The position of the stable block, or null if not set.
+     *   - stableDim: The dimension of the stable block, or null if not set.
+     */
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag)
+    {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains(NBT_STABLE_POS))
+        {
+            stablePos = net.minecraft.nbt.NbtUtils.readBlockPos(tag.getCompound(NBT_STABLE_POS));
+        }
+        else
+        {
+            stablePos = null;
+        }
+        if (tag.contains(NBT_STABLE_DIM))
+        {
+            stableDim = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
+                new ResourceLocation(tag.getString(NBT_STABLE_DIM)));
+        }
+        else
+        {
+            stableDim = null;
+        }
     }
 }

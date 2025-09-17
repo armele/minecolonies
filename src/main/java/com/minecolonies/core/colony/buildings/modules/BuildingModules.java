@@ -181,6 +181,19 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<BuildingCowboy.HerdingModule,IBuildingModuleView> COWHERDER_HERDING   =
       new BuildingEntry.ModuleProducer<>("cowherder_herding", BuildingCowboy.HerdingModule::new, null);
 
+    public static final BuildingEntry.ModuleProducer<WorkerBuildingModule,WorkerBuildingModuleView> STABLEMASTER_WORK      =
+      new BuildingEntry.ModuleProducer<>("stablemaster_work",
+        () -> new WorkerBuildingModule(ModJobs.stablemaster.get(), Skill.Athletics, Skill.Dexterity, false, (b) -> 1),
+        () -> WorkerBuildingModuleView::new);
+
+    public static final BuildingEntry.ModuleProducer<BuildingStable.HerdingModule,IBuildingModuleView> STABLEMASTER_HERDING   =
+      new BuildingEntry.ModuleProducer<>("stablemaster_herding", BuildingStable.HerdingModule::new, null);
+
+    public static final BuildingEntry.ModuleProducer<SettingsModule, SettingsModuleView> STABLEMASTER_SETTINGS =
+      new BuildingEntry.ModuleProducer<>("stablemaster_settings",
+        () -> new SettingsModule().with(AbstractBuilding.BREEDING, new BoolSetting(true)),
+        () -> SettingsModuleView::new);
+
     public static final BuildingEntry.ModuleProducer<WorkerBuildingModule,WorkerBuildingModuleView> FISHER_WORK         =
       new BuildingEntry.ModuleProducer<>("fisher_work",
         () -> new WorkerBuildingModule(ModJobs.fisherman.get(), Skill.Focus, Skill.Agility, false, (b) -> 1),

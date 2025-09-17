@@ -1427,6 +1427,7 @@
   "com.minecolonies.gui.visiblestatus.emptying": "Emptying a grave",
   "com.minecolonies.gui.visiblestatus.digging": "Digging a grave",
   "com.minecolonies.gui.visiblestatus.burying": "Burying a citizen",
+  "com.minecolonies.gui.visiblestatus.stablemaster": "Finding horses",
 
   "entity.fisherman.messagewatertoofar": "I can't find any suitable water for fishing! There should be an area of water at least 7 blocks long and wide, and 2 blocks deep nearby.",
   "entity.fisherman.messagesuboptimalpond": "This pond at at position X:%d Y:%d Z:%d isn't great - the currents under the surface are too strong. If you want me to fish there, replace the flowing water with water source blocks.",
@@ -2342,6 +2343,7 @@
   "com.minecolonies.building.stash": "Stash",
   "com.minecolonies.building.postbox": "Postbox",
   "com.minecolonies.building.gatehouse": "Gatehouse",
+  "com.minecolonies.building.stable": "Stable",
 
   "com.minecolonies.coremod.gui.chat.potatogod": "I used to be just Jack then I made a bet with the Devil.. What was his name?.. 'Ray', I think. Anyways, being a cactus has.. interrupted my relationships. I've been wandering these lands for as long as I can remember. Then finally, I saw your pathetic village and thought 'hmm.. someone that lame could definitely use my help!'",
   "com.minecolonies.coremod.gui.chat.legodoc": "While experimenting with ender pearls, I somehow turned into a blue fox. Now, I’m trying to settle down and figure out how to undo this—or at least, get rid of the relentless urge to chase every chicken I come across.",
@@ -2527,6 +2529,7 @@
   "com.minecolonies.building.mediumquarry.desc": "Large excavation area for a quarrier, used for mining and extracting stones",
   "com.minecolonies.building.kitchen.desc": "Prepares unique and tasty dishes your citizens will appreciate",
   "com.minecolonies.building.gatehouse.desc": "Houses two guards to defend the colony and allows connecting to other colonies",
+  "com.minecolonies.building.stable.desc": "Stable cares for cavarly mounts",
 
   "com.minecolonies.coremod.structures.nocustomhuts": "The builder has never heard of this blueprint for this building. Are you sure you handled this correctly?",
   "com.minecolonies.coremod.structures.nocustomcamps": "Ehrmm? This is not a valid supplycamp!",

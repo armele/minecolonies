@@ -57,6 +57,7 @@ public final class ModJobs
     public static final ResourceLocation DRUID_ID          = new ResourceLocation(Constants.MOD_ID, "druid");
     public static final ResourceLocation ALCHEMIST_ID      = new ResourceLocation(Constants.MOD_ID, "alchemist");
     public static final ResourceLocation CHEF_ID           = new ResourceLocation(Constants.MOD_ID, "chef");
+    public static final ResourceLocation STABLEMASTER_ID   = new ResourceLocation(Constants.MOD_ID, "stablemaster");
 
     @Deprecated
     public static final ResourceLocation COOKASSISTANT_ID  = new ResourceLocation(Constants.MOD_ID, "cookassistant");
@@ -109,6 +110,7 @@ public final class ModJobs
     public static RegistryObject<JobEntry> druid;
     public static RegistryObject<JobEntry> alchemist;
     public static RegistryObject<JobEntry> chef;
+    public static RegistryObject<JobEntry> stablemaster;
 
     @Deprecated
     public static RegistryObject<JobEntry> cookassistant;

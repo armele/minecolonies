@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.guard;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
@@ -9,12 +10,12 @@ import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 
-import net.minecraft.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -55,13 +56,15 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
 
     protected AbstractHorse targetMount = null;
+    protected BlockPos stablePos = null;
 
-
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public EntityAICavalry(@NotNull final JobCavalry job)
     {
         super(job);
         super.registerTargets(
-            new AITarget(CombatAIStates.FIND_MOUNT, this::findMount, GUARD_MOUNT_INTERVAL)
+            new AITarget(CombatAIStates.FIND_MOUNT, this::findMount, GUARD_MOUNT_INTERVAL),
+            new AITarget(CombatAIStates.FIND_STABLE, this::findStable, GUARD_MOUNT_INTERVAL)
         );
 
         toolsNeeded.add(ModEquipmentTypes.sword.get());
@@ -117,6 +120,36 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
 
     /**
+     * Find a stable that might have available horses within range.
+     *
+     * @return the next AI state.
+     */
+    protected IAIState findStable()
+    {
+        IColony colony = worker.getCitizenColonyHandler().getColonyOrRegister();
+
+        if (stablePos == null)
+        {
+            stablePos = colony.getBuildingManager().getBestBuilding(worker.getOnPos(), BuildingStable.class);
+        }
+
+        if (stablePos != null)
+        {
+            if (!EntityNavigationUtils.walkToPos(worker, stablePos, 2, true))
+            {
+                Log.getLogger().info("Walking to stable.");
+
+                return CombatAIStates.FIND_STABLE;
+            } 
+
+            return CombatAIStates.FIND_MOUNT;
+        }
+
+        return CombatAIStates.NO_TARGET;
+    }
+
+
+    /**
      * Finds a horse to ride. If the horse is already assigned, ride it. Otherwise, find the closest horse and assign it to the guard.
      * If no horse is found, return NO_TARGET.
      * If the guard can't reach the horse, return FIND_MOUNT to try again.
@@ -135,9 +168,8 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (targetMount == null)
         {
-            // TODO: Do we want a warning here about insufficient available horses?
-            Log.getLogger().info("No horses found.");
-            return CombatAIStates.NO_TARGET;
+            Log.getLogger().info("No horses found nearby - let's go to the stable.");
+            return CombatAIStates.FIND_STABLE;
         }
 
         if (worker.isPassenger())
@@ -166,7 +198,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (!targetMount.getPassengers().isEmpty() && !targetMount.getPassengers().contains(worker))
         {
-            Log.getLogger().info("Horse got a different passenger; releasing reservation.");
+            Log.getLogger().info("Horse got a different passenger {}; releasing reservation.", targetMount.getPassengers().toArray());
             clearIfMine(targetMount, worker.getUUID());
             targetMount = null;
             return CombatAIStates.NO_TARGET;
@@ -182,7 +214,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return CombatAIStates.NO_TARGET;
         }
 
-        boolean mounted = worker.startRiding(targetMount, true); // force=true
+        boolean mounted = worker.startRiding(targetMount, true);
         Log.getLogger().info("Mount attempt result={}", mounted);
 
         if (mounted)
@@ -234,16 +266,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     }
 
     /**
-     * Checks if the given horse has a reservation (i.e. is currently reserved by a cavalry unit).
-     * @param horse the horse to check
-     * @return true if the horse has a reservation, false otherwise
-     */
-    private static boolean hasReservation(AbstractHorse horse)
-    {
-        return horse.getPersistentData().contains(RESERVE_KEY, Tag.TAG_INT_ARRAY);
-    }
-
-    /**
      * Clears the reservation on the horse if it is reserved by the entity with the given UUID.
      * @param horse the horse to check
      * @param me the UUID to check against
@@ -261,20 +283,27 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
     }
 
-    /**
-     * Validate whether a horse is a valid target for the guard to ride.
-     * A horse is valid if it is not null, passes the horse filter, and is in the same level as the guard.
+
+    /** Validates a horse target for mounting.
+     * 
+     * The horse is valid if it is not null, passes the horse filter, is on the same level as the worker, and is not reserved by anyone else.
+     * 
      * @param horse the horse to validate
-     * @return true if the horse is valid, false otherwise
+     * @return true if the horse is a valid target, false otherwise
      */
-    private boolean validateMountTarget(AbstractHorse horse) 
+    private boolean validateMountTarget(AbstractHorse horse)
     {
-        if (horse == null)
-        {
-            return false;
-        }
-        
-        return horseFilterFor(worker).test(horse) && horse.level() == worker.level();
+        if (horse == null || horse.level() != worker.level()) return false;
+
+        boolean baseOk = isAvailable(horse);
+
+        if (!baseOk) return false;
+
+        UUID me = worker.getUUID();
+        UUID who = reservedBy(horse);
+
+        // valid if unreserved OR reserved by me
+        return who == null || who.equals(me);
     }
 
     /**
@@ -289,48 +318,67 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     }
 
     /**
-     * Generates a predicate for selecting a suitable horse for the given entity to ride.
-     * A horse is suitable if it is alive, has no passengers, is not a baby, is not reserved by someone else, is tame, and is not a spectator.
-     * @param reserver the entity to check against
-     * @return a predicate suitable for selecting a horse
+     * Returns true if the horse is reserved by any entity, false otherwise.
+     * @param horse the horse to check
+     * @return true if the horse is reserved, false otherwise
      */
-    private Predicate<AbstractHorse> horseFilterFor(@Nonnull Entity reserver) 
+    private static boolean hasReservation(AbstractHorse horse)
     {
-        final UUID me = reserver.getUUID();
-
-        return horse ->
-            horse.isAlive()
-            && horse.getPassengers().isEmpty()
-            && !horse.isBaby()
-            // Allow if no reservation OR reserved specifically for me:
-            && (!hasReservation(horse) || me.equals(reservedBy(horse)))
-            // Keep or drop this depending on your test setup:
-            && horse.isTamed()
-            && EntitySelector.NO_SPECTATORS.test(horse);
+        return reservedBy(horse) != null;
     }
-    /**
-     * Finds the nearest horse to the worker within a certain range.
+
+    /** 
+     * Available = alive, riderless, adult, tamed, not reserved 
      * 
-     * @return the nearest horse, or null if none found
+     * @param h the horse to check
      */
-    protected AbstractHorse findNearestHorse() {
+    private static boolean isAvailable(AbstractHorse h)
+    {
+        return h.isAlive() && h.getPassengers()
+            .isEmpty() && !h.isBaby() && !hasReservation(h) && EntitySelector.NO_SPECTATORS.test(h);
+    }
+
+
+    /**
+     * Finds the nearest horse to the worker that is available for riding.
+     * If a horse is found that is reserved by the worker, it is prioritized over other available horses.
+     * @return the nearest available horse, or null if none are found
+     */
+    protected AbstractHorse findNearestHorse()
+    {
         final Level level = worker.level();
-        final AABB box = worker.getBoundingBox().inflate(HORSE_SEARCH_RADIUS, 8.0, HORSE_SEARCH_RADIUS);
+        if (level.isClientSide) return null;
 
-        // Pull a small candidate set, then pick the closest
-        List<AbstractHorse> candidates = level.getEntitiesOfClass(AbstractHorse.class, box, EntitySelector.NO_SPECTATORS);
+        final AABB box = worker.getBoundingBox().inflate(HORSE_SEARCH_RADIUS, 20.0, HORSE_SEARCH_RADIUS);
+        final UUID me = worker.getUUID();
 
-        if (candidates.isEmpty()) 
+        // Pull a pool, then sort by reservation priority and distance
+        List<AbstractHorse> pool = level.getEntitiesOfClass(AbstractHorse.class, box, EntitySelector.NO_SPECTATORS);
+        if (pool.isEmpty())
         {
-            Log.getLogger().info("No candidates found.");
+            Log.getLogger().info("No horses in search AABB.");
             return null;
         }
 
-        return candidates.stream()
-                .min(Comparator.comparingDouble(worker::distanceToSqr))
-                .orElse(null);
-    }
+        // 1) Prefer a horse reserved by me (if any and still riderless/adult/tamed)
+        AbstractHorse mine = pool.stream()
+            .filter(h -> reservedBy(h) != null && reservedBy(h).equals(me))
+            .filter(h -> h.getPassengers().isEmpty() && !h.isBaby() && h.isAlive())
+            .min(Comparator.comparingDouble(worker::distanceToSqr))
+            .orElse(null);
+        if (mine != null) return mine;
 
+        // 2) Otherwise pick the nearest truly available horse (unreserved, riderless, adult, tamed)
+        AbstractHorse available =
+            pool.stream().filter(EntityAICavalry::isAvailable).min(Comparator.comparingDouble(worker::distanceToSqr)).orElse(null);
+
+        if (available == null)
+        {
+            // TODO: Make this a blocking interaction.
+            Log.getLogger().info("{}: No available (unreserved, riderless, adult, tamed) horses found.", worker.getName());
+        }
+        return available;
+    }
     
     /**
      * Adds a shield to the list of items that are nice to have if the shield usage research is enabled.
