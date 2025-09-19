@@ -2,7 +2,6 @@ package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
-import com.minecolonies.core.entity.ai.workers.production.herders.EntityAIWorkCowboy;
 import com.minecolonies.core.entity.ai.workers.production.herders.EntityAIWorkStablemaster;
 
 import net.minecraft.resources.ResourceLocation;

@@ -14,13 +14,13 @@ import javax.annotation.Nonnull;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.entity.other.CavalryHorseEntity;
 
-public class CavalryBridleLayer extends RenderLayer<Horse, HorseModel<Horse>> 
+public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>> 
 {
 
     private static final ResourceLocation OVERLAY_TEX =
-        new ResourceLocation(Constants.MOD_ID, "textures/entity/horse/cavalry_bridle_layer.png");
+        new ResourceLocation(Constants.MOD_ID, "textures/entity/horse/cavalry_overlay_layer.png");
 
-    public CavalryBridleLayer(RenderLayerParent<Horse, HorseModel<Horse>> parent) 
+    public CavalryOverlayLayer(RenderLayerParent<Horse, HorseModel<Horse>> parent) 
     {
         super(parent);
     }

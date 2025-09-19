@@ -114,7 +114,7 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     /**
      * Set whether the knight is missing a mount.
      *
-     * @param missingMount whether the knight is missing a mount.
+     * @param missingMount whether the cavalry unit is missing a mount.
      */
     public void setMissingMount(final boolean missingMount)
     {

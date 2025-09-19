@@ -341,7 +341,7 @@ public class ClientRegistryHandler
         event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, ctx -> 
         {
             HorseRenderer renderer = new HorseRenderer(ctx); 
-            renderer.addLayer(new CavalryBridleLayer(renderer));
+            renderer.addLayer(new CavalryOverlayLayer(renderer));
             return renderer;
         });
 
