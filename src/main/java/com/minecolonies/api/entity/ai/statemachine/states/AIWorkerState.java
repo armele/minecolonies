@@ -367,6 +367,15 @@ public enum AIWorkerState implements IAIState
     HERDER_FEED(false),
 
     /*
+### Stablemaster ###
+     */
+
+    /**
+     * Train mounts!
+     */
+    HERDER_TRAIN(false),
+
+    /*
 ### Cowboy ###
      */
 

@@ -2,15 +2,19 @@ package com.minecolonies.core.entity.ai.workers.guard;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
+import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
+import com.minecolonies.api.entity.ai.statemachine.states.CitizenAIState;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
+import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.CavalryHorseEntity;
@@ -19,6 +23,7 @@ import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,12 +33,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
-
 import javax.annotation.Nonnull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
@@ -42,7 +44,7 @@ import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LE
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_BUILDING_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_LEVEL_RANGE;
 
-
+import static com.minecolonies.api.util.constant.TranslationConstants.CAVALRY_NOHORSE;
 
 /**
  * Cavalry AI
@@ -57,6 +59,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
     protected AbstractHorse targetMount = null;
     protected BlockPos stablePos = null;
+    protected boolean stableChecked = false;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public EntityAICavalry(@NotNull final JobCavalry job)
@@ -142,6 +145,8 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                 return CombatAIStates.FIND_STABLE;
             } 
 
+            stableChecked = true;
+
             return CombatAIStates.FIND_MOUNT;
         }
 
@@ -169,8 +174,24 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (targetMount == null)
         {
             Log.getLogger().info("No horses found nearby - let's go to the stable.");
+
+            if (stableChecked)
+            {
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(
+                    Component.translatable(CAVALRY_NOHORSE),
+                    ChatPriority.IMPORTANT));
+
+                JobCavalry cav = (JobCavalry) worker.getCitizenData().getJob();
+                cav.setMissingMount(true);
+                stableChecked = false;
+                return AIWorkerState.IDLE;
+            }
+
             return CombatAIStates.FIND_STABLE;
         }
+        
+        JobCavalry cav = (JobCavalry) worker.getCitizenData().getJob();
+        cav.setMissingMount(false);
 
         if (worker.isPassenger())
         {
@@ -204,17 +225,8 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return CombatAIStates.NO_TARGET;
         }
 
-        targetMount = CavalryHorseEntity.createFromVanilla(worker.level, targetMount);
-
-        if (targetMount == null)
-        {
-            Log.getLogger().info("Could not be converted to a CavalryHorseEntity; releasing reservation.");
-            clearIfMine(targetMount, worker.getUUID());
-            targetMount = null;
-            return CombatAIStates.NO_TARGET;
-        }
-
         boolean mounted = worker.startRiding(targetMount, true);
+
         Log.getLogger().info("Mount attempt result={}", mounted);
 
         if (mounted)
@@ -334,8 +346,12 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      */
     private static boolean isAvailable(AbstractHorse h)
     {
-        return h.isAlive() && h.getPassengers()
-            .isEmpty() && !h.isBaby() && !hasReservation(h) && EntitySelector.NO_SPECTATORS.test(h);
+        return h.isAlive() 
+            && h.getPassengers().isEmpty() 
+            && h instanceof CavalryHorseEntity
+            && !h.isBaby() 
+            && !hasReservation(h) 
+            && EntitySelector.NO_SPECTATORS.test(h);
     }
 
 
@@ -373,10 +389,10 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             pool.stream().filter(EntityAICavalry::isAvailable).min(Comparator.comparingDouble(worker::distanceToSqr)).orElse(null);
 
         if (available == null)
-        {
-            // TODO: Make this a blocking interaction.
+        {            
             Log.getLogger().info("{}: No available (unreserved, riderless, adult, tamed) horses found.", worker.getName());
         }
+
         return available;
     }
     

@@ -35,6 +35,8 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
      */
     public static final String DESC = "com.minecolonies.coremod.job.knight";
 
+    protected boolean missingMount = false;
+
     /**
      * Initialize citizen data.
      *
@@ -97,5 +99,25 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
             return true;
         }
         return super.ignoresDamage(damageSource);
+    }
+
+    /**
+     * If the knight is missing a mount.
+     *
+     * @return true if so.
+     */
+    public boolean isMissingMount()
+    {
+        return missingMount;
+    }
+
+    /**
+     * Set whether the knight is missing a mount.
+     *
+     * @param missingMount whether the knight is missing a mount.
+     */
+    public void setMissingMount(final boolean missingMount)
+    {
+        this.missingMount = missingMount;
     }
 }

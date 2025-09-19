@@ -9,7 +9,6 @@ import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.*;
-import com.minecolonies.core.client.model.ScarecrowModel;
 import com.minecolonies.core.client.model.raiders.*;
 import com.minecolonies.core.client.render.*;
 import com.minecolonies.core.client.render.mobs.RenderMercenary;
@@ -339,7 +338,12 @@ public class ClientRegistryHandler
         event.registerEntityRenderer(ModEntities.MERCENARY, RenderMercenary::new);
         event.registerEntityRenderer(ModEntities.SITTINGENTITY, RenderSitting::new);
         event.registerEntityRenderer(ModEntities.MINECART, (context) -> new MinecartRenderer<>(context, ModelLayers.MINECART));
-        event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, HorseRenderer::new);
+        event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, ctx -> 
+        {
+            HorseRenderer renderer = new HorseRenderer(ctx); 
+            renderer.addLayer(new CavalryBridleLayer(renderer));
+            return renderer;
+        });
 
         event.registerBlockEntityRenderer(MinecoloniesTileEntities.BUILDING.get(), EmptyTileEntitySpecialRenderer::new);
         event.registerBlockEntityRenderer(MinecoloniesTileEntities.SCARECROW.get(), TileEntityScarecrowRenderer::new);

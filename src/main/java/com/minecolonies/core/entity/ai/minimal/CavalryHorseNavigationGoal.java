@@ -38,7 +38,7 @@ public class CavalryHorseNavigationGoal extends Goal
 
         if (!(rider instanceof EntityCitizen guard) || guard.getCitizenJobHandler() == null)
         {
-            Log.getLogger().info("CavalryHorseNavigationGoal: No rider, or rider is not a guard");
+            // Log.getLogger().info("CavalryHorseNavigationGoal: No rider, or rider is not a guard");
 
             return false;
         }
@@ -104,6 +104,19 @@ public class CavalryHorseNavigationGoal extends Goal
         }
     }
 
+    /**
+     * Check if the goal can continue to be used.
+     * <p>
+     * Conditions to return false:
+     * <ul>
+     *     <li>The horse does not have a rider with the JobCavalry.</li>
+     *     <li>The horse navigation is done.</li>
+     * </ul>
+     * <p>
+     * If the goal is usable, the horse will continue to move towards the target position of the rider.
+     * 
+     * @return true if the goal can continue to be used, false otherwise
+     */
     @Override
     public boolean canContinueToUse()
     {

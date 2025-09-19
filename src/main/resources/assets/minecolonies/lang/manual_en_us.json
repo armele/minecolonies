@@ -2263,6 +2263,7 @@
   "com.minecolonies.job.chickenherder": "Chickenherder",
   "com.minecolonies.job.ranger": "Archer",
   "com.minecolonies.job.knight": "Knight",
+  "com.minecolonies.job.stablemaster": "Stablemaster",
   "com.minecolonies.job.cavalry": "Cavalry",
   "com.minecolonies.job.composter": "Composter",
   "com.minecolonies.job.student": "Student",
@@ -2910,6 +2911,8 @@
   "entity.campdrownedpirate": "Drowned Pirate",
   "entity.campdrownedarcherpirate": "Drowned Pirate Archer",
   "entity.campdrownedchiefpirate": "Drowned Pirate Chief",
+  
+  "entity.cavalry.nohorse": "No trained horses are available for me to ride.",
 
   "death.attack.entity.minecolonies.campbarbarian": "%s was sliced and diced by a Barbarian",
   "death.attack.entity.minecolonies.campchiefbarbarian": "%s was macerated by a Great Chief",

@@ -28,6 +28,7 @@ import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.animal.horse.Variant;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -49,6 +50,9 @@ public class CavalryHorseEntity extends Horse
     private static final float SEATING_OFFSET = 0.40F;
     public int logCooldown = 0;
     public static final int LOG_COOLDOWN_INTERVAL = 200;
+
+    private static final int SLIM_GRACE_MAX_TICKS = 40; // ~2s
+    private int slimGraceTicks = 0;
 
     @Nullable private BlockPos stablePos = null;
     @Nullable private ResourceKey<Level> stableDim = null;
@@ -77,6 +81,22 @@ public class CavalryHorseEntity extends Horse
         return Optional.ofNullable(stableDim);
     }
 
+    private boolean shouldBeSlimWithGrace()
+    {
+        // mounted? keep slim (your existing cavalry check)
+        if (shouldBeSlim()) return true;
+
+        if (slimGraceTicks > 0)
+        {
+            // If the wide box doesn't fit yet, remain slim and keep trying
+            if (!canWidenSafelyHere()) return true;
+            // It's safe now: we can drop slim
+            slimGraceTicks = 0;
+            // (refreshDimensions is called by the engine at various times, but we can force it too)
+            this.refreshDimensions();
+        }
+        return false;
+    }
 
     /**
      * Checks if the rider is a guard and if they have a JobCavalry job. If true, the horse will be slim.
@@ -100,6 +120,50 @@ public class CavalryHorseEntity extends Horse
         return guard.getCitizenJobHandler().getColonyJob() instanceof JobCavalry;
     }
 
+
+    /**
+     * Checks if the horse's wide bounding box doesn't collide with anything when in the given pose.
+     * This is used to determine if the horse should remain slim (using the vanilla width/height) or can be wide (using the custom width/height).
+     * The collision check is done by using the entity-aware collision check, which respects other entities in the world.
+     * 
+     * @return true if the horse's wide bounding box does not collide with anything, false otherwise.
+     */
+    private boolean canWidenSafelyHere()
+    {
+        final Pose pose = this.getPose();
+        final EntityDimensions wide = super.getDimensions(pose); // vanilla width/height for this pose
+        final AABB aabb = wide.makeBoundingBox(this.position());
+        // Use the entity-aware collision check to also respect other entities
+        return this.level().noCollision(this, aabb.deflate(1.0E-7));
+    }
+
+    /** 
+     * Try a few nearby offsets (±0.4, ±0.8, etc.) to find a place the wide AABB fits. 
+     * 
+     */
+    private boolean tryNudgeToWidenSpot()
+    {
+        final Pose pose = this.getPose();
+        final EntityDimensions wide = super.getDimensions(pose);
+        final double[] OFF = {0.0, 0.4, -0.4, 0.8, -0.8, 1.2, -1.2};
+        final var lvl = this.level();
+        final var here = this.position();
+
+        for (double dx : OFF) for (double dz : OFF)
+        {
+            if (dx == 0.0 && dz == 0.0) continue;
+            final var p = here.add(dx, 0.0, dz);
+            final AABB box = wide.makeBoundingBox(p);
+            if (lvl.noCollision(this, box.deflate(1.0E-7)))
+            {
+                // gentle move (no teleport)
+                this.setPos(p.x, p.y, p.z);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Gets the dimensions of the horse entity, adjusting the width for slim poses (i.e. when the rider is a guard with a JobCavalry
      * job). The height is kept the same as the vanilla horse dimensions for the given pose.
@@ -112,7 +176,7 @@ public class CavalryHorseEntity extends Horse
     {
         EntityDimensions base = super.getDimensions(pose);
 
-        if (shouldBeSlim())
+        if (shouldBeSlimWithGrace())
         {
             // Keep height from base (pose-aware), only shrink width
             return EntityDimensions.scalable(SLIM_W, base.height);
@@ -152,6 +216,10 @@ public class CavalryHorseEntity extends Horse
     protected void removePassenger(@Nonnull Entity passenger)
     {
         super.removePassenger(passenger);
+
+        // rider just hopped off → hold slim for a short window
+        this.slimGraceTicks = SLIM_GRACE_MAX_TICKS;
+
         this.refreshDimensions();
     }
 
@@ -240,9 +308,9 @@ public class CavalryHorseEntity extends Horse
         super.tick();
         logActiveGoals();
 
-        // Server-side: gently steer facing toward the rider’s head yaw
         if (!level().isClientSide) 
         {
+            // Gently steer facing toward the rider’s head yaw
             Entity rider = this.getControllingPassenger();
             if (rider instanceof LivingEntity le) 
             {
@@ -253,6 +321,33 @@ public class CavalryHorseEntity extends Horse
                 this.setYRot(newYaw);
                 this.setYBodyRot(newYaw);
                 this.setYHeadRot(newYaw);
+            }
+            else   
+            {
+                /* 
+                No rider - try to widen in place first.
+                Grace period with nudging helps horses survive dismounts in narrow corridors, which 
+                makes my wife sad due to the pitiful dying horse noises.
+                */
+                if (canWidenSafelyHere())
+                {
+                    slimGraceTicks = 0;
+                    this.refreshDimensions();
+                }
+                else
+                {
+                    // If we can't fit yet, try a tiny nudge into free space, then attempt widen
+                    if (tryNudgeToWidenSpot() && canWidenSafelyHere())
+                    {
+                        slimGraceTicks = 0;
+                        this.refreshDimensions();
+                    }
+                    else
+                    {
+                        // still stuck — keep slim a bit longer
+                        slimGraceTicks--;
+                    }
+                }
             }
         }
     }
