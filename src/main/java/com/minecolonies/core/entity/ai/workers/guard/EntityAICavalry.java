@@ -17,7 +17,7 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import com.minecolonies.core.entity.other.CavalryHorseEntity;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 
 import net.minecraft.core.BlockPos;
@@ -203,7 +203,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (!EntityNavigationUtils.walkToPos(worker, targetMount.blockPosition(), 2, true))
         {
-            Log.getLogger().info("Walking to horse.");
+            Log.getLogger().info("{} walking to horse at {}", worker.getName(), worker.blockPosition());
 
             return CombatAIStates.FIND_MOUNT;
         }

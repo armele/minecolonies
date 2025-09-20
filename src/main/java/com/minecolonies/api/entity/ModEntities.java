@@ -15,7 +15,7 @@ import com.minecolonies.api.entity.mobs.pirates.AbstractEntityPirateRaider;
 import com.minecolonies.api.entity.mobs.vikings.AbstractEntityNorsemen;
 import com.minecolonies.api.entity.mobs.vikings.AbstractEntityNorsemenRaider;
 import com.minecolonies.api.entity.other.MinecoloniesMinecart;
-import com.minecolonies.core.entity.other.CavalryHorseEntity;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

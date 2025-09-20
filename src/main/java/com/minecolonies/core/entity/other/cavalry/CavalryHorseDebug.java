@@ -1,4 +1,4 @@
-package com.minecolonies.core.entity.other;
+package com.minecolonies.core.entity.other.cavalry;
 
 import com.minecolonies.api.util.Log;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;

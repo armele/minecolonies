@@ -11,6 +11,7 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobRandomPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -160,6 +161,38 @@ public class EntityNavigationUtils
     {
         final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
 
+        return walkToPosHelper(nav, entity, desiredPosition, distToDesired, safeDestination, speedFactor);
+    }
+
+    /**
+     * Walks to a given position
+     *
+     * @return True when arrived
+     */
+    public static boolean walkToPos(
+        final IMinecoloniesPather entity, final BlockPos desiredPosition,
+        final int distToDesired, final boolean safeDestination, final double speedFactor)
+    {
+        final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
+
+        return walkToPosHelper(nav, (Entity) entity, desiredPosition, distToDesired, safeDestination, speedFactor);
+    }
+
+    /**
+     * Helper function to walk to a certain position.
+     *
+     * @param nav the navigation to use
+     * @param entity the entity to move
+     * @param desiredPosition the position to move to
+     * @param distToDesired the minimum distance to the desired position
+     * @param safeDestination if the destination is safe and should be set
+     * @param speedFactor the speed to move at
+     * @return true if the navigation has been updated, false otherwise
+     */
+    protected static boolean walkToPosHelper(
+        MinecoloniesAdvancedPathNavigate nav, Entity entity, final BlockPos desiredPosition,
+        final int distToDesired, final boolean safeDestination, final double speedFactor)
+    {
         boolean isOnRightTask = (nav.getPathResult() != null
             && PathJobMoveToLocation.isJobFor(nav.getPathResult().getJob(), desiredPosition));
 
@@ -280,6 +313,32 @@ public class EntityNavigationUtils
     public static boolean walkToRandomPosAround(final AbstractFastMinecoloniesEntity entity, final BlockPos center, final int range, final double speedFactor)
     {
         final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
+        return walkToRandomPosHelper(nav, center, range, speedFactor);
+    }
+
+
+    /**
+     * Walks to a random position a given distance away around the provided center
+     *
+     * @return True when arrived
+     */
+    public static boolean walkToRandomPosAround(IMinecoloniesPather entity, final BlockPos center, final int range, final double speedFactor)
+    {
+        final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
+        return walkToRandomPosHelper(nav, center, range, speedFactor);
+    }
+
+    /**
+     * Helper function to walk to a random position a given distance away around the provided center.
+     *
+     * @param nav the navigation to use
+     * @param center the center of the random position
+     * @param range the range of the random position
+     * @param speedFactor the speed factor to use
+     * @return true if an acceptible destination has been reached.
+     */
+    protected static boolean walkToRandomPosHelper(MinecoloniesAdvancedPathNavigate nav, final BlockPos center, final int range, final double speedFactor)
+    {
         boolean isOnRightTask = (nav.getPathResult() != null && PathJobRandomPos.isJobFor(nav.getPathResult().getJob(), center, range));
 
         if (nav.isDone() || !isOnRightTask)

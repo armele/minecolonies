@@ -43,6 +43,8 @@ import com.minecolonies.core.entity.mobs.raider.pirates.EntityArcherPirateRaider
 import com.minecolonies.core.entity.mobs.raider.pirates.EntityCaptainPirateRaider;
 import com.minecolonies.core.entity.mobs.raider.pirates.EntityPirateRaider;
 import com.minecolonies.core.entity.other.*;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

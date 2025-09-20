@@ -3,8 +3,9 @@ package com.minecolonies.api.entity.citizen;
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.entity.other.MinecoloniesMinecart;
-import com.minecolonies.core.entity.other.CavalryHorseEntity;
 import com.minecolonies.core.entity.other.SittingEntity;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;

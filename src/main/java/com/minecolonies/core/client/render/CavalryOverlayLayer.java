@@ -12,7 +12,7 @@ import net.minecraft.world.entity.animal.horse.Horse;
 
 import javax.annotation.Nonnull;
 import com.minecolonies.api.util.constant.Constants;
-import com.minecolonies.core.entity.other.CavalryHorseEntity;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
 public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>> 
 {

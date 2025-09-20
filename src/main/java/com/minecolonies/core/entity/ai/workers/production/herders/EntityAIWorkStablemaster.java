@@ -15,7 +15,7 @@ import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobStablemaster;
-import com.minecolonies.core.entity.other.CavalryHorseEntity;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

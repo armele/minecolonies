@@ -1,18 +1,16 @@
-package com.minecolonies.core.entity.other;
+package com.minecolonies.core.entity.other.cavalry;
 
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.jobs.JobCavalry;
-import com.minecolonies.core.entity.ai.minimal.CavalryHorseNavigationGoal;
-import com.minecolonies.core.entity.ai.minimal.CavalryHorseReturnToStableGoal;
+import com.minecolonies.core.entity.ai.cavalry.CavalryHorseReturnToStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
+import com.minecolonies.core.entity.pathfinding.navigation.IMinecoloniesPather;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -30,6 +28,7 @@ import net.minecraft.world.entity.animal.horse.Variant;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -43,7 +42,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
-public class CavalryHorseEntity extends Horse
+public class CavalryHorseEntity extends Horse implements IMinecoloniesPather
 {
     private static final float BASE_W = 1.3964844F;
     private static final float BASE_H = 1.6F;
@@ -55,8 +54,10 @@ public class CavalryHorseEntity extends Horse
     private static final int SLIM_GRACE_MAX_TICKS = 40; // ~2s
     private int slimGraceTicks = 0;
 
-    @Nullable private BlockPos stablePos = null;
-    @Nullable private ResourceKey<Level> stableDim = null;
+    @Nullable
+    private BlockPos stablePos = null;
+    @Nullable
+    private ResourceKey<Level> stableDim = null;
 
     private static final String NBT_STABLE_POS = "stablePos";
     private static final String NBT_STABLE_DIM = "stableDim";
@@ -64,9 +65,32 @@ public class CavalryHorseEntity extends Horse
 
     private float combatCooldown = 0;
 
+    /**
+     * The timepoint at which the entity last collided
+     */
+    private long lastHorizontalCollision = 0;
+
     public CavalryHorseEntity(EntityType<? extends Horse> type, Level level)
     {
         super(type, level);
+        debugSetUuidName();
+    }
+
+    @Override
+    public void registerGoals()
+    {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new BreedGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new CavalryHorseReturnToStableGoal(this, 1.15, 8.0, 2.0));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+
+        if (this.canPerformRearing())
+        {
+            this.goalSelector.addGoal(10, new RandomStandGoal(this));
+        }
     }
 
     public void setStable(BlockPos pos, ResourceKey<Level> dim)
@@ -124,11 +148,10 @@ public class CavalryHorseEntity extends Horse
         return guard.getCitizenJobHandler().getColonyJob() instanceof JobCavalry;
     }
 
-
     /**
-     * Checks if the horse's wide bounding box doesn't collide with anything when in the given pose.
-     * This is used to determine if the horse should remain slim (using the vanilla width/height) or can be wide (using the custom width/height).
-     * The collision check is done by using the entity-aware collision check, which respects other entities in the world.
+     * Checks if the horse's wide bounding box doesn't collide with anything when in the given pose. This is used to determine if the
+     * horse should remain slim (using the vanilla width/height) or can be wide (using the custom width/height). The collision check is
+     * done by using the entity-aware collision check, which respects other entities in the world.
      * 
      * @return true if the horse's wide bounding box does not collide with anything, false otherwise.
      */
@@ -141,9 +164,8 @@ public class CavalryHorseEntity extends Horse
         return this.level().noCollision(this, aabb.deflate(1.0E-7));
     }
 
-    /** 
-     * Try a few nearby offsets (±0.4, ±0.8, etc.) to find a place the wide AABB fits. 
-     * 
+    /**
+     * Try a few nearby offsets (±0.4, ±0.8, etc.) to find a place the wide AABB fits.
      */
     private boolean tryNudgeToWidenSpot()
     {
@@ -228,8 +250,8 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
-     * Gets the offset that passengers are riding at relative to the horse's y position. In this case, we lower the seat by 0.35
-     * units to make the rider's feet line up with the saddle. This is important for the cavalry horse model.
+     * Gets the offset that passengers are riding at relative to the horse's y position. In this case, we lower the seat by 0.35 units
+     * to make the rider's feet line up with the saddle. This is important for the cavalry horse model.
      * 
      * @return the double value of the y offset
      */
@@ -254,6 +276,7 @@ public class CavalryHorseEntity extends Horse
     {
         MinecoloniesAdvancedPathNavigate pathNavigation = new MinecoloniesAdvancedPathNavigate(this, level);
         pathNavigation.getPathingOptions().setEnterDoors(false);
+        pathNavigation.getPathingOptions().setEnterGates(true);
         pathNavigation.getPathingOptions().setCanOpenDoors(false);
         pathNavigation.getPathingOptions().withDropCost(1D);
         pathNavigation.getPathingOptions().withJumpCost(1D);
@@ -264,47 +287,25 @@ public class CavalryHorseEntity extends Horse
         return pathNavigation;
     }
 
-    @Override
-    public void registerGoals()
-    {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-
-        // TODO: Create research that improves speed.
-        this.goalSelector.addGoal(1, new CavalryHorseNavigationGoal(this, 1.2));
-        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
-        this.goalSelector.addGoal(5, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new CavalryHorseReturnToStableGoal(this, 1.15, 8.0, 2.0));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
-        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
-
-        if (this.canPerformRearing()) {
-            this.goalSelector.addGoal(10, new RandomStandGoal(this));
-        }
-    }
-
-
     /**
-     * Linearly interpolates between the current angle and the target angle, not
-     * exceeding the maximum turn angle per tick.
+     * Linearly interpolates between the current angle and the target angle, not exceeding the maximum turn angle per tick.
      * 
-     * @param current    the current angle
-     * @param target     the target angle
+     * @param current        the current angle
+     * @param target         the target angle
      * @param maxTurnPerTick the maximum angle to turn per tick
      * @return the new angle after turning
      */
-    private static float turnToward(float current, float target, float maxTurnPerTick) 
+    private static float turnToward(float current, float target, float maxTurnPerTick)
     {
         float delta = net.minecraft.util.Mth.wrapDegrees(target - current);
-        if (delta >  maxTurnPerTick) delta =  maxTurnPerTick;
+        if (delta > maxTurnPerTick) delta = maxTurnPerTick;
         if (delta < -maxTurnPerTick) delta = -maxTurnPerTick;
         return current + delta;
     }
 
-
     /**
-     * Called every tick to update the horse. Steer the horse's facing toward the rider's head yaw.
-     * This is a gentle, small turn, so as not to fight the navigator too hard.
+     * Called every tick to update the horse. Steer the horse's facing toward the rider's head yaw. This is a gentle, small turn, so as
+     * not to fight the navigator too hard.
      */
     @Override
     public void tick()
@@ -312,16 +313,16 @@ public class CavalryHorseEntity extends Horse
         super.tick();
         logActiveGoals();
 
-        if (!level().isClientSide) 
+        if (!level().isClientSide)
         {
-            if (!isReadyForCombat()) 
+            if (!isReadyForCombat())
             {
                 this.getPassengers().forEach(Entity::stopRiding);
             }
 
             // Gently steer facing toward the rider’s head yaw
             Entity rider = this.getControllingPassenger();
-            if (rider instanceof LivingEntity le) 
+            if (rider instanceof LivingEntity le)
             {
                 // Rider intent: where their head is facing
                 float desiredYaw = le.getYHeadRot();
@@ -331,7 +332,7 @@ public class CavalryHorseEntity extends Horse
                 this.setYBodyRot(newYaw);
                 this.setYHeadRot(newYaw);
             }
-            else   
+            else
             {
                 /* 
                 No rider - try to widen in place first.
@@ -361,9 +362,14 @@ public class CavalryHorseEntity extends Horse
         }
     }
 
+    public void debugSetUuidName()
+    {
+        this.setCustomName(Component.literal(this.getUUID().toString()));
+        this.setCustomNameVisible(true); // ensures it shows above the entity
+    }
+
     public void logActiveGoals()
     {
-
         if (logCooldown > 0)
         {
             logCooldown--;
@@ -377,7 +383,7 @@ public class CavalryHorseEntity extends Horse
             Goal goal = wrapped.getGoal();
             if (wrapped.isRunning())
             {
-                // Log.getLogger().info("Active Goal: " + goal.getClass().getSimpleName());
+                Log.getLogger().info("Active Wrapped Goal for horse {}: {}", this.getUUID(), goal.getClass().getSimpleName());
             }
         }
 
@@ -386,7 +392,7 @@ public class CavalryHorseEntity extends Horse
             Goal goal = wrapped.getGoal();
             if (wrapped.isRunning())
             {
-                // Log.getLogger().info("Active Target Goal: " + goal.getClass().getSimpleName());
+                Log.getLogger().info("Active Target Goal for horse {}: {}", this.getUUID(), goal.getClass().getSimpleName());
             }
         }
     }
@@ -486,11 +492,10 @@ public class CavalryHorseEntity extends Horse
 
     /**
      * Whether this entity should be saved to disk.
-     * <p>
-     * As CavelryHorse entities are always saved to disk, this method always returns true.
+     * <p>As CavelryHorse entities are always saved to disk, this method always returns true.
      */
     @Override
-    public boolean shouldBeSaved() 
+    public boolean shouldBeSaved()
     {
         return true;
     }
@@ -506,18 +511,16 @@ public class CavalryHorseEntity extends Horse
     public boolean hurt(@Nonnull DamageSource damageSource, float damageAmount)
     {
         // TODO: Create research that improves recovery mitigation for combat.
-        float recoveryMitigation = .5f; 
+        float recoveryMitigation = .5f;
 
         combatCooldown = combatCooldown + (damageAmount * (1 - recoveryMitigation));
         return super.hurt(damageSource, damageAmount);
     }
 
     /**
-     * Adds additional data to the CompoundTag that is specific to this entity type.
-     * This data is saved to disk and can be read back in when the entity is loaded.
-     * The data added is as follows:
-     *   - stablePos: The position of the stable block, or null if not set.
-     *   - stableDim: The dimension of the stable block, or null if not set.
+     * Adds additional data to the CompoundTag that is specific to this entity type. This data is saved to disk and can be read back in
+     * when the entity is loaded. The data added is as follows: - stablePos: The position of the stable block, or null if not set. -
+     * stableDim: The dimension of the stable block, or null if not set.
      */
     @Override
     public void addAdditionalSaveData(@Nonnull CompoundTag tag)
@@ -536,10 +539,8 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
-     * Read additional data from a CompoundTag.
-     * This method reads the following additional data from the tag:
-     *   - stablePos: The position of the stable block, or null if not set.
-     *   - stableDim: The dimension of the stable block, or null if not set.
+     * Read additional data from a CompoundTag. This method reads the following additional data from the tag: - stablePos: The position
+     * of the stable block, or null if not set. - stableDim: The dimension of the stable block, or null if not set.
      */
     @Override
     public void readAdditionalSaveData(@Nonnull CompoundTag tag)
@@ -564,12 +565,12 @@ public class CavalryHorseEntity extends Horse
         }
 
         combatCooldown = tag.getFloat(NBT_COMBAT_COOLDOWN);
+        debugSetUuidName();
     }
 
-
     /**
-     * Returns the current combat cooldown of the horse, in seconds.
-     * A higher value means the horse is currently less ready for combat.
+     * Returns the current combat cooldown of the horse, in seconds. A higher value means the horse is currently less ready for combat.
+     * 
      * @return the current combat cooldown of the horse, in seconds.
      */
     public float getCombatCooldown()
@@ -578,8 +579,9 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
-     * Prepares the horse for combat by reducing its combat cooldown by the specified amount of combat readiness.
-     * This amount is subtracted from the horse's current combat cooldown.
+     * Prepares the horse for combat by reducing its combat cooldown by the specified amount of combat readiness. This amount is
+     * subtracted from the horse's current combat cooldown.
+     * 
      * @param combatReadiness the amount of combat readiness to subtract from the horse's combat cooldown.
      */
     public void prepareForCombat(float combatReadiness)
@@ -588,12 +590,38 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
-     * Returns whether the horse is ready for combat.
-     * This is calculated by seeing if the combat cooldown is less than or equal to one third of the horse's max health.
+     * Returns whether the horse is ready for combat. This is calculated by seeing if the combat cooldown is less than or equal to one
+     * third of the horse's max health.
+     * 
      * @return true if the horse is ready for combat, false otherwise.
      */
     public boolean isReadyForCombat()
     {
         return combatCooldown <= (this.getMaxHealth() / .33f);
+    }
+
+    /**
+     * A minor horizontal collision is one that occurs when the horse has moved into a solid block. This is different from a major
+     * collision, which is when the horse has moved into another entity. This method is overridden to set the lastHorizontalCollision
+     * field to the current game time when a minor collision occurs.
+     * 
+     * @param vec3 the movement vector of the horse
+     * @return true if the horse moved into a solid block, false otherwise
+     */
+    @Override
+    protected boolean isHorizontalCollisionMinor(@Nonnull Vec3 vec3)
+    {
+        lastHorizontalCollision = level.getGameTime();
+        return super.isHorizontalCollisionMinor(vec3);
+    }
+
+    /**
+     * Whether the horse collided in the last 10 ticks
+     *
+     * @return
+     */
+    public boolean hadHorizontalCollission()
+    {
+        return level.getGameTime() - lastHorizontalCollision < 10;
     }
 }
