@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -59,6 +60,9 @@ public class CavalryHorseEntity extends Horse
 
     private static final String NBT_STABLE_POS = "stablePos";
     private static final String NBT_STABLE_DIM = "stableDim";
+    private static final String NBT_COMBAT_COOLDOWN = "combatCooldown";
+
+    private float combatCooldown = 0;
 
     public CavalryHorseEntity(EntityType<? extends Horse> type, Level level)
     {
@@ -310,6 +314,11 @@ public class CavalryHorseEntity extends Horse
 
         if (!level().isClientSide) 
         {
+            if (!isReadyForCombat()) 
+            {
+                this.getPassengers().forEach(Entity::stopRiding);
+            }
+
             // Gently steer facing toward the rider’s head yaw
             Entity rider = this.getControllingPassenger();
             if (rider instanceof LivingEntity le) 
@@ -368,7 +377,7 @@ public class CavalryHorseEntity extends Horse
             Goal goal = wrapped.getGoal();
             if (wrapped.isRunning())
             {
-                Log.getLogger().info("Active Goal: " + goal.getClass().getSimpleName());
+                // Log.getLogger().info("Active Goal: " + goal.getClass().getSimpleName());
             }
         }
 
@@ -377,7 +386,7 @@ public class CavalryHorseEntity extends Horse
             Goal goal = wrapped.getGoal();
             if (wrapped.isRunning())
             {
-                Log.getLogger().info("Active Target Goal: " + goal.getClass().getSimpleName());
+                // Log.getLogger().info("Active Target Goal: " + goal.getClass().getSimpleName());
             }
         }
     }
@@ -475,19 +484,32 @@ public class CavalryHorseEntity extends Horse
         return cav;
     }
 
+    /**
+     * Whether this entity should be saved to disk.
+     * <p>
+     * As CavelryHorse entities are always saved to disk, this method always returns true.
+     */
     @Override
-    public void remove(@Nonnull RemovalReason reason)
+    public boolean shouldBeSaved() 
     {
-        if (!level().isClientSide && reason == RemovalReason.DISCARDED)
-        {
-            com.mojang.logging.LogUtils.getLogger()
-                .warn("CavalryHorse DISCARDED. UUID={}, mounted={}, at={}",
-                    this.getUUID(),
-                    this.isVehicle() || this.isPassenger(),
-                    this.blockPosition(),
-                    new RuntimeException("who-discarded-me?"));
-        }
-        super.remove(reason);
+        return true;
+    }
+
+    /**
+     * Applies damage to this entity.
+     *
+     * @param damageSource the source of the damage
+     * @param damageAmount the amount of damage to apply
+     * @return true if the damage was applied, false otherwise
+     */
+    @Override
+    public boolean hurt(@Nonnull DamageSource damageSource, float damageAmount)
+    {
+        // TODO: Create research that improves recovery mitigation for combat.
+        float recoveryMitigation = .5f; 
+
+        combatCooldown = combatCooldown + (damageAmount * (1 - recoveryMitigation));
+        return super.hurt(damageSource, damageAmount);
     }
 
     /**
@@ -498,7 +520,7 @@ public class CavalryHorseEntity extends Horse
      *   - stableDim: The dimension of the stable block, or null if not set.
      */
     @Override
-    public void addAdditionalSaveData(CompoundTag tag)
+    public void addAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.addAdditionalSaveData(tag);
         if (stablePos != null)
@@ -509,6 +531,8 @@ public class CavalryHorseEntity extends Horse
         {
             tag.putString(NBT_STABLE_DIM, stableDim.location().toString());
         }
+
+        tag.putFloat(NBT_COMBAT_COOLDOWN, combatCooldown);
     }
 
     /**
@@ -518,7 +542,7 @@ public class CavalryHorseEntity extends Horse
      *   - stableDim: The dimension of the stable block, or null if not set.
      */
     @Override
-    public void readAdditionalSaveData(CompoundTag tag)
+    public void readAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.readAdditionalSaveData(tag);
         if (tag.contains(NBT_STABLE_POS))
@@ -538,5 +562,38 @@ public class CavalryHorseEntity extends Horse
         {
             stableDim = null;
         }
+
+        combatCooldown = tag.getFloat(NBT_COMBAT_COOLDOWN);
+    }
+
+
+    /**
+     * Returns the current combat cooldown of the horse, in seconds.
+     * A higher value means the horse is currently less ready for combat.
+     * @return the current combat cooldown of the horse, in seconds.
+     */
+    public float getCombatCooldown()
+    {
+        return combatCooldown;
+    }
+
+    /**
+     * Prepares the horse for combat by reducing its combat cooldown by the specified amount of combat readiness.
+     * This amount is subtracted from the horse's current combat cooldown.
+     * @param combatReadiness the amount of combat readiness to subtract from the horse's combat cooldown.
+     */
+    public void prepareForCombat(float combatReadiness)
+    {
+        this.combatCooldown = combatCooldown - Math.abs(combatReadiness);
+    }
+
+    /**
+     * Returns whether the horse is ready for combat.
+     * This is calculated by seeing if the combat cooldown is less than or equal to one third of the horse's max health.
+     * @return true if the horse is ready for combat, false otherwise.
+     */
+    public boolean isReadyForCombat()
+    {
+        return combatCooldown <= (this.getMaxHealth() / .33f);
     }
 }

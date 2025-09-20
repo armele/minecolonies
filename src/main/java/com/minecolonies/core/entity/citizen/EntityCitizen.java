@@ -47,6 +47,7 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenDiedEvent;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
+import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.colony.jobs.JobKnight;
 import com.minecolonies.core.colony.jobs.JobNetherWorker;
 import com.minecolonies.core.colony.jobs.JobRanger;
@@ -57,6 +58,7 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIBasic;
 import com.minecolonies.core.entity.ai.workers.CitizenAI;
 import com.minecolonies.core.entity.ai.workers.guard.AbstractEntityAIGuard;
 import com.minecolonies.core.entity.citizen.citizenhandlers.*;
+import com.minecolonies.core.entity.other.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.navigation.MovementHandler;
 import com.minecolonies.core.event.EventHandler;
@@ -89,6 +91,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -1361,6 +1364,17 @@ public class EntityCitizen extends AbstractEntityCitizen implements IThreatTable
         if (citizenJobHandler.getColonyJob() instanceof JobNetherWorker && citizenData != null && damageSource.typeHolder().is(DamageSourceKeys.NETHER))
         {
             damageInc = damage;
+        }
+
+        // For cavalry, allocate some of the damage to the horse.
+        if (citizenJobHandler.getColonyJob() instanceof JobCavalry cav && citizenData != null)
+        {
+            float horseSplit = cav.getMountDamageSplit();
+            damageInc = (1 - horseSplit) * damageInc;
+
+            if (this.getVehicle() instanceof CavalryHorseEntity horse) {
+                horse.hurt(damageSource, damageInc * horseSplit);
+            }
         }
 
         if (!level.isClientSide && !this.isInvisible() && !damageSource.typeHolder().is(DamageTypes.FALL))

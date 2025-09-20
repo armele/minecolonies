@@ -2991,5 +2991,7 @@
 
   "com.ldtteam.tag.tooltip.knight": "Position for knights to guard the Gate",
   "com.ldtteam.tag.tooltip.archer": "Positions for archers to guard the gate",
-  "com.ldtteam.tag.tooltip.gate": "Position where the gate transitions from inside to outside"
+  "com.ldtteam.tag.tooltip.gate": "Position where the gate transitions from inside to outside",
+  "com.minecolonies.coremod.stablemaster.needed.readyitems": "Cavalry readiness items.",
+  "com.minecolonies.coremod.stablemaster.needed.feeditems": "Cavalry feed items."
 }

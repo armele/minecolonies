@@ -375,6 +375,11 @@ public enum AIWorkerState implements IAIState
      */
     HERDER_TRAIN(false),
 
+    /**
+     * Get mounts ready for combat!
+     */
+    HERDER_READY_FOR_COMBAT(false),
+
     /*
 ### Cowboy ###
      */

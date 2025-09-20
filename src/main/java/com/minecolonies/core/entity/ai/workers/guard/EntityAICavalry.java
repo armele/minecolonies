@@ -27,7 +27,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -57,7 +56,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     public final static int HORSE_SEARCH_RADIUS = 50;
     private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
 
-    protected AbstractHorse targetMount = null;
+    protected CavalryHorseEntity targetMount = null;
     protected BlockPos stablePos = null;
     protected boolean stableChecked = false;
 
@@ -163,7 +162,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      */
     protected IAIState findMount()
     {
-        AbstractHorse horse = null;
+        CavalryHorseEntity horse = null;
 
         if (!validateMountTarget(targetMount))
         {
@@ -271,7 +270,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * @param horse the horse to reserve
      * @param reserver the entity to reserve the horse for
      */
-    private static void reserveFor(@Nonnull AbstractHorse horse, @Nonnull Entity reserver)
+    private static void reserveFor(@Nonnull CavalryHorseEntity horse, @Nonnull Entity reserver)
     {
         CompoundTag data = horse.getPersistentData();
         data.putUUID(RESERVE_KEY, reserver.getUUID());
@@ -282,7 +281,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * @param horse the horse to check
      * @param me the UUID to check against
      */
-    private static void clearIfMine(AbstractHorse horse, UUID me)
+    private static void clearIfMine(CavalryHorseEntity horse, UUID me)
     {
         CompoundTag data = horse.getPersistentData();
         if (data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY))
@@ -303,7 +302,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * @param horse the horse to validate
      * @return true if the horse is a valid target, false otherwise
      */
-    private boolean validateMountTarget(AbstractHorse horse)
+    private boolean validateMountTarget(CavalryHorseEntity horse)
     {
         if (horse == null || horse.level() != worker.level()) return false;
 
@@ -323,7 +322,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * @param horse the horse to query
      * @return the UUID of the reserver, or null if no one has reserved it
      */
-    private static UUID reservedBy(AbstractHorse horse)
+    private static UUID reservedBy(CavalryHorseEntity horse)
     {
         CompoundTag data = horse.getPersistentData();
         return data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY) ? data.getUUID(RESERVE_KEY) : null;
@@ -334,7 +333,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * @param horse the horse to check
      * @return true if the horse is reserved, false otherwise
      */
-    private static boolean hasReservation(AbstractHorse horse)
+    private static boolean hasReservation(CavalryHorseEntity horse)
     {
         return reservedBy(horse) != null;
     }
@@ -344,13 +343,14 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * 
      * @param h the horse to check
      */
-    private static boolean isAvailable(AbstractHorse h)
+    private static boolean isAvailable(CavalryHorseEntity h)
     {
         return h.isAlive() 
             && h.getPassengers().isEmpty() 
             && h instanceof CavalryHorseEntity
             && !h.isBaby() 
             && !hasReservation(h) 
+            && h.isReadyForCombat()
             && EntitySelector.NO_SPECTATORS.test(h);
     }
 
@@ -360,7 +360,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * If a horse is found that is reserved by the worker, it is prioritized over other available horses.
      * @return the nearest available horse, or null if none are found
      */
-    protected AbstractHorse findNearestHorse()
+    protected CavalryHorseEntity findNearestHorse()
     {
         final Level level = worker.level();
         if (level.isClientSide) return null;
@@ -369,7 +369,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         final UUID me = worker.getUUID();
 
         // Pull a pool, then sort by reservation priority and distance
-        List<AbstractHorse> pool = level.getEntitiesOfClass(AbstractHorse.class, box, EntitySelector.NO_SPECTATORS);
+        List<CavalryHorseEntity> pool = level.getEntitiesOfClass(CavalryHorseEntity.class, box, EntitySelector.NO_SPECTATORS);
         if (pool.isEmpty())
         {
             Log.getLogger().info("No horses in search AABB.");
@@ -377,7 +377,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
 
         // 1) Prefer a horse reserved by me (if any and still riderless/adult/tamed)
-        AbstractHorse mine = pool.stream()
+        CavalryHorseEntity mine = pool.stream()
             .filter(h -> reservedBy(h) != null && reservedBy(h).equals(me))
             .filter(h -> h.getPassengers().isEmpty() && !h.isBaby() && h.isAlive())
             .min(Comparator.comparingDouble(worker::distanceToSqr))
@@ -385,7 +385,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (mine != null) return mine;
 
         // 2) Otherwise pick the nearest truly available horse (unreserved, riderless, adult, tamed)
-        AbstractHorse available =
+        CavalryHorseEntity available =
             pool.stream().filter(EntityAICavalry::isAvailable).min(Comparator.comparingDouble(worker::distanceToSqr)).orElse(null);
 
         if (available == null)

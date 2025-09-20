@@ -30,10 +30,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BANNER_PATT
  */
 public class JobCavalry extends AbstractJobGuard<JobCavalry>
 {
-    /**
-     * Desc of knight job.
-     */
-    public static final String DESC = "com.minecolonies.coremod.job.knight";
+    public static final float MOUNT_DAMAGE_SPLIT = .20f;
 
     protected boolean missingMount = false;
 
@@ -120,4 +117,14 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     {
         this.missingMount = missingMount;
     }
+
+    /**
+     * The fraction of damage that is applied to the mount instead of the rider.
+     * This is used to calculate the damage to apply to the mount when the rider is attacked.
+     * @return the fraction of damage to apply to the mount.
+     */
+    public float getMountDamageSplit()
+    {
+        return MOUNT_DAMAGE_SPLIT;
+    }   
 }
