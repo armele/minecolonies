@@ -387,4 +387,15 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     {
         return 1;
     }
+
+    /**
+     * Vanilla monster: Despawn in peaceful
+     *
+     * @return
+     */
+    @Override
+    protected boolean shouldDespawnInPeaceful()
+    {
+        return true;
+    }
 }
