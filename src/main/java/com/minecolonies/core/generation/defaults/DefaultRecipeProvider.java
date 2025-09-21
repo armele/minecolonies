@@ -208,6 +208,26 @@ public class DefaultRecipeProvider extends RecipeProvider
                 .unlockedBy("has_items", hasAllOf(buildTool.get(), ModBlocks.blockHutMiner))
                 .save(consumer);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.blockHutGateHouse)
+            .pattern("XTX")
+            .pattern("CXB")
+            .pattern("XXX")
+            .define('X', ItemTags.PLANKS)
+            .define('B', Items.BOW)
+            .define('C', Items.IRON_SWORD)
+            .define('T', buildTool.get())
+            .unlockedBy("has_items", hasAllOf(buildTool.get(), Items.IRON_SWORD, Items.BOW))
+            .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.blockColonySign, 6)
+            .pattern("XXX")
+            .pattern("XXX")
+            .pattern(" T ")
+            .define('X', ItemTags.PLANKS)
+            .define('T', buildTool.get())
+            .unlockedBy("has_items", hasAllOf(buildTool.get()))
+            .save(consumer);
+
 //        ShapedRecipeBuilder.shaped(ModBlocks.blockLargeQuarry)
 //                .pattern("XTX")
 //                .pattern("XDX")
