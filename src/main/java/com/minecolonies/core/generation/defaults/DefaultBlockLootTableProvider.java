@@ -67,6 +67,7 @@ public class DefaultBlockLootTableProvider extends BlockLootSubProvider
 
         saveBlock(ModBlocks.farmland, lootPool -> lootPool.add(AlternativesEntry.alternatives().otherwise(LootItem.lootTableItem(Blocks.DIRT))));
         saveBlock(ModBlocks.floodedFarmland, lootPool -> lootPool.add(AlternativesEntry.alternatives().otherwise(LootItem.lootTableItem(Blocks.DIRT))));
+        saveBlock(ModBlocks.blockColonySign);
 
         for (Block block : ModBlocks.getCrops())
         {
@@ -134,7 +135,8 @@ public class DefaultBlockLootTableProvider extends BlockLootSubProvider
             ModBlocks.blockCompostedDirt,
             //ModBlocks.blockDecorationPlaceholder, // creative only
             ModBlocks.floodedFarmland,
-            ModBlocks.farmland
+            ModBlocks.farmland,
+            ModBlocks.blockColonySign
         )).map(Block.class::cast)).toList();
     }
 }
