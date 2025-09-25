@@ -228,7 +228,6 @@ public final class ModBuildingsInitializer
           .setBuildingViewProducer(() -> BuildingGuardTower.View::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.GUARD_TOWER_ID))
           .addBuildingModuleProducer(KNIGHT_TOWER_WORK)
-          .addBuildingModuleProducer(CAVALRY_TOWER_WORK)
           .addBuildingModuleProducer(RANGER_TOWER_WORK)
           .addBuildingModuleProducer(GUARD_TOOL)
           .addBuildingModuleProducer(GUARD_ENTITY_LIST)

@@ -7,7 +7,6 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
-import com.minecolonies.api.entity.ai.statemachine.states.CitizenAIState;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
@@ -21,10 +20,7 @@ import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Items;
@@ -35,7 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nonnull;
+
+import javax.swing.text.html.parser.Entity;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
@@ -54,7 +51,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
     public final static int GUARD_MOUNT_INTERVAL = 50;
     public final static int HORSE_SEARCH_RADIUS = 50;
-    private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
 
     protected CavalryHorseEntity targetMount = null;
     protected BlockPos stablePos = null;
@@ -113,7 +109,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if ((targetMount !=  null) && targetMount.getPassengers().contains(worker))
         {
             worker.stopRiding();
-            clearIfMine(targetMount, worker.getUUID());
+            targetMount.clearFor(worker);
             targetMount = null;
         }
 
@@ -139,7 +135,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         {
             if (!EntityNavigationUtils.walkToPos(worker, stablePos, 2, true))
             {
-                Log.getLogger().info("Walking to stable.");
+                Log.getLogger().info("{}: Walking to stable.", worker.getName());
 
                 return CombatAIStates.FIND_STABLE;
             } 
@@ -183,7 +179,11 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                 JobCavalry cav = (JobCavalry) worker.getCitizenData().getJob();
                 cav.setMissingMount(true);
                 stableChecked = false;
-                return AIWorkerState.IDLE;
+
+                EntityNavigationUtils.walkToRandomPos(worker, 15, 0.6D);
+                setDelay(200);
+
+                return CombatAIStates.FIND_MOUNT;
             }
 
             return CombatAIStates.FIND_STABLE;
@@ -199,7 +199,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return CombatAIStates.NO_TARGET;
         }
 
-        reserveFor(targetMount, worker);
+        targetMount.reserve(worker);
 
         if (!EntityNavigationUtils.walkToPos(worker, targetMount.blockPosition(), 2, true))
         {
@@ -211,7 +211,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (!targetMount.isAlive())
         {
             Log.getLogger().info("Horse died/despawned before mount.");
-            clearIfMine(targetMount, worker.getUUID());
+            targetMount.clearFor(worker);
             targetMount = null;
             return CombatAIStates.FIND_MOUNT;
         }
@@ -219,7 +219,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (!targetMount.getPassengers().isEmpty() && !targetMount.getPassengers().contains(worker))
         {
             Log.getLogger().info("Horse got a different passenger {}; releasing reservation.", targetMount.getPassengers().toArray());
-            clearIfMine(targetMount, worker.getUUID());
+            targetMount.clearFor(worker);
             targetMount = null;
             return CombatAIStates.NO_TARGET;
         }
@@ -230,7 +230,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (mounted)
         {
-            clearIfMine(targetMount, worker.getUUID());
+            targetMount.clearFor(worker);
             return CombatAIStates.NO_TARGET;
         }
         else
@@ -264,36 +264,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         return patrolPoint;
     }
 
-    /**
-     * Reserves the given horse for the given cavalry unit.
-     * 
-     * @param horse the horse to reserve
-     * @param reserver the entity to reserve the horse for
-     */
-    private static void reserveFor(@Nonnull CavalryHorseEntity horse, @Nonnull Entity reserver)
-    {
-        CompoundTag data = horse.getPersistentData();
-        data.putUUID(RESERVE_KEY, reserver.getUUID());
-    }
-
-    /**
-     * Clears the reservation on the horse if it is reserved by the entity with the given UUID.
-     * @param horse the horse to check
-     * @param me the UUID to check against
-     */
-    private static void clearIfMine(CavalryHorseEntity horse, UUID me)
-    {
-        CompoundTag data = horse.getPersistentData();
-        if (data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY))
-        {
-            UUID who = data.getUUID(RESERVE_KEY);
-            if (me.equals(who))
-            {
-                data.remove(RESERVE_KEY);
-            }
-        }
-    }
-
 
     /** Validates a horse target for mounting.
      * 
@@ -311,31 +281,10 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (!baseOk) return false;
 
         UUID me = worker.getUUID();
-        UUID who = reservedBy(horse);
+        UUID who = horse.reservedBy();
 
         // valid if unreserved OR reserved by me
         return who == null || who.equals(me);
-    }
-
-    /**
-     * Retrieves the UUID of the entity that has reserved the horse, or null if no one has reserved it.
-     * @param horse the horse to query
-     * @return the UUID of the reserver, or null if no one has reserved it
-     */
-    private static UUID reservedBy(CavalryHorseEntity horse)
-    {
-        CompoundTag data = horse.getPersistentData();
-        return data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY) ? data.getUUID(RESERVE_KEY) : null;
-    }
-
-    /**
-     * Returns true if the horse is reserved by any entity, false otherwise.
-     * @param horse the horse to check
-     * @return true if the horse is reserved, false otherwise
-     */
-    private static boolean hasReservation(CavalryHorseEntity horse)
-    {
-        return reservedBy(horse) != null;
     }
 
     /** 
@@ -349,7 +298,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             && h.getPassengers().isEmpty() 
             && h instanceof CavalryHorseEntity
             && !h.isBaby() 
-            && !hasReservation(h) 
+            && !h.hasReservation() 
             && h.isReadyForCombat()
             && EntitySelector.NO_SPECTATORS.test(h);
     }
@@ -378,7 +327,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         // 1) Prefer a horse reserved by me (if any and still riderless/adult/tamed)
         CavalryHorseEntity mine = pool.stream()
-            .filter(h -> reservedBy(h) != null && reservedBy(h).equals(me))
+            .filter(h -> h.reservedBy() != null && h.reservedBy().equals(me))
             .filter(h -> h.getPassengers().isEmpty() && !h.isBaby() && h.isAlive())
             .min(Comparator.comparingDouble(worker::distanceToSqr))
             .orElse(null);

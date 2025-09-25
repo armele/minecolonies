@@ -1,24 +1,20 @@
 package com.minecolonies.core.entity.ai.cavalry;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
-import com.ldtteam.blockui.mod.Log;
-import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.IColonyManager;
-import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.util.Log;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
-import com.minecolonies.core.entity.pathfinding.navigation.IMinecoloniesPather;
-
 import java.util.EnumSet;
 import java.util.Optional;
 
-public class CavalryHorseReturnToStableGoal extends Goal
+public class ReturnToStableGoal extends Goal
 {
     private final CavalryHorseEntity horse;
     private final PathNavigation nav;
@@ -27,51 +23,23 @@ public class CavalryHorseReturnToStableGoal extends Goal
     // Begin returning if further than this.
     private final double startDistanceSqr;
 
-    // Stop returning if closer than this.
-    private final double stopDistanceSqr;
-
-    private int repathCooldown = 0;
     private int stuckTimer = 0;
     private double lastDistToTarget = Double.MAX_VALUE;
+    
     @Nullable
+    private BlockPos lastTarget = BlockPos.ZERO;
     private BlockPos targetStable = null;
+    private BlockPos targetStall = null;
+    
+    private boolean foundStall = false;
 
-
-    public CavalryHorseReturnToStableGoal(CavalryHorseEntity horse, double speed, double startDistance, double stopDistance) {
+    public ReturnToStableGoal(CavalryHorseEntity horse, double speed, double startDistance) 
+    {
         this.horse = horse;
         this.nav = horse.getNavigation();
         this.speed = speed;
         this.startDistanceSqr = startDistance * startDistance;
-        this.stopDistanceSqr  = stopDistance  * stopDistance;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
-    }
-
-    /**
-     * Checks if the horse is currently within the boundaries of its stable building.
-     * <p>
-     * If the horse does not have a stable block position (horse.getStablePos() returns Optional.empty()), returns false.
-     * </p>
-     * <p>
-     * If the horse is currently within the boundaries of its stable building, returns true. Otherwise, returns false.
-     * </p>
-     * @return true if the horse is within its stable building, false otherwise
-     */
-    public boolean isInStable()
-    {
-        Optional<BlockPos> opt = horse.getStablePos();
-        if (opt.isEmpty()) return false;
-
-        BlockPos stablePos = opt.get();
-
-        IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(horse.level(), stablePos);
-        IBuilding stable = colony.getBuildingManager().getBuilding(stablePos);
-        
-        // No need to path back to the stable hut block if we're in the boundary of the building.
-        if (stable.isInBuilding(horse.getOnPos())) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -91,8 +59,17 @@ public class CavalryHorseReturnToStableGoal extends Goal
     @Override
     public boolean canUse()
     {
-        if (horse.getControllingPassenger() != null) return false;
-        if (isInStable()) return false;
+        if (horse.getControllingPassenger() != null || horse.hasReservation())
+        {
+            // Log.getLogger().info("ReturnToStable - Horse {} at {} has a rider or a reservation to be ridden and cannot run.", this.horse.getUUID(), this.horse.getOnPos());
+            return false;
+        }
+
+        // If a citizen has the horse leashed, let this goal run.
+        Entity holder = horse.getLeashHolder();
+        if (holder instanceof EntityCitizen) return true;
+
+        if (horse.isInStable()) return false;
 
         Optional<BlockPos> opt = horse.getStablePos();
         if (opt.isEmpty()) return false;
@@ -102,6 +79,8 @@ public class CavalryHorseReturnToStableGoal extends Goal
         if (distSqr <= startDistanceSqr) return false;
 
         targetStable = stable.immutable();
+        lastTarget = targetStable;
+
         return true;
     }
 
@@ -112,7 +91,7 @@ public class CavalryHorseReturnToStableGoal extends Goal
      * <ul>
      *     <li>The horse has a passenger.</li>
      *     <li>The horse does not have a stable block position (targetStable is null).</li>
-     *     <li>The horse is within the stop distance (blocks) of the stable block position.</li>
+     *     <li>The horse is within the stop distance (blocks) of the stable block position, and has not found a stall.</li>
      *     <li>The navigation path is done.</li>
      * </ul>
      * <p>
@@ -123,20 +102,28 @@ public class CavalryHorseReturnToStableGoal extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        if (horse.getControllingPassenger() != null) 
+        
+        if (horse.getControllingPassenger() != null || horse.hasReservation())
         {
-            Log.getLogger().info("ReturnToStable - Horse {} at {} has a passenger.", this.horse.getUUID(), this.horse.getOnPos());
-             return false;
+            // Log.getLogger().info("ReturnToStable - Horse {} at {} has a rider or a reservation to be ridden and cannot continue.", this.horse.getUUID(), this.horse.getOnPos());
+            return false;
         }
+        
+        BlockPos targetPostion = targetDestination();
 
-        if (targetStable == null) 
+        if (targetPostion == null) 
         {
-            Log.getLogger().info("ReturnToStable - Horse {} at {} has no targetStable.", this.horse.getUUID(), this.horse.getOnPos());
+            Log.getLogger().info("ReturnToStable - Horse {} at {} has no targetPostion.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
 
-        if (isInStable()) 
+        if (horse.isInStable()) 
         {
+            if (!foundStall)
+            {
+                return true;
+            }
+
             Log.getLogger().info("ReturnToStable - Horse {} at {} is in the stable.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
@@ -151,10 +138,12 @@ public class CavalryHorseReturnToStableGoal extends Goal
     @Override
     public void start()
     {
+        foundStall = false;
+        targetStall = null;
+        
         EntityCitizen rider = (EntityCitizen) horse.getControllingPassenger();
         Log.getLogger().info("ReturnToStable - rider {} Starting horse {} at {}", rider == null ? "null" : rider.getName(), this.horse.getUUID(), this.horse.getOnPos());
 
-        repathCooldown = 0;
         stuckTimer = 0;
         lastDistToTarget = Double.MAX_VALUE;
         tryRepath();
@@ -166,11 +155,51 @@ public class CavalryHorseReturnToStableGoal extends Goal
     @Override
     public void stop()
     {
+        foundStall = false;
         EntityCitizen rider = (EntityCitizen) horse.getControllingPassenger();
         Log.getLogger().info("ReturnToStable - rider {} Stopping horse {} at {}", rider == null ? "null" : rider.getName(), this.horse.getUUID(), this.horse.getOnPos());
 
         nav.stop();
         targetStable = null;
+        targetStall = null;
+    }
+
+    /**
+     * Gets the target destination block position for the horse navigation goal.
+     * <p>
+     * If the horse is in a stable, the target destination is the next available stable position.
+     * Otherwise, the target destination is the stable block position set by the goal.
+     * <p>
+     * If the horse is not in a stable and the target stable block position is null, returns null.
+     * @return the target destination block position, or null if the horse is not in a stable and the target stable block position is null
+     */
+    public BlockPos targetDestination()
+    {
+        BuildingStable stable = horse.getStableBuilding();
+
+        if (stable == null)
+        {
+            // Log.getLogger().info("ReturnToStable - No stable for horse {} at {}", this.horse.getUUID(), this.horse.getOnPos());
+            return null;
+        }
+
+        targetStable = stable.getPosition();
+
+        if (horse.isInStable())
+        {
+            if (targetStall == null)
+            {
+                targetStall = stable.getNextStallPosition();
+                // Log.getLogger().info("ReturnToStable - targetStall for horse {} is {}", this.horse.getUUID(), targetStall);
+            }
+
+            return targetStall;
+        }
+        else
+        {
+            // Log.getLogger().info("ReturnToStable - horse {} not in stable, targetStable is {}", this.horse.getUUID(), targetStable);
+            return targetStable;
+        }
     }
 
     /**
@@ -182,14 +211,17 @@ public class CavalryHorseReturnToStableGoal extends Goal
     @Override
     public void tick()
     {
-        if (targetStable == null) 
+        BlockPos targetDestination = targetDestination();
+        if (targetDestination == null) 
         {
             return;
         }
 
-        // Repath if nav is reporting as done, but we're not back to the stable yet (goal still active)
-        if (nav.isDone())
+        // Repath if nav is reporting as done, or the target destination changes
+        // but we're not back to the stable yet (goal still active)
+        if (nav.isDone() || !lastTarget.equals(targetDestination))
         {
+            lastTarget = targetDestination;
             tryRepath();
         }
 
@@ -201,14 +233,15 @@ public class CavalryHorseReturnToStableGoal extends Goal
         }
 
         // No-progress breaker: if we aren't getting closer for ~1s, recompute
-        double distNow = horse.distanceToSqr(targetStable.getX() + 0.5, targetStable.getY() + 0.5, targetStable.getZ() + 0.5);
+        double distNow = horse.distanceToSqr(targetDestination.getX() + 0.5, targetDestination.getY() + 0.5, targetDestination.getZ() + 0.5);
+
+        // +epsilon to avoid float jitter
         if (distNow + 0.01 >= lastDistToTarget)
-        { // +epsilon to avoid float jitter
+        { 
             if (++stuckTimer > 20)
             {
                 nav.recomputePath();
                 stuckTimer = 0;
-                repathCooldown = 10;
             }
         }
         else
@@ -221,22 +254,22 @@ public class CavalryHorseReturnToStableGoal extends Goal
 
 
     /**
-     * Attempts to recompute the path to the target stable position. If the target stable block position is null, does nothing.
-     * Sets the repath cooldown to 10 ticks (~0.5 seconds) after attempting to recompute the path.
+     * Attempts to recompute the path to the target position. If the target position is null, does nothing.
      */
     private void tryRepath()
     {
-        if (targetStable == null)
-        { 
+        BlockPos targetDestination = targetDestination();
+        if (targetDestination == null) 
+        {
             return;
         }
 
-        /*
-        Vec3 dest = new Vec3(targetStable.getX() + 0.5, targetStable.getY(), targetStable.getZ() + 0.5);
-        nav.moveTo(dest.x, dest.y, dest.z, speed);
-        */
-        
-        EntityNavigationUtils.walkToPos(horse, targetStable, 2, false, speed);
-        repathCooldown = 10;
+        boolean foundTarget = EntityNavigationUtils.walkToPos(horse, targetDestination, 2, false, speed);
+
+        if (foundTarget && !targetDestination.equals(targetStable))
+        {
+            foundStall = true;
+        }
+
     }
 }

@@ -896,6 +896,7 @@
   "com.minecolonies.coremod.tooltype.chestplate": "Chestplate",
   "com.minecolonies.coremod.tooltype.boots": "Boots",
   "com.minecolonies.coremod.tooltype.lighter": "Flint and Steel",
+  "com.minecolonies.coremod.tooltype.lead": "Lead",
 
   "com.minecolonies.coremod.armorlevel.0": "Leather",
   "com.minecolonies.coremod.armorlevel.1": "Gold",
@@ -2141,6 +2142,8 @@
   "block.minecolonies.blockhutkitchen.name": "Cookery",
   "block.minecolonies.blockhutgatehouse": "Gatehouse",
   "block.minecolonies.blockhutgatehouse.name": "Gatehouse",
+  "block.minecolonies.blockhutstable": "Stable",
+  "block.minecolonies.blockhutstable.name": "Stable",
   "com.minecolonies.coremod.gui.maintab": "Main",
   "com.minecolonies.coremod.setting.minecolonies:producedirt": "Produce Dirt:",
   "com.minecolonies.coremod.setting.minecolonies:breeding": "Breeding:",
@@ -2594,6 +2597,9 @@
   "com.minecolonies.coremod.gui.townhall.stats.visitors_recruited": "Visitors Recruited: %d", 
   "com.minecolonies.coremod.gui.townhall.stats.visitors_absconded": "Recruits Stole: %d",  
   "com.minecolonies.coremod.gui.townhall.stats.research_completed": "Research Completed: %d",  
+  "com.minecolonies.coremod.gui.townhall.stats.horses_trained": "Horses Trained: %d",  
+  "com.minecolonies.coremod.gui.townhall.stats.mounts_readied": "Mounts Readied: %d", 
+  "com.minecolonies.coremod.gui.townhall.stats.roundups_completed": "Roundups Completed: %d",  
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",
   "com.minecolonies.coremod.gui.interval.100days": "Last 100 Days",
@@ -2916,7 +2922,7 @@
   "entity.campdrownedarcherpirate": "Drowned Pirate Archer",
   "entity.campdrownedchiefpirate": "Drowned Pirate Chief",
   
-  "entity.cavalry.nohorse": "No trained horses are available for me to ride.",
+  "entity.cavalry.nohorse": "No trained horses are ready for me to ride.",
 
   "death.attack.entity.minecolonies.campbarbarian": "%s was sliced and diced by a Barbarian",
   "death.attack.entity.minecolonies.campchiefbarbarian": "%s was macerated by a Great Chief",

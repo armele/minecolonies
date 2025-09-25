@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.resources.ResourceLocation;
@@ -17,28 +18,43 @@ import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>> 
 {
 
-    private static final ResourceLocation OVERLAY_TEX =
-        new ResourceLocation(Constants.MOD_ID, "textures/entity/horse/cavalry_overlay_layer.png");
-
     public CavalryOverlayLayer(RenderLayerParent<Horse, HorseModel<Horse>> parent) 
     {
         super(parent);
     }
 
+    /**
+     * Renders the cavalry horse overlay layer, which decorates the horse
+     * and indicates the horse's readiness for combat.
+     *
+     * @param pose    the pose stack
+     * @param buffer  the multi buffer source
+     * @param packedLight  the packed light
+     * @param horse  the horse entity
+     * @param limbSwing  the limb swing
+     * @param limbSwingAmount  the limb swing amount
+     * @param partialTicks  the partial ticks
+     * @param ageInTicks  the age in ticks
+     * @param netHeadYaw  the net head yaw
+     * @param headPitch  the head pitch
+     */
     @Override
     public void render(@Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int packedLight,
                        @Nonnull Horse horse, float limbSwing, float limbSwingAmount,
                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) 
     {
-        if (!(horse instanceof CavalryHorseEntity)) return;
+        if (!(horse instanceof CavalryHorseEntity cavhorse)) return;
 
-        VertexConsumer vc = buffer.getBuffer(RenderType.entityTranslucent(OVERLAY_TEX));
+        // Compute readiness from cooldown
+        float threshold = horse.getMaxHealth() * CavalryHorseEntity.COMBAT_READINESS_THRESHOLD;
+        float cooldown  = Math.max(0f, cavhorse.getCombatCooldown());
+        float readiness = net.minecraft.util.Mth.clamp(1.0f - (cooldown / Math.max(0.001f, threshold)), 0f, 1f);
 
-        float r = 1f, g = 1f, b = 1f, a = .7f;
+        int segments = net.minecraft.util.Mth.clamp((int)Math.floor(readiness * 5f + 0.0001f), 0, 5);
 
-        this.getParentModel().renderToBuffer(
-            pose, vc, packedLight, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
-            r, g, b, a
-        );
+        ResourceLocation OVERLAY_TEX = new ResourceLocation(Constants.MOD_ID, "textures/entity/horse/cavalry_overlay_layer" + segments + ".png");
+
+        VertexConsumer vc = buffer.getBuffer(net.minecraft.client.renderer.RenderType.entityTranslucent(OVERLAY_TEX));
+        this.getParentModel().renderToBuffer(pose, vc, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, .85f);
     }
 }
