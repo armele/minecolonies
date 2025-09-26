@@ -18,6 +18,7 @@ import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingCook;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
+import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.colony.jobs.JobCook;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.SittingEntity;
@@ -423,6 +424,12 @@ public class EntityAIEatTask implements IStateAI
     {
         if (restaurantPos != null)
         {
+            // Prevent riding the horse into the restaurant.
+            if (citizen.getCitizenData().getJob() instanceof JobCavalry && citizen.getVehicle() != null)
+            {   
+                citizen.stopRiding();
+            }
+
             final IBuilding building = citizen.getCitizenColonyHandler().getColonyOrRegister().getBuildingManager().getBuilding(restaurantPos);
             if (building != null)
             {

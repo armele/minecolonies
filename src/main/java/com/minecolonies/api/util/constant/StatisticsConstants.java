@@ -121,6 +121,12 @@ public final class StatisticsConstants
 
     // University
     public static final String RESEARCH_COMPLETED = "research_completed";
+
+    // Stable
+    public static final String HORSES_TRAINED = "horses_trained";
+    public static final String MOUNTS_READIED = "mounts_readied";
+    public static final String ROUNDUPS_COMPLETED = "roundups_completed";
+
 }
 
 

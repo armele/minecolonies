@@ -68,6 +68,7 @@ public final class ModBuildingsInitializer
           .setBuildingViewProducer(() -> BuildingBarracksTower.View::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.BARRACKS_TOWER_ID))
           .addBuildingModuleProducer(KNIGHT_BARRACKS_WORK)
+          .addBuildingModuleProducer(CAVALRY_BARRACKS_WORK)
           .addBuildingModuleProducer(RANGER_BARRACKS_WORK)
           .addBuildingModuleProducer(DRUID_BARRACKS_WORK)
           .addBuildingModuleProducer(GUARD_TOOL)
@@ -159,6 +160,18 @@ public final class ModBuildingsInitializer
           .addBuildingModuleProducer(COWHERDER_WORK)
           .addBuildingModuleProducer(COWHERDER_HERDING)
           .addBuildingModuleProducer(COWHERDER_SETTINGS)
+          .addBuildingModuleProducer(MIN_STOCK)
+          .addBuildingModuleProducer(STATS_MODULE)
+          .createBuildingEntry());
+
+        ModBuildings.stable = DEFERRED_REGISTER.register(ModBuildings.STABLE_ID, () -> new BuildingEntry.Builder()
+          .setBuildingBlock(ModBlocks.blockHutStable)
+          .setBuildingProducer(BuildingStable::new)
+          .setBuildingViewProducer(() -> EmptyView::new)
+          .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.STABLE_ID))
+          .addBuildingModuleProducer(STABLEMASTER_WORK)
+          .addBuildingModuleProducer(STABLEMASTER_HERDING)
+          .addBuildingModuleProducer(STABLEMASTER_SETTINGS)
           .addBuildingModuleProducer(MIN_STOCK)
           .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());
