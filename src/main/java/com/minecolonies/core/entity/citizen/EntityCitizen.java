@@ -1369,11 +1369,12 @@ public class EntityCitizen extends AbstractEntityCitizen implements IThreatTable
         // For cavalry, allocate some of the damage to the horse.
         if (citizenJobHandler.getColonyJob() instanceof JobCavalry cav && citizenData != null)
         {
-            float horseSplit = cav.getMountDamageSplit();
-            damageInc = (1 - horseSplit) * damageInc;
+            if (this.getVehicle() instanceof CavalryHorseEntity horse) 
+            {
+                float horseSplit = cav.getMountDamageSplit() * damageInc;
+                damageInc = damageInc - horseSplit;
 
-            if (this.getVehicle() instanceof CavalryHorseEntity horse) {
-                horse.hurt(damageSource, damageInc * horseSplit);
+                horse.hurt(damageSource, horseSplit);
             }
         }
 
