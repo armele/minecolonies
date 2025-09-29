@@ -93,7 +93,7 @@ public class PathingOptions
     /**
      * Allowed to enter gates?
      */
-    private boolean enterGates       = false;
+    private boolean enterGates       = true;
 
     /**
      * Allowed to open doors?

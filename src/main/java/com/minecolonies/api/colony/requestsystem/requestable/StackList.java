@@ -467,15 +467,16 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
             return List.of();
         }
 
-        return opt.get()
-            .stream()
-            .map(Holder::value)
-            .map(item -> {
-                ItemStack s = new ItemStack(item);
-                s.setCount(perStackCount);
-                return s;
-            })
-            .collect(Collectors.toList());
-    }
+        final HolderSet.Named<Item> holders = opt.get();
+        final List<ItemStack> stacks = new ArrayList<>(holders.size());
 
+        for (Holder<Item> holder : holders)
+        {
+            ItemStack stack = new ItemStack(holder.value());
+            stack.setCount(perStackCount);
+            stacks.add(stack);
+        }
+
+        return stacks;
+    }
 }

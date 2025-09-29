@@ -496,7 +496,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      * Provides a random patrol point from all buildings in the colony when the guard is set to automatic patrol mode.
      * @return a BlockPos of the patrol point.
      */
-    protected BlockPos automaticPatrolPoint()
+    protected BlockPos randomPatrolPoint()
     {
         return buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
     }
@@ -521,7 +521,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
 
                 if (worker.getRandom().nextInt(5) <= 1)
                 {
-                    currentPatrolPoint = automaticPatrolPoint();
+                    currentPatrolPoint = randomPatrolPoint();
                     if (currentPatrolPoint != null)
                     {
                         walkToSafePos(currentPatrolPoint);

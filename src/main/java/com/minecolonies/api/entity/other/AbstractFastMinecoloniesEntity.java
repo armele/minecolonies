@@ -4,6 +4,8 @@ import com.minecolonies.api.entity.pathfinding.IStuckHandlerEntity;
 import com.minecolonies.api.util.EntityUtils;
 import com.minecolonies.api.util.LookHandler;
 import com.minecolonies.api.util.constant.ColonyConstants;
+import com.minecolonies.core.entity.pathfinding.navigation.IMinecoloniesPather;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,7 +27,7 @@ import java.util.List;
 /**
  * Special abstract minecolonies mob that overrides laggy vanilla behaviour.
  */
-public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob implements IStuckHandlerEntity
+public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob implements IStuckHandlerEntity, IMinecoloniesPather
 {
     /**
      * Whether this entity can be stuck for stuckhandling
