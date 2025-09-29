@@ -1389,6 +1389,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 else
                 {
                     return pathingOptions.canEnterDoors() && (block.getBlock() instanceof DoorBlock || block.getBlock() instanceof FenceGateBlock)
+                             || (pathingOptions.canEnterGates() &&  block.getBlock() instanceof FenceGateBlock)
                              || block.getBlock() instanceof AbstractBlockMinecoloniesConstructionTape
                              || block.getBlock() instanceof PressurePlateBlock
                              || block.getBlock() instanceof BlockDecorationController

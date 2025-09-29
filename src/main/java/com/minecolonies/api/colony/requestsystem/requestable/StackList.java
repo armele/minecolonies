@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -433,4 +434,48 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
     {
         return TYPE_TOKENS;
     }
+
+    public StackList(@NotNull final TagKey<Item> tag,
+        @NotNull final ServerLevel level,
+        final String description,
+        final int count,
+        final int minCount,
+        final int leftOver)
+    {
+        this(tagToStacks(tag, level.registryAccess(), count), description, count, minCount, leftOver);
+    }
+
+
+    /**
+     * Transforms a given tag into a list of itemstacks, with each
+     * itemstack having a count of perStackCount.
+     *
+     * @param tag the tag to transform.
+     * @param registryAccess the registry access.
+     * @param perStackCount the count of each itemstack.
+     * @return the resulting list of itemstacks.
+     */
+    private static List<ItemStack> tagToStacks(@NotNull final TagKey<Item> tag,
+        @NotNull final RegistryAccess registryAccess,
+        final int perStackCount)
+    {
+        final Registry<Item> itemReg = registryAccess.registryOrThrow(Registries.ITEM);
+        final Optional<HolderSet.Named<Item>> opt = itemReg.getTag(tag);
+
+        if (opt.isEmpty())
+        {
+            return List.of();
+        }
+
+        return opt.get()
+            .stream()
+            .map(Holder::value)
+            .map(item -> {
+                ItemStack s = new ItemStack(item);
+                s.setCount(perStackCount);
+                return s;
+            })
+            .collect(Collectors.toList());
+    }
+
 }
