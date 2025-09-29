@@ -6,7 +6,6 @@ import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
-import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
@@ -26,20 +25,21 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Tuple;
 
 import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.text.html.parser.Entity;
-
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_BUILDING_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_LEVEL_RANGE;
-
+import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_GROUNDLEVEL;
+import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_PATROL_POINT;
 import static com.minecolonies.api.util.constant.TranslationConstants.CAVALRY_NOHORSE;
 
 /**
@@ -240,46 +240,160 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     }
 
     /**
-     * Provides a random patrol point from all buildings in the colony when the guard is set to automatic patrol mode.
-     * <p>
-     * The algorithm works as follows:
-     * <ol>
-     *     <li>Choose a random building in the colony.</li>
-     *     <li>Get the corners of the building's footprint.</li>
-     *     <li>Surface each corner by finding the topmost solid block at that x,z position.</li>
-     *     <li>Choose the closest valid surfaced corner to the guard.</li>
-     * </ol>
-     * @return a BlockPos of the patrol point.
+     * If the building structure includes potential patrol points, pick one and use it.
+     * Otherwise, use the hut (or tagged ground-level) Y and nominate one of the exterior corners.
+     *
+     * @param buildingPos The building position (hut block position) to patrol.
+     * @return A patrol point designated by a tag, or a corner of the building.
      */
-    protected BlockPos automaticPatrolPoint()
+    protected BlockPos patrolPointForBuilding(final BlockPos targetPos)
     {
-        BlockPos buildingPos = buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
+        if (targetPos == null || BlockPos.ZERO.equals(targetPos))
+        {
+            Log.getLogger().info("{} has a null patrol point: {}.", worker.getName(), targetPos);
+            return null;
+        }
 
-        IBuilding building = buildingGuards.getColony().getBuildingManager().getBuilding(buildingPos);
+        IBuilding targetBuilding = buildingGuards.getColony().getBuildingManager().getBuilding(targetPos);
 
-        BlockPos patrolPoint = EntityNavigationUtils.closestOutsideCornerofBuilding(building, buildingGuards.getGuardPos(worker));
+        // The proposed patrol point was not a building location - just use it.
+        if (targetBuilding == null)
+        {
+            Log.getLogger().info("{} has non-building patrol point: {}.", worker.getName(), targetPos);
+            return targetPos;
+        }
 
-        Log.getLogger().info("Cavalry Patrol point: {}", patrolPoint);
+        // Prefer explicit patrol points
+        final List<BlockPos> patrolPoints = building.getLocationsFromTag(TAG_PATROL_POINT);
+        final RandomSource rand = worker.getRandom();
 
-        return patrolPoint;
+        if (patrolPoints != null && !patrolPoints.isEmpty())
+        {
+            Log.getLogger().info("{} has patrol point found in building schematic.", worker.getName());
+            return patrolPoints.get(rand.nextInt(patrolPoints.size()));
+        }
+
+        // If our building has a parent building, use that
+        if (targetBuilding.getParent() != null && !BlockPos.ZERO.equals(targetBuilding.getParent())) 
+        {
+            Log.getLogger().info("{} needs a patrol point from the parent schematic.", worker.getName());
+            return patrolPointForBuilding(targetBuilding.getParent());
+        }
+
+        // Determine ground Y: from TAG_GROUNDLEVEL if present, else hut Y - 1
+        final List<BlockPos> groundLevel = targetBuilding.getLocationsFromTag(TAG_GROUNDLEVEL);
+        final int groundY =
+            (groundLevel != null && !groundLevel.isEmpty()) ? groundLevel.get(0).getY() : targetBuilding.getPosition().below().getY();
+
+        // Corners fallback
+        final Tuple<BlockPos, BlockPos> corners = targetBuilding.getCorners();
+        if (corners == null)
+        {
+            // Last resort: hut position (at computed ground Y)
+            final BlockPos hut = targetBuilding.getPosition();
+            return new BlockPos(hut.getX(), groundY, hut.getZ());
+        }
+
+        final BlockPos a = corners.getA();
+        final BlockPos b = corners.getB();
+
+        BlockPos patrolCorner = null;
+
+        // Pick one of the four outside corners
+        switch (rand.nextInt(4))
+        {
+            case 0:
+                patrolCorner = new BlockPos(a.getX(), groundY, a.getZ());
+            case 1:
+                patrolCorner = new BlockPos(a.getX(), groundY, b.getZ());
+            case 2:
+                patrolCorner = new BlockPos(b.getX(), groundY, b.getZ());
+            default:
+                patrolCorner = new BlockPos(b.getX(), groundY, a.getZ());
+        }
+
+        Log.getLogger().info("{} has patrol point derived from corners: {}", worker.getName(), patrolCorner);
+
+        return patrolCorner;
+    }
+
+
+    /**
+     * Patrol between a list of patrol points.
+     *
+     * @return the next patrol point to go to.
+     */
+    public IAIState patrol()
+    {
+        if (buildingGuards.requiresManualTarget())
+        {
+            Log.getLogger().info("{} is on cavalry patrol - manual target.", worker.getName());
+            if (currentPatrolPoint == null || EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, currentPatrolPoint, 3, true, 1.0))
+            {
+                currentPatrolPoint = null;
+                if (!EntityNavigationUtils.walkToRandomPos(worker, 20, 1.0))
+                {
+                    return getState();
+                }
+
+                if (worker.getRandom().nextInt(5) <= 1)
+                {
+                    BlockPos buildingPos = buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
+                    currentPatrolPoint = patrolPointForBuilding(buildingPos);
+
+                    if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
+                    {
+                        EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            Log.getLogger().info("{} is on cavalry patrol - non-manual target.", worker.getName());
+
+            BlockPos buildingPos = buildingGuards.getNextPatrolTarget(false);
+
+            if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
+            {
+                buildingPos = buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
+            }
+
+            currentPatrolPoint = patrolPointForBuilding(buildingPos);
+
+            if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint) && (EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0)))
+            {
+                setCurrentDelay(10);
+                buildingGuards.arrivedAtPatrolPoint(worker);
+            }
+        }
+
+        return null;
     }
 
 
     /** Validates a horse target for mounting.
      * 
-     * The horse is valid if it is not null, passes the horse filter, is on the same level as the worker, and is not reserved by anyone else.
+     * The horse is a valid mount if it is not null, passes the horse filter, 
+     * is on the same level as the worker, and is not reserved by anyone else.
      * 
      * @param horse the horse to validate
      * @return true if the horse is a valid target, false otherwise
      */
     private boolean validateMountTarget(CavalryHorseEntity horse)
     {
-        if (horse == null || horse.level() != worker.level()) return false;
+        if (horse == null || horse.level() != worker.level()) 
+        {
+            return false;
+        }
 
         boolean baseOk = isAvailable(horse);
 
-        if (!baseOk) return false;
-
+        if (!baseOk) 
+        {
+            return false;
+        }
+        
         UUID me = worker.getUUID();
         UUID who = horse.reservedBy();
 
