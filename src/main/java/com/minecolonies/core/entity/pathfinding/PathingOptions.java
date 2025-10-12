@@ -294,6 +294,16 @@ public class PathingOptions
     }
 
     /**
+     * @param canEnter whether we can enter gates
+     * @return
+     */
+    public PathingOptions withCanEnterGates(final boolean canEnter)
+    {
+        setEnterGates(canEnter);
+        return this;
+    }
+
+    /**
      * Set under water walking opening capability
      * @param walkUnderWater whether we can walk underwater
      * @return
@@ -325,6 +335,7 @@ public class PathingOptions
         canUseRails = pathingOptions.canUseRails;
         canSwim = pathingOptions.canSwim;
         enterDoors = pathingOptions.enterDoors;
+        enterGates = pathingOptions.enterGates;
         canOpenDoors = pathingOptions.canOpenDoors;
         canClimbAdvanced = pathingOptions.canClimbAdvanced;
         canPassDanger = pathingOptions.canPassDanger;
