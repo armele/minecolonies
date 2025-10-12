@@ -96,6 +96,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         this.parentAI = parentAI;
         combatPathingOptions = new PathingOptions();
         combatPathingOptions.setEnterDoors(true);
+        combatPathingOptions.setEnterGates(true);
         combatPathingOptions.setCanOpenDoors(true);
         combatPathingOptions.setCanSwim(true);
         combatPathingOptions.withOnPathCost(0.8);

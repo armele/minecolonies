@@ -501,7 +501,6 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
         return buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
     }
 
-
     /**
      * Patrol between a list of patrol points.
      *
