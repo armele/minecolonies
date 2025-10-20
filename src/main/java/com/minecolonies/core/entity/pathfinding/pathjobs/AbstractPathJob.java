@@ -1432,7 +1432,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1)
         {
             return !head
-                     || !(state.getBlock() instanceof WoolCarpetBlock || state.getBlock() instanceof FloatingCarpetBlock)
+                     || !(state.getBlock() instanceof WoolCarpetBlock || state.getBlock() instanceof FloatingCarpetBlock || state.getBlock() instanceof WaterlilyBlock)
                      || PathfindingUtils.isLadder(state, pathingOptions);
         }
         return isPassable(state, x, y, z, parent, head);
@@ -1656,7 +1656,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 }
             }
         }
-        else if (parentBlock instanceof FloatingCarpetBlock)
+        else if (parentBlock instanceof FloatingCarpetBlock || parentBlock instanceof WaterlilyBlock)
         {
             if (dY < 0)
             {
