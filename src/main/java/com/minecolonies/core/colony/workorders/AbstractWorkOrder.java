@@ -822,7 +822,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
                         {
                             final BlockPos offset = new BlockPos(x, y, z);
                             final BlockPos tePos = getLocation().subtract(blueprint.getPrimaryBlockOffset()).offset(offset);
-                            final BlockEntity te = getColony().getWorld().getBlockEntity(tePos);
+                            final BlockEntity te = colony.getWorld().getBlockEntity(tePos);
                             if (te instanceof IBlueprintDataProviderBE blueprintDataProviderBE)
                             {
                                 final CompoundTag tagData = compoundNBT.getCompound(TAG_BLUEPRINTDATA);
@@ -840,7 +840,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
                                 {
                                     Log.getLogger().warn("Broken deco-controller at: {}", offset);
                                 }
-                                ((ServerLevel) getColony().getWorld()).getChunkSource().blockChanged(tePos);
+                                ((ServerLevel) colony.getWorld()).getChunkSource().blockChanged(tePos);
                                 te.setChanged();
                             }
                         }
