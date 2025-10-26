@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.ai.minimal;
 
+import com.ldtteam.blockui.mod.Log;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -167,7 +168,7 @@ public class EntityAISleep implements IStateAI
                 final List<BlockPos> bedList = hut.getModule(BuildingModules.BED).getRegisteredBlocks();
                 final int index = hut.getFirstModuleOccurance(AbstractAssignedCitizenModule.class).getAssignedCitizen().indexOf(citizen.getCitizenData());
 
-                if (index < bedList.size())
+                if (index >= 0 && index < bedList.size())
                 {
                     final BlockPos pos = bedList.get(index);
                     if (WorldUtil.isEntityBlockLoaded(citizen.level, pos))
