@@ -1,6 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
 
-import com.ldtteam.blockui.mod.Log;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
