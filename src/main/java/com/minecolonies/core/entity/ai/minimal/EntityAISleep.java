@@ -195,10 +195,10 @@ public class EntityAISleep implements IStateAI
             if (EntityNavigationUtils.walkToPosInBuilding(citizen, usedBed, citizen.getCitizenData().getHomeBuilding(), 12))
             {
                 bedTicks++;
-                final BlockState state = citizen.level.getBlockState(usedBed);
+                final BlockState state = citizen.level().getBlockState(usedBed);
                 if (state.isBed(citizen.level(), usedBed, citizen) && state.getValue(BedBlock.OCCUPIED))
                 {
-                    if (!this.citizen.level.getEntitiesOfClass(LivingEntity.class, new AABB(usedBed), LivingEntity::isSleeping).isEmpty())
+                    if (!this.citizen.level().getEntitiesOfClass(LivingEntity.class, new AABB(usedBed), LivingEntity::isSleeping).isEmpty())
                     {
                         usedBed = homePos;
                     }
