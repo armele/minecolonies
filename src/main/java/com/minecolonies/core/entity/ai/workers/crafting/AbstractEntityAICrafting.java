@@ -368,7 +368,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         final int progressOpsCount = inProgressCount / countPerIteration;
 
         final int minRemainingOpsCount = currentRequest.getRequest().getMinCount() - doneOpsCount - progressOpsCount;
-        int remainingOpsCount = currentRequest.getRequest().getCount();
+        int availableOpsCount = currentRequest.getRequest().getCount();
         final List<ItemStorage> input = currentRecipeStorage.getCleanedInput();
         for (final ItemStorage inputStorage : input)
         {
@@ -405,11 +405,11 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
 
             if (!isToolOrContainer)
             {
-                remainingOpsCount = Math.min(Math.min(availableCount, currentRequest.getRequest().getCount()), remainingOpsCount);
+                availableOpsCount = Math.min(Math.min(availableCount, currentRequest.getRequest().getCount()), availableOpsCount);
             }
         }
 
-        job.setMaxCraftingCount(remainingOpsCount + doneOpsCount);
+        job.setMaxCraftingCount(Math.min(availableOpsCount + doneOpsCount, currentRequest.getRequest().getCount()));
         job.setCraftCounter(doneOpsCount);
         return QUERY_ITEMS;
     }
