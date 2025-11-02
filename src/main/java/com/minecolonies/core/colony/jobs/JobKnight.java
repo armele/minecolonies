@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
@@ -106,8 +107,11 @@ public class JobKnight extends AbstractJobGuard<JobKnight> implements IJobWithCo
             CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD));
             worker.startUsingItem(InteractionHand.OFF_HAND);
             ItemStack shieldStack = worker.getInventoryCitizen().getHeldItem(InteractionHand.OFF_HAND);
-            CompoundTag nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
-            nbt.put(TAG_BANNER_PATTERNS, worker.getCitizenColonyHandler().getColonyOrRegister().getColonyFlag());
+            if (!shieldStack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY).equals(worker.getCitizenData().getColony().getColonyFlag()))
+            {
+                shieldStack.set(DataComponents.BANNER_PATTERNS, worker.getCitizenData().getColony().getColonyFlag());
+                worker.getInventoryCitizen().markDirty();
+            }
         }
     }
 }
