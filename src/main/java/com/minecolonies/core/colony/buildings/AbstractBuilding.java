@@ -167,7 +167,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     /**
      * List of building flags.
      */
-    protected List<String> buildingFlags = new ArrayList<>();
+    protected Set<String> buildingFlags = new HashSet<>();
 
     /**
      * Constructor for a AbstractBuilding.
