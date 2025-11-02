@@ -165,6 +165,11 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     private BlockPos cachedStandingPosition;
 
     /**
+     * List of building flags.
+     */
+    protected List<String> buildingFlags = new ArrayList<>();
+
+    /**
      * Constructor for a AbstractBuilding.
      *
      * @param colony Colony the building belongs to.
@@ -2141,4 +2146,9 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     }
 
     //------------------------- !END! RequestSystem handling for minecolonies buildings -------------------------//
+
+    public void setBuildingFlag(String flag)
+    {
+        buildingFlags.add(flag);
+    }
 }

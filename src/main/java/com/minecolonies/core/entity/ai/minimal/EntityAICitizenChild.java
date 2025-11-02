@@ -11,6 +11,7 @@ import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.MessageUtils;
+import com.minecolonies.api.util.constant.BuildingConstants;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenGrownUpEvent;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
@@ -223,11 +224,27 @@ public class EntityAICitizenChild implements IStateAI
                 actionTimer = 3 * 60 * 20;
             }
 
-            int index = child.getCitizenColonyHandler().getColonyOrRegister().getBuildingManager().getBuildings().size();
+            final List<IBuilding> buildings = child.getCitizenColonyHandler()
+                .getColonyOrRegister()
+                .getBuildingManager()
+                .getBuildings()
+                .values()
+                .stream()
+                .filter(b -> !b.hasFlag(BuildingConstants.FLAG_NO_CHILDREN))
+                .toList();
+
+            if (buildings.isEmpty()) 
+            {
+                visitingPath = null;
+                visitingHut = null;                
+                setDelayForNextAction();
+                return CitizenAIState.IDLE;
+            }
+
+            int index = buildings.size();
 
             index = rand.nextInt(index);
 
-            final List<IBuilding> buildings = new ArrayList<>(child.getCitizenColonyHandler().getColonyOrRegister().getBuildingManager().getBuildings().values());
             visitingHut = buildings.get(index);
 
             EntityNavigationUtils.walkToBuilding(child, visitingHut);
