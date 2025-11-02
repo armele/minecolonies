@@ -2,6 +2,7 @@ package com.minecolonies.api.crafting;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.core.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -152,34 +153,10 @@ public class ItemStorage
     {
         if (jObject.has(ITEM_PROP))
         {
-            final ItemStack parsedStack = ItemStackUtils.idToItemStack(jObject.get(ITEM_PROP).getAsString());
-            if(jObject.has(COUNT_PROP))
-            {
-                parsedStack.setCount(jObject.get(COUNT_PROP).getAsInt());
-                this.amount = jObject.get(COUNT_PROP).getAsInt();
-            }
-            else
-            {
-                this.amount = parsedStack.getCount();
-            }
-            this.stack = parsedStack;
-            if(jObject.has(MATCHTYPE_PROP))
-            {
-                String matchType = jObject.get(MATCHTYPE_PROP).getAsString();
-                if(matchType.equals(MATCH_NBTIGNORE))
-                {
-                    this.shouldIgnoreNBTValue = true;
-                }
-                else // includes "exact"
-                {
-                    this.shouldIgnoreNBTValue = false;
-                }
-            }
-            else
-            {
-                this.shouldIgnoreNBTValue = false;
-            }
-            this.shouldIgnoreDamageValue= true;
+            this.stack = ItemStackUtils.idToItemStack(jObject.get(ITEM_PROP).getAsString());
+            this.amount = GsonHelper.getAsInt(jObject, COUNT_PROP, 1);
+            this.shouldIgnoreNBTValue = GsonHelper.getAsString(jObject, MATCHTYPE_PROP, "exact").equals(MATCH_NBTIGNORE);
+            this.shouldIgnoreDamageValue = true;
         }
         else
         {
@@ -348,10 +325,8 @@ public class ItemStorage
      */
     public ItemStorage copy()
     {
-        ItemStorage newInstance = new ItemStorage(stack.copy(), shouldIgnoreDamageValue, shouldIgnoreNBTValue);
-        newInstance.setAmount(amount);
-        return newInstance;
-    }    
+        return new ItemStorage(stack.copy(), amount, shouldIgnoreDamageValue, shouldIgnoreNBTValue);
+    }
 
     /**
      * Get an immutable version of this item storage
