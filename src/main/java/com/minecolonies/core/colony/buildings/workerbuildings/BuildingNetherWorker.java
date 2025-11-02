@@ -8,6 +8,7 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.WorldUtil;
+import com.minecolonies.api.util.constant.BuildingConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.MinimumStockModule;
@@ -108,6 +109,8 @@ public class BuildingNetherWorker extends AbstractBuilding
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
             && itemStack.getItem() instanceof ArmorItem
             && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.FEET, new Tuple<>(1, true));
+    
+        setBuildingFlag(BuildingConstants.FLAG_NO_CHILDREN);
     }
 
     @NotNull
