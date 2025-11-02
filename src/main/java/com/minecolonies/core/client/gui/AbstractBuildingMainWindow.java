@@ -175,6 +175,6 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
             title.setText(componentWithLevel);
         }
 
-        updateButtonBuild(building);
+        updateButtonBuild(this.buildingView);
     }
 }
