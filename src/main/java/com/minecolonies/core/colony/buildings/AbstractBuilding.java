@@ -2147,4 +2147,10 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         buildingFlags.add(flag);
     }
+
+    @Override
+    public boolean hasFlag(String flag)
+    {
+        return buildingFlags.contains(flag);
+    }
 }
