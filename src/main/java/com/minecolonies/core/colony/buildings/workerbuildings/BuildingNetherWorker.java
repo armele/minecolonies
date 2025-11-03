@@ -109,8 +109,6 @@ public class BuildingNetherWorker extends AbstractBuilding
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
             && itemStack.getItem() instanceof ArmorItem
             && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.FEET, new Tuple<>(1, true));
-    
-        setBuildingFlag(BuildingConstants.FLAG_NO_CHILDREN);
     }
 
     @NotNull
@@ -296,5 +294,16 @@ public class BuildingNetherWorker extends AbstractBuilding
         {
             super(jobEntry);
         }
+    }
+
+    /**
+     * Whether kids can visit this building.
+     *
+     * @return false for this building
+     */
+    @Override
+    public boolean canKidsVisitBuilding()
+    {
+        return false;
     }
 }

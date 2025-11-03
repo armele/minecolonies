@@ -1,6 +1,8 @@
 package com.minecolonies.core.entity.ai.minimal;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.managers.interfaces.IRegisteredStructureManager;
 import com.minecolonies.api.entity.ai.IStateAI;
 import com.minecolonies.api.entity.ai.statemachine.AIEventTarget;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -11,7 +13,6 @@ import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.MessageUtils;
-import com.minecolonies.api.util.constant.BuildingConstants;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenGrownUpEvent;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
@@ -22,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -215,8 +215,10 @@ public class EntityAICitizenChild implements IStateAI
      */
     private IState visitHuts()
     {
+        final IColony colony = child.getCitizenColonyHandler().getColonyOrRegister();
+
         // Find a hut to visit
-        if (visitingPath == null && child.getCitizenColonyHandler().getColonyOrRegister() != null)
+        if (visitingPath == null && colony != null)
         {
             // Visiting huts for 3min.
             if (actionTimer <= 0 && visitingHut == null)
@@ -224,13 +226,19 @@ public class EntityAICitizenChild implements IStateAI
                 actionTimer = 3 * 60 * 20;
             }
 
-            final List<IBuilding> buildings = child.getCitizenColonyHandler()
-                .getColonyOrRegister()
-                .getBuildingManager()
-                .getBuildings()
+            final IRegisteredStructureManager mgr = colony.getBuildingManager();
+
+            final List<IBuilding> buildings = mgr.getBuildings()
                 .values()
                 .stream()
-                .filter(b -> !b.hasFlag(BuildingConstants.FLAG_NO_CHILDREN))
+                .filter(b -> b.canKidsVisitBuilding())
+                .filter(b -> 
+                {
+                    if (b.getParent() == null || BlockPos.ZERO.equals(b.getParent())) return true;
+
+                    final IBuilding parent = mgr.getBuilding(b.getParent());
+                    return parent != null && parent.canKidsVisitBuilding();
+                })
                 .toList();
 
             if (buildings.isEmpty()) 

@@ -525,12 +525,11 @@ public interface IBuilding extends IBuildingContainer, IModuleContainer<IBuildin
     List<BlockPos> getLocationsFromTag(@NotNull final String tagName);
 
     /**
-     * Check if a certain flag is set.
-     * @param flag the flag to check.
+     * Check if kids are allowed to visit the building.
      * @return true if so.
      */
-    default boolean hasFlag(@NotNull String flag)
+    default boolean canKidsVisitBuilding()
     {
-        return false;
+        return true;
     }
 }

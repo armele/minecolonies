@@ -107,12 +107,6 @@ public final class BuildingConstants
      */
     public static final String MODULE_CUSTOM = "custom";
 
-
-    /**
-     * Flag for disallowing visits by children in the colony.
-     */
-    public static final String FLAG_NO_CHILDREN = "nochildren";
-
     /**
      * Private constructor to hide implicit public one.
      */
