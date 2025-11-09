@@ -4,10 +4,10 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
@@ -18,6 +18,7 @@ import com.minecolonies.core.network.messages.server.colony.building.worker.Togg
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -30,15 +31,15 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 /**
  * BOWindow for the hiring or firing of a worker.
  */
-public class WindowListRecipes extends AbstractModuleWindow
+public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
 {
     /**
-     * Id of the recipe list in the GUI.
+     * ID of the recipe list in the GUI.
      */
     private static final String RECIPE_LIST = "recipes";
 
     /**
-     * Id of the recipe status label in the GUI.
+     * ID of the recipe status label in the GUI.
      */
     private static final String RECIPE_STATUS="recipestatus";
 
@@ -51,11 +52,6 @@ public class WindowListRecipes extends AbstractModuleWindow
      * The item icon of the resource.
      */
     private static final String RESOURCE = "res%d";
-
-    /**
-     * The view of the current module.
-     */
-    private final CraftingModuleView module;
 
     /**
      * List of recipes which can be assigned.
@@ -79,13 +75,10 @@ public class WindowListRecipes extends AbstractModuleWindow
 
     /**
      * The constructor of the window.
-     * @param view the building view.
-     * @param name the layout file.
      */
-    public WindowListRecipes(final IBuildingView view, final String name, final CraftingModuleView module)
+    public WindowListRecipes(final CraftingModuleView module)
     {
-        super(view, name);
-        this.module = module;
+        super(module, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
         recipeList = findPaneOfTypeByID(RECIPE_LIST, ScrollingList.class);
         recipeStatus = findPaneOfTypeByID(RECIPE_STATUS, Text.class);
 
@@ -107,8 +100,8 @@ public class WindowListRecipes extends AbstractModuleWindow
     private void toggleRecipe(final Button button)
     {
         final int row = recipeList.getListElementIndexByPane(button);
-        module.toggle(row);
-        Network.getNetwork().sendToServer(new ToggleRecipeMessage(buildingView, row, module.getProducer().getRuntimeID()));
+        moduleView.toggle(row);
+        Network.getNetwork().sendToServer(new ToggleRecipeMessage(buildingView, row, moduleView.getProducer().getRuntimeID()));
     }
 
     /**
@@ -119,8 +112,8 @@ public class WindowListRecipes extends AbstractModuleWindow
     {
         final boolean shift = InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
         final int row = recipeList.getListElementIndexByPane(button);
-        module.switchOrder(row, row + 1, shift);
-        Network.getNetwork().sendToServer(new ChangeRecipePriorityMessage(buildingView, row, false, module.getProducer().getRuntimeID(), shift));
+        moduleView.switchOrder(row, row + 1, shift);
+        Network.getNetwork().sendToServer(new ChangeRecipePriorityMessage(buildingView, row, false, moduleView.getProducer().getRuntimeID(), shift));
         recipeList.refreshElementPanes();
     }
 
@@ -132,8 +125,8 @@ public class WindowListRecipes extends AbstractModuleWindow
     {
         final boolean shift = InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
         final int row = recipeList.getListElementIndexByPane(button);
-        module.switchOrder(row, row - 1, shift);
-        Network.getNetwork().sendToServer(new ChangeRecipePriorityMessage(buildingView, row, true, module.getProducer().getRuntimeID(), shift));
+        moduleView.switchOrder(row, row - 1, shift);
+        Network.getNetwork().sendToServer(new ChangeRecipePriorityMessage(buildingView, row, true, moduleView.getProducer().getRuntimeID(), shift));
         recipeList.refreshElementPanes();
     }
 
@@ -144,8 +137,8 @@ public class WindowListRecipes extends AbstractModuleWindow
     private void removeClicked(final Button button)
     {
         final int row = recipeList.getListElementIndexByPane(button);
-        final IRecipeStorage data = module.getRecipes().get(row);
-        Network.getNetwork().sendToServer(new AddRemoveRecipeMessage(buildingView, true, data, module.getProducer().getRuntimeID()));
+        final IRecipeStorage data = moduleView.getRecipes().get(row);
+        Network.getNetwork().sendToServer(new AddRemoveRecipeMessage(buildingView, true, data, moduleView.getProducer().getRuntimeID()));
     }
 
     /**
@@ -153,13 +146,13 @@ public class WindowListRecipes extends AbstractModuleWindow
      */
     public void craftingClicked()
     {
-        if (!module.isRecipeAlterationAllowed())
+        if (!moduleView.isRecipeAlterationAllowed())
         {
             // This should never happen, because the button is hidden. But if someone glitches into the interface, stop him here.
             return;
         }
 
-        module.openCraftingGUI();
+        moduleView.openCraftingGUI();
     }
 
     @Override
@@ -174,13 +167,13 @@ public class WindowListRecipes extends AbstractModuleWindow
             @Override
             public int getElementCount()
             {
-                return module.getRecipes().size();
+                return moduleView.getRecipes().size();
             }
 
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                @NotNull final IRecipeStorage recipe = module.getRecipes().get(index);
+                @NotNull final IRecipeStorage recipe = moduleView.getRecipes().get(index);
                 final ItemIcon icon = rowPane.findPaneOfTypeByID(OUTPUT_ICON, ItemIcon.class);
                 List<ItemStack> displayStacks = recipe.getRecipeType().getOutputDisplayStacks();
                 icon.setItem(displayStacks.get((lifeCount / LIFE_COUNT_DIVIDER) % (displayStacks.size())));
@@ -188,7 +181,7 @@ public class WindowListRecipes extends AbstractModuleWindow
                 final Button removeButton = rowPane.findPaneOfTypeByID(BUTTON_REMOVE, Button.class);
                 if (removeButton != null)
                 {
-                    if (module.isRecipeAlterationAllowed())
+                    if (moduleView.isRecipeAlterationAllowed())
                     {
                         removeButton.on();
                         if (recipe.getRecipeSource() != null && !Screen.hasControlDown())
@@ -224,11 +217,11 @@ public class WindowListRecipes extends AbstractModuleWindow
                     //intermediate.setVisible(true);
                 }
 
-                if (module.isDisabled(recipe))
+                if (moduleView.isDisabled(recipe))
                 {
                     rowPane.findPaneOfTypeByID("gradient", Gradient.class).setVisible(true);
                     rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setText(Component.translatable("com.minecolonies.coremod.gui.recipe.enable"));
-                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setVisible(module.getActiveRecipes() < module.getMaxRecipes());
+                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setVisible(moduleView.getActiveRecipes() < moduleView.getMaxRecipes());
                 }
                 else
                 {
@@ -295,7 +288,7 @@ public class WindowListRecipes extends AbstractModuleWindow
         {
             lifeCount++;
         }
-        recipeStatus.setText(Component.translatable(TranslationConstants.RECIPE_STATUS, module.getActiveRecipes(), module.getMaxRecipes()));
+        recipeStatus.setText(Component.translatable(TranslationConstants.RECIPE_STATUS, moduleView.getActiveRecipes(), moduleView.getMaxRecipes()));
         window.findPaneOfTypeByID(RECIPE_LIST, ScrollingList.class).refreshElementPanes();
     }
 }
