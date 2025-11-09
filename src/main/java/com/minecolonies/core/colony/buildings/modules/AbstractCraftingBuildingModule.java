@@ -1087,13 +1087,6 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
 
             if (!hasFuel)
             {
-                for (final ItemStorage fuel : fuelList)
-                {
-                    if (stackPredicate.test(fuel.getItemStack()))
-                    {
-                        return super.getFirstFulfillableRecipe(stackPredicate, count, considerReservation);
-                    }
-                }
                 return null;
             }
             return super.getFirstFulfillableRecipe(stackPredicate, count, considerReservation);
