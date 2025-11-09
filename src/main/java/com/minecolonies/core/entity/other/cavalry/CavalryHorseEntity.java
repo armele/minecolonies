@@ -17,7 +17,6 @@ import com.minecolonies.core.entity.ai.cavalry.ReturnToStableGoal;
 import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
-import com.minecolonies.core.entity.pathfinding.navigation.IMinecoloniesPather;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -58,7 +57,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
-public class CavalryHorseEntity extends Horse implements IMinecoloniesPather
+public class CavalryHorseEntity extends Horse
 {
     private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
 
