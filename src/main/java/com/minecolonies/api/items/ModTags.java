@@ -132,7 +132,7 @@ public class ModTags
         initCrafterRules(TagConstants.CRAFTING_SAWMILL);
         initCrafterRules(TagConstants.CRAFTING_STONEMASON);
         initCrafterRules(TagConstants.CRAFTING_STONE_SMELTERY);
-
+        initCrafterRules(TagConstants.CRAFTING_DAIRYWORKER);
         initCrafterRules(TagConstants.CRAFTING_REDUCEABLE);
     }
 

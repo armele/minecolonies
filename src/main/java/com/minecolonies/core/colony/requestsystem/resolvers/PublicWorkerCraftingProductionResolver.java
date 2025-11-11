@@ -1,6 +1,7 @@
 package com.minecolonies.core.colony.requestsystem.resolvers;
 
 import com.google.common.collect.Lists;
+import com.ldtteam.blockui.mod.Log;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -156,7 +157,7 @@ public class PublicWorkerCraftingProductionResolver extends AbstractCraftingProd
         {
             return false;
         }
-
+        
         //Check if we even have a worker available
         return building.getModuleMatching(CraftingWorkerBuildingModule.class, m -> m.getJobEntry() == getJobEntry()).getAssignedCitizen()
                  .stream()

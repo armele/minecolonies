@@ -1,18 +1,24 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
+import com.ldtteam.blockui.mod.Log;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.modules.IBuildingEventsModule;
 import com.minecolonies.api.colony.buildings.modules.IHasRequiredItemsModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.jobs.ModJobs;
+import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requestable.IDeliverable;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.GenericRecipe;
 import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.ModItems;
+import com.minecolonies.api.util.CraftingUtils;
+import com.minecolonies.api.util.constant.TagConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
+import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
@@ -282,6 +288,38 @@ public class BuildingCowboy extends AbstractBuilding
         public void onStewed()
         {
             ++this.currentStew;
+        }
+    }
+
+    public static class CraftingModule extends AbstractCraftingBuildingModule.Crafting
+    {
+        /**
+         * Create a new module.
+         *
+         * @param jobEntry the entry of the job.
+         */
+        public CraftingModule(final JobEntry jobEntry)
+        {
+            super(jobEntry);
+        }
+
+
+        /**
+         * Check if the recipe is compatible with this module.
+         * First, it checks if the recipe is compatible with the super module.
+         * If not, it returns false.
+         * If it is, it checks if the recipe is allowed based on its tags.
+         * If it is, it returns the value of the tag. If not, it returns false.
+         * @param recipe the recipe to check.
+         * @return true if the recipe is compatible, false otherwise.
+         */
+        @Override
+        public boolean isRecipeCompatible(@NotNull final IGenericRecipe recipe)
+        {
+            final Optional<Boolean> isRecipeAllowed = CraftingUtils.isRecipeCompatibleBasedOnTags(recipe, TagConstants.CRAFTING_DAIRYWORKER);
+            if (isRecipeAllowed.isPresent()) return isRecipeAllowed.get();
+
+            return false;
         }
     }
 }

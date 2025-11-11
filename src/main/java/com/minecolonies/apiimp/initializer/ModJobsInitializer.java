@@ -96,6 +96,12 @@ public final class ModJobsInitializer
           .setRegistryName(ModJobs.COWBOY_ID)
           .createJobEntry());
 
+        ModJobs.dairyworker = register(DEFERRED_REGISTER, ModJobs.DAIRYWORKER_ID.getPath(), () -> new JobEntry.Builder()
+          .setJobProducer(JobDairyworker::new)
+          .setJobViewProducer(() -> CrafterJobView::new)
+          .setRegistryName(ModJobs.DAIRYWORKER_ID)
+          .createJobEntry());
+
         ModJobs.swineHerder = register(DEFERRED_REGISTER, ModJobs.SWINE_HERDER_ID.getPath(), () -> new JobEntry.Builder()
           .setJobProducer(JobSwineHerder::new)
           .setJobViewProducer(() -> DefaultJobView::new)

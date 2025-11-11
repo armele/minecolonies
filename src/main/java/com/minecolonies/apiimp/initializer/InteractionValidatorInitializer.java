@@ -360,5 +360,9 @@ public class InteractionValidatorInitializer
 
         InteractionValidatorRegistry.registerStandardPredicate(Component.translatable(QUARRY_MINER_FINISHED_QUARRY),
           citizen -> citizen.getJob() instanceof JobQuarrier &&  ((JobQuarrier) citizen.getJob()).findQuarry() != null && ((JobQuarrier) citizen.getJob()).findQuarry().getFirstModuleOccurance(QuarryModule.class).isFinished());
+
+        InteractionValidatorRegistry.registerStandardPredicate(Component.translatable(NO_COWS),
+          citizen -> citizen.getWorkBuilding() instanceof BuildingCowboy && citizen.getJob(JobDairyworker.class).checkForCowInteraction());
+
     }
 }

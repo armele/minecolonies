@@ -325,6 +325,8 @@ public final class TranslationConstants
     @NonNls
     public static final String NO_BEES                                                              = "entity.beekeeper.messagenobees";
     @NonNls
+    public static final String NO_COWS                                                              = "entity.dairyworker.nocows";
+    @NonNls
     public static final String NO_COMPOST                                                           = "com.minecolonies.coremod.florist.nocompost";
     @NonNls
     public static final String NEEDS_BETTER_HUT                                                     = "entity.miner.messagerequiresbetterhut";

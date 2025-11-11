@@ -176,6 +176,12 @@ public class BuildingModules
       new BuildingEntry.ModuleProducer<>("cowherder_work",
         () -> new WorkerBuildingModule(ModJobs.cowboy.get(), Skill.Athletics, Skill.Stamina, false, (b) -> 1),
         () -> WorkerBuildingModuleView::new);
+
+    public static final BuildingEntry.ModuleProducer<CraftingWorkerBuildingModule, WorkerBuildingModuleView> DAIRYWORKER_WORK      =
+      new BuildingEntry.ModuleProducer<>("dairyworker_work",
+        () -> new CraftingWorkerBuildingModule(ModJobs.dairyworker.get(), Skill.Focus, Skill.Knowledge, false, (b) -> 1, Skill.Knowledge, Skill.Focus),
+      () -> WorkerBuildingModuleView::new);
+
     public static final BuildingEntry.ModuleProducer<SettingsModule,SettingsModuleView> COWHERDER_SETTINGS  =
       new BuildingEntry.ModuleProducer<>("cowherder_settings", () -> new SettingsModule().with(AbstractBuilding.BREEDING, new BoolSetting(true))
         .with(BuildingCowboy.MILKING_AMOUNT, new IntSetting(1))
@@ -358,6 +364,9 @@ public class BuildingModules
         Skill.Athletics), () -> WorkerBuildingModuleView::new);
     public static final BuildingEntry.ModuleProducer<BuildingStoneSmeltery.SmeltingModule,CraftingModuleView> STONESMELTER_SMELTING =
       new BuildingEntry.ModuleProducer<>("stonesmelter_smelting", () -> new BuildingStoneSmeltery.SmeltingModule(ModJobs.stoneSmeltery.get()), () -> CraftingModuleView::new);
+
+    public static final BuildingEntry.ModuleProducer<BuildingCowboy.CraftingModule,CraftingModuleView> DAIRYWORKER_CRAFT       =
+      new BuildingEntry.ModuleProducer<>("dairyworker_craft", () -> new BuildingCowboy.CraftingModule(ModJobs.dairyworker.get()), () -> CraftingModuleView::new);
 
     /**
      * Storage

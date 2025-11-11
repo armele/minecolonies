@@ -223,6 +223,8 @@ public class DefaultItemTagsProvider extends ItemTagsProvider
           .add(Items.GLISTERING_MELON_SLICE)
           .add(Items.BOW, Items.CROSSBOW);
 
+
+          
         tag(ModTags.crafterIngredient.get(TagConstants.CRAFTING_COOK))
           .addTag(ItemTags.FISHES)
           .add(Items.BEEF)
@@ -235,22 +237,16 @@ public class DefaultItemTagsProvider extends ItemTagsProvider
           .add(Items.DRIED_KELP)
           .add(Items.DRIED_KELP_BLOCK)
           .add(Items.EGG)
-          .add(ModItems.large_milk_bottle)
-          .add(ModItems.large_soy_milk_bottle)
-          .add(ModItems.large_water_bottle)
-          .add(Items.MILK_BUCKET);
+          .add(ModItems.large_water_bottle);
 
         tag(ModTags.crafterIngredientExclusions.get(TagConstants.CRAFTING_COOK))
           .addTag(Tags.Items.CROPS_WHEAT);
         tag(ModTags.crafterProduct.get(TagConstants.CRAFTING_COOK))
           .add(ModItems.baked_salmon)
-          .add(ModItems.butter)
           .add(ModItems.cabochis)
-          .add(ModItems.cheddar_cheese)
           .add(ModItems.congee)
           .add(ModItems.cooked_rice)
           .add(ModItems.eggplant_dolma)
-          .add(ModItems.feta_cheese)
           .add(ModItems.lamb_stew)
           .add(ModItems.pasta_plain)
           .add(ModItems.pasta_tomato)
@@ -259,7 +255,6 @@ public class DefaultItemTagsProvider extends ItemTagsProvider
           .add(ModItems.raw_noodle)
           .add(ModItems.rice_ball)
           .add(ModItems.tofu)
-          .add(ModItems.creamcheese)
           .add(ModItems.soysauce)
           .add(ModItems.cheese_ravioli)
           .add(ModItems.chicken_broth)
@@ -274,7 +269,6 @@ public class DefaultItemTagsProvider extends ItemTagsProvider
           .add(ModItems.potato_soup)
           .add(ModItems.squash_soup)
           .add(ModItems.veggie_ravioli)
-          .add(ModItems.yogurt)
           .add(ModItems.baked_salmon)
           .add(ModItems.eggdrop_soup)
           .add(ModItems.fish_n_chips)
@@ -300,6 +294,16 @@ public class DefaultItemTagsProvider extends ItemTagsProvider
           .addTags(ModTags.concretePowderItems);
         tag(ModTags.crafterProduct.get(TagConstants.CRAFTING_DYER_SMELTING))
           .addTag(Tags.Items.DYES);
+
+        tag(ModTags.crafterIngredient.get(TagConstants.CRAFTING_DAIRYWORKER))
+          .add(ModItems.large_milk_bottle)
+          .add(ModItems.large_soy_milk_bottle)
+          .add(Items.MILK_BUCKET);
+        tag(ModTags.crafterIngredientExclusions.get(TagConstants.CRAFTING_DAIRYWORKER));
+        tag(ModTags.crafterProductExclusions.get(TagConstants.CRAFTING_DAIRYWORKER))
+          .addTag(ModTags.crafterProduct.get(TagConstants.CRAFTING_BAKER))
+          .addTag(ModTags.crafterProduct.get(TagConstants.CRAFTING_COOK));
+        tag(ModTags.crafterProductExclusions.get(TagConstants.CRAFTING_DAIRYWORKER));
 
         com.ldtteam.domumornamentum.block.ModBlocks.getInstance().getExtraTopBlocks().stream()
           .filter(f -> f.getType().getColor() != null)

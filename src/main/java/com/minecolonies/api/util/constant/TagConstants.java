@@ -68,7 +68,7 @@ public final class TagConstants
     public static final String CRAFTING_STONEMASON = ModJobs.STONEMASON_ID.getPath();
     public static final String CRAFTING_STONE_SMELTERY = ModJobs.STONE_SMELTERY_ID.getPath();
     public static final String CRAFTING_REDUCEABLE = "reduceable";      // recipe improvement
-
+    public static final String CRAFTING_DAIRYWORKER = ModJobs.DAIRYWORKER_ID.getPath();
     /**
      * Private constructor to hide implicit public one.
      */

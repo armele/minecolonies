@@ -22,6 +22,7 @@ public final class ModJobs
     public static final ResourceLocation COOK_ID           = new ResourceLocation(Constants.MOD_ID, "cook");
     public static final ResourceLocation SHEPHERD_ID       = new ResourceLocation(Constants.MOD_ID, "shepherd");
     public static final ResourceLocation COWBOY_ID         = new ResourceLocation(Constants.MOD_ID, "cowboy");
+    public static final ResourceLocation DAIRYWORKER_ID    = new ResourceLocation(Constants.MOD_ID, "dairyworker");
     public static final ResourceLocation SWINE_HERDER_ID   = new ResourceLocation(Constants.MOD_ID, "swineherder");
     public static final ResourceLocation CHICKEN_HERDER_ID = new ResourceLocation(Constants.MOD_ID, "chickenherder");
     public static final ResourceLocation SMELTER_ID = new ResourceLocation(Constants.MOD_ID, "smelter");
@@ -73,6 +74,7 @@ public final class ModJobs
     public static RegistryObject<JobEntry> cook;
     public static RegistryObject<JobEntry> shepherd;
     public static RegistryObject<JobEntry> cowboy;
+    public static RegistryObject<JobEntry> dairyworker;
     public static RegistryObject<JobEntry> swineHerder;
     public static RegistryObject<JobEntry> chickenHerder;
     public static RegistryObject<JobEntry> smelter;
