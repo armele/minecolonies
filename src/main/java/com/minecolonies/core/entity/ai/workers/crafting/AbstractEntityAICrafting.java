@@ -571,9 +571,6 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
                     return START_WORKING;
                 }
                 recordCraftingBuildingStats(currentRequest, currentRecipeStorage);
-
-                currentRequest.addDelivery(currentRecipeStorage.getPrimaryOutput());
-
                 for (final ItemStack addedStack : addedStacks)
                 {
                     if (ItemStackUtils.compareItemStacksIgnoreStackSize(currentRecipeStorage.getPrimaryOutput(), addedStack))
