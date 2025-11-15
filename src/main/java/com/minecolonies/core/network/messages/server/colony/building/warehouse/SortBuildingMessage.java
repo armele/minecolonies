@@ -3,11 +3,11 @@ package com.minecolonies.core.network.messages.server.colony.building.warehouse;
 import com.ldtteam.common.network.PlayMessageType;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.ISortableBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import com.minecolonies.core.util.SortingUtils;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -15,37 +15,18 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 /**
  * Sort the specified building inventory if level greater than or equal to requiredSortLevel.
  */
-public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding>
+public class SortBuildingMessage<T extends IBuilding & ISortableBuilding> extends AbstractBuildingServerMessage<T>
 {
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "sort_building_message", SortBuildingMessage::new);
 
-    /**
-     * The required level to sort this building.
-     */
-    private int requiredSortLevel = 1;
-
-    public SortBuildingMessage(final IBuildingView building, final int requiredSortLevel)
+    public SortBuildingMessage(final IBuildingView building)
     {
         super(TYPE, building);
-        this.requiredSortLevel = requiredSortLevel;
     }
 
     protected SortBuildingMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        requiredSortLevel = buf.readInt();
-    }
-
-    /**
-     * Writes the required sort level to the buffer.
-     *
-     * @param buf The buffer being written to.
-     */
-    @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
-    {
-        super.toBytes(buf);
-        buf.writeInt(requiredSortLevel);
     }
 
     /**
@@ -59,11 +40,14 @@ public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final IBuilding building)
     {
-        if (building.getBuildingLevel() >= requiredSortLevel)
+        @SuppressWarnings("unchecked")
+        T sortableBuilding = (T) building;
+
+        if (sortableBuilding.getBuildingLevel() >= sortableBuilding.getRequiredSortLevel())
         {
             if (building.getItemHandlerCap() instanceof final CombinedItemHandler combinedInv)
             {
-                SortingUtils.sort(player.level().registryAccess(), combinedInv);
+                sortableBuilding.sort(player.level().registryAccess(), combinedInv);
             }
         }
     }

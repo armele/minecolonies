@@ -6,6 +6,7 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
+import com.minecolonies.api.colony.buildings.ISortableBuilding;
 import com.minecolonies.api.colony.buildings.workerbuildings.IWareHouse;
 import com.minecolonies.api.colony.requestsystem.resolver.IRequestResolver;
 import com.minecolonies.api.tileentities.*;
@@ -32,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Class of the warehouse building.
  */
-public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
+public class BuildingWareHouse extends AbstractBuilding implements IWareHouse, ISortableBuilding
 {
     /**
      * String describing the Warehouse.
