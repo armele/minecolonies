@@ -544,8 +544,6 @@ public interface IBuilding extends IBuildingContainer, IModuleContainer<IBuildin
 
     /**
      * Checks if the building can be sorted.
-     * Be default, this will return true if the building level is greater than or equal to {@link #DEFAULT_REQUIRED_SORT_LEVEL},
-     * and it is a warehouse.
      * @return true if the building can be sorted, false otherwise.
      */
     default public boolean canSort()
