@@ -3,7 +3,6 @@ package com.minecolonies.core.network.messages.server.colony.building.warehouse;
 import com.ldtteam.common.network.PlayMessageType;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.colony.buildings.ISortableBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.api.util.constant.Constants;
@@ -15,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 /**
  * Sort the specified building inventory if level greater than or equal to requiredSortLevel.
  */
-public class SortBuildingMessage extends AbstractBuildingServerMessage<ISortableBuilding>
+public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding>
 {
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "sort_building_message", SortBuildingMessage::new);
 
@@ -38,10 +37,9 @@ public class SortBuildingMessage extends AbstractBuildingServerMessage<ISortable
      * @param building The building that needs to be sorted.
      */
     @Override
-    protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final ISortableBuilding building)
+    protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final IBuilding building)
     {
-
-        if (building.getBuildingLevel() >= building.getRequiredSortLevel())
+        if (building.canSort())
         {
             if (building.getItemHandlerCap() instanceof final CombinedItemHandler combinedInv)
             {
