@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 /**
  * Sort the specified building inventory if level greater than or equal to requiredSortLevel.
  */
-public class SortBuildingMessage<T extends IBuilding & ISortableBuilding> extends AbstractBuildingServerMessage<T>
+public class SortBuildingMessage extends AbstractBuildingServerMessage<ISortableBuilding>
 {
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "sort_building_message", SortBuildingMessage::new);
 
@@ -38,16 +38,14 @@ public class SortBuildingMessage<T extends IBuilding & ISortableBuilding> extend
      * @param building The building that needs to be sorted.
      */
     @Override
-    protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final IBuilding building)
+    protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony, final ISortableBuilding building)
     {
-        @SuppressWarnings("unchecked")
-        T sortableBuilding = (T) building;
 
-        if (sortableBuilding.getBuildingLevel() >= sortableBuilding.getRequiredSortLevel())
+        if (building.getBuildingLevel() >= building.getRequiredSortLevel())
         {
             if (building.getItemHandlerCap() instanceof final CombinedItemHandler combinedInv)
             {
-                sortableBuilding.sort(player.level().registryAccess(), combinedInv);
+                building.sort(player.level().registryAccess(), combinedInv);
             }
         }
     }

@@ -7,7 +7,7 @@ import com.minecolonies.core.util.SortingUtils;
 
 import net.minecraft.core.HolderLookup;
 
-public interface ISortableBuilding
+public interface ISortableBuilding extends IBuilding
 {
     public final int DEFAULT_REQUIRED_SORT_LEVEL = 3;
 
