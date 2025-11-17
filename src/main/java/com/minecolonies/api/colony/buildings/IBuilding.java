@@ -23,7 +23,6 @@ import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.core.util.SortingUtils;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
@@ -36,8 +35,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
-
-import javax.annotation.Nonnull;
 
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.BASIC_TOOL_LEVEL;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
