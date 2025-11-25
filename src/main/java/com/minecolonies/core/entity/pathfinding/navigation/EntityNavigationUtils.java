@@ -1,6 +1,7 @@
 package com.minecolonies.core.entity.pathfinding.navigation;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.entity.ai.combat.threat.IThreatTableEntity;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveAwayFromLocation;
@@ -9,6 +10,7 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobRandomPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Mob;
 
 public class EntityNavigationUtils
 {
@@ -149,8 +151,8 @@ public class EntityNavigationUtils
      *
      * @return True when arrived
      */
-    public static boolean walkToPos(
-        final IMinecoloniesPather entity, final BlockPos desiredPosition,
+    public static <T extends Mob> boolean walkToPos(
+        final T entity, final BlockPos desiredPosition,
         final int distToDesired, final boolean safeDestination, final double speedFactor)
     {
         final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
@@ -284,7 +286,7 @@ public class EntityNavigationUtils
      *
      * @return True when arrived
      */
-    public static boolean walkToRandomPosAround(IMinecoloniesPather entity, final BlockPos center, final int range, final double speedFactor)
+    public static <T extends Mob> boolean walkToRandomPosAround(T entity, final BlockPos center, final int range, final double speedFactor)
     {
         final MinecoloniesAdvancedPathNavigate nav = ((MinecoloniesAdvancedPathNavigate) entity.getNavigation());
         return walkToRandomPosHelper(nav, center, range, speedFactor);
