@@ -27,22 +27,22 @@ public class ModEquipmentTypes
 {
     public final static DeferredRegister<EquipmentTypeEntry> DEFERRED_REGISTER = DeferredRegister.create(CommonMinecoloniesAPIImpl.EQUIPMENT_TYPES, Constants.MOD_ID);
 
-    public static final RegistryObject<EquipmentTypeEntry> none;
-    public static final RegistryObject<EquipmentTypeEntry> pickaxe;
-    public static final RegistryObject<EquipmentTypeEntry> shovel;
-    public static final RegistryObject<EquipmentTypeEntry> axe;
-    public static final RegistryObject<EquipmentTypeEntry> hoe;
-    public static final RegistryObject<EquipmentTypeEntry> sword;
-    public static final RegistryObject<EquipmentTypeEntry> bow;
-    public static final RegistryObject<EquipmentTypeEntry> fishing_rod;
-    public static final RegistryObject<EquipmentTypeEntry> shears;
-    public static final RegistryObject<EquipmentTypeEntry> shield;
-    public static final RegistryObject<EquipmentTypeEntry> helmet;
-    public static final RegistryObject<EquipmentTypeEntry> leggings;
-    public static final RegistryObject<EquipmentTypeEntry> chestplate;
-    public static final RegistryObject<EquipmentTypeEntry> boots;
-    public static final RegistryObject<EquipmentTypeEntry> flint_and_steel;
-    public static final RegistryObject<EquipmentTypeEntry> lead;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> none;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> pickaxe;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> shovel;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> axe;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> hoe;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> sword;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> bow;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> fishing_rod;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> shears;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> shield;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> helmet;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> leggings;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> chestplate;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> boots;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> flint_and_steel;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> lead;
 
     static
     {
