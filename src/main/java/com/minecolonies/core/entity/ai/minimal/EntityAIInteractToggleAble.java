@@ -4,6 +4,7 @@ import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.ColonyConstants;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -115,6 +116,17 @@ public class EntityAIInteractToggleAble extends Goal
     @Override
     public boolean canUse()
     {
+        // If we are a rider on a horse, we need to use our mount collision to determine if gates need to be opened.
+        if (entity.isPassenger() && entity.getVehicle() instanceof CavalryHorseEntity horse) 
+        {
+            // The horse collides, but it is the riders' path which is being followed.
+            if (horse.hadHorizontalCollission() && entity.getNavigation() instanceof GroundPathNavigation && updateTimer-- <= 0)
+            {   
+                updateTimer = 10;
+                return checkPath();
+            }
+        }
+
         // Reactive check for detected collisions
         if ((entity.hadHorizontalCollission() || entity.verticalCollision && !entity.onGround()) && updateTimer-- <= 0)
         {
