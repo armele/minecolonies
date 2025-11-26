@@ -195,6 +195,11 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
         CitizenItemUtils.damageItemInHand(user, InteractionHand.MAIN_HAND, 1);
     }
 
+    /**
+     * Gets the visible status of the guard when in combat.
+     *
+     * @return The visible status when in combat.
+     */
     protected VisibleCitizenStatus getCombatStatus()
     {
         return KNIGHT_COMBAT;
