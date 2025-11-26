@@ -191,8 +191,18 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
         }
 
         user.stopUsingItem();
-        user.getCitizenData().setVisibleStatus(KNIGHT_COMBAT);
+        user.getCitizenData().setVisibleStatus(getCombatStatus());
         CitizenItemUtils.damageItemInHand(user, InteractionHand.MAIN_HAND, 1);
+    }
+
+    /**
+     * Gets the visible status of the guard when in combat.
+     *
+     * @return The visible status when in combat.
+     */
+    protected VisibleCitizenStatus getCombatStatus()
+    {
+        return KNIGHT_COMBAT;
     }
 
     /**
@@ -252,7 +262,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
      *
      * @return attack damage
      */
-    private double getAttackDamage()
+    protected double getAttackDamage()
     {
         double addDmg = 0;
 
