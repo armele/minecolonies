@@ -2,6 +2,7 @@ package com.minecolonies.core.colony.permissions;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.permissions.*;
+import com.minecolonies.api.eventbus.events.colony.ColonyPlayerRankChangedModEvent;
 import com.minecolonies.api.util.ColonyUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Utils;
@@ -725,6 +726,7 @@ public class Permissions implements IPermissions
 
         if (player != null)
         {
+            Rank oldRank = player.getRank();
             player.setRank(rank);
 
             if (rank.isColonyManager())
@@ -737,6 +739,7 @@ public class Permissions implements IPermissions
             }
 
             markDirty();
+            IMinecoloniesAPI.getInstance().getEventBus().post(new ColonyPlayerRankChangedModEvent(colony, player, rank, oldRank));
         }
         else
         {
