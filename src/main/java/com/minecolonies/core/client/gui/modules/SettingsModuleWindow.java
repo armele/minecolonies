@@ -33,7 +33,7 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
      */
     public SettingsModuleWindow(final SettingsModuleView moduleView)
     {
-        super(moduleView, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutsettings.xml"));
+        super(moduleView, getWindowResourceLocation());
         settingsList = window.findPaneOfTypeByID(LIST_SETTINGS, ScrollingList.class);
     }
 
@@ -111,5 +111,14 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
                 setting.render(key, rowPane, moduleView, buildingView, SettingsModuleWindow.this);
             }
         });
+    }
+
+    /**
+     * Gets the resource location for the window's layout.
+     * @return the resource location
+     */
+    protected static ResourceLocation getWindowResourceLocation()
+    {
+        return new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutsettings.xml");
     }
 }
