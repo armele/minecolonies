@@ -587,7 +587,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
             {
                 if (!furnace.getItem(SMELTABLE_SLOT).isEmpty()
                     && (currentRecipeStorage == null
-                    || !ItemStackUtils.compareItemStacksIgnoreStackSize(furnace.getItem(RESULT_SLOT), currentRecipeStorage.getPrimaryOutput())))
+                    || !ItemStackUtils.compareItemStacksIgnoreStackSize(furnace.getItem(SMELTABLE_SLOT), currentRecipeStorage.getCleanedInput().get(0).getItemStack())))
                 {
                     return pos;
                 }
