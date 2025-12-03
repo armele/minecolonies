@@ -6,12 +6,12 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.research.*;
-import com.minecolonies.api.research.IResearchCost;
-import com.minecolonies.api.research.IResearchEffect;
-import com.minecolonies.api.research.IResearchEffectManager;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.*;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,6 +19,10 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.*;
@@ -158,8 +162,10 @@ public class LocalResearchTree implements ILocalResearchTree
                 colony.getResearchManager().markDirty();
                 return;
             }
-            final InvWrapper playerInv = new InvWrapper(player.getInventory());
-            if (!research.hasEnoughResources(playerInv))
+            
+            BlockPos universityPos = colony.getBuildingManager().getBestBuilding(player.getOnPos(), BuildingUniversity.class);
+
+            if (universityPos == null || !research.hasEnoughResources(player, universityPos))
             {
                 MessageUtils.format("com.minecolonies.coremod.research.costnotavailable", MutableComponent.create(research.getName())).sendTo(player);
                 SoundUtils.playErrorSound(player, player.blockPosition());
@@ -177,6 +183,17 @@ public class LocalResearchTree implements ILocalResearchTree
                     }
                 }
             }
+
+            IItemHandler univInventory = null;
+
+            BlockEntity be = player.level().getBlockEntity(universityPos);
+            if (be != null)
+            {
+                LazyOptional<IItemHandler> opt = be.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                univInventory = opt.orElse(null);
+            }
+            final InvWrapper playerInv = new InvWrapper(player.getInventory());
+
             // We know the player has the items, so now we can remove them safely.
             for (IResearchCost cost : research.getCostList())
             {
@@ -184,8 +201,26 @@ public class LocalResearchTree implements ILocalResearchTree
 
                 for (Item item : cost.getItems())
                 {
-                    final List<Integer> slotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(playerInv, stack -> stack.getItem().equals(item));
-                    for (Integer slotNum : slotsWithMaterial)
+                    if (univInventory != null)
+                    {
+                        final List<Integer> univSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(univInventory, stack -> IGlobalResearch.isResearchMatch(stack, item));
+                        for (Integer slotNum : univSlotsWithMaterial)
+                        {
+                            toRemoveLeft = toRemoveLeft - univInventory.extractItem(slotNum, toRemoveLeft, false).getCount();
+                            if (toRemoveLeft <= 0)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (toRemoveLeft <= 0)
+                    {
+                        continue;
+                    }
+                    
+                    final List<Integer> playerSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(playerInv, stack -> IGlobalResearch.isResearchMatch(stack, item));
+                    for (Integer slotNum : playerSlotsWithMaterial)
                     {
                         toRemoveLeft = toRemoveLeft - playerInv.extractItem(slotNum, toRemoveLeft, false).getCount();
                         if (toRemoveLeft <= 0)

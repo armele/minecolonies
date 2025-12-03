@@ -2,19 +2,28 @@ package com.minecolonies.core.research;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.research.*;
-import com.minecolonies.api.research.IResearchCost;
-import com.minecolonies.api.research.IResearchEffect;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.InventoryUtils;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * The implementation of the IGlobalResearch interface which represents the research on the global level.
@@ -164,12 +173,30 @@ public class GlobalResearch implements IGlobalResearch
         return uni_level >= depth;
     }
 
+    /**
+     * Checks if there are enough resources between the player inventory 
+     * and the university's inventory to start this research.
+     *
+     * @param player the player to check.
+     * @param universityPos the position of the university to check.
+     * @return true if the player has enough resources.
+     */
     @Override
-    public boolean hasEnoughResources(final IItemHandler inventory)
+    public boolean hasEnoughResources(final @Nonnull Player player, final @Nonnull BlockPos universityPos)
     {
         if (costList.isEmpty())
         {
             return true;
+        }
+
+        final IItemHandler playerInventory = new InvWrapper(Minecraft.getInstance().player.getInventory());
+        IItemHandler univInventory = null;
+
+        BlockEntity be = player.level().getBlockEntity(universityPos);
+        if (be != null)
+        {
+            LazyOptional<IItemHandler> opt = be.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+            univInventory = opt.orElse(null);
         }
 
         for (final IResearchCost ingredient : costList)
@@ -177,8 +204,16 @@ public class GlobalResearch implements IGlobalResearch
             int totalCount = 0;
             for (final Item cost : ingredient.getItems())
             {
-                final int count = InventoryUtils.getItemCountInItemHandler(inventory, stack -> stack.getItem().equals(cost));
-                totalCount += count;
+                if (univInventory != null)
+                {
+                    final int count = InventoryUtils.getItemCountInItemHandler(univInventory, stack -> IGlobalResearch.isResearchMatch(stack, cost));
+                    totalCount += count;
+                }
+                if (playerInventory != null && totalCount < ingredient.getCount())
+                {
+                    final int count = InventoryUtils.getItemCountInItemHandler(playerInventory, stack -> IGlobalResearch.isResearchMatch(stack, cost));
+                    totalCount += count;
+                }
             }
             if (totalCount < ingredient.getCount())
             {

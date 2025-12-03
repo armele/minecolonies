@@ -1,12 +1,18 @@
 package com.minecolonies.api.research;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Interface defining how a research globally is defined.
@@ -36,7 +42,7 @@ public interface IGlobalResearch
      * @param inventory the inventory to check in.
      * @return true if so
      */
-    boolean hasEnoughResources(final IItemHandler inventory);
+    boolean hasEnoughResources(final @Nonnull Player player, final @Nonnull BlockPos universityPos);
 
     /**
      * Get the cost list from the research.
@@ -192,4 +198,25 @@ public interface IGlobalResearch
      * @return the effect.
      */
     List<IResearchEffect> getEffects();
+
+    /**
+     * A stack "matches" a research ingredient if:
+     * - It has the same Item
+     * - It does NOT carry any extra NBT (enchantments, custom names, etc.)
+     */
+    public static boolean isResearchMatch(ItemStack stack, Item cost)
+    {
+        if (stack.isEmpty() || stack.getItem() != cost)
+        {
+            return false;
+        }
+
+        // Reject anything enchanted or custom-named
+        if (stack.isEnchanted() || stack.hasCustomHoverName())
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
