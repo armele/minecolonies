@@ -1,9 +1,11 @@
 package com.minecolonies.core.research;
 
 import com.google.common.collect.ImmutableList;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.research.*;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.InventoryUtils;
+import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -12,8 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -22,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nonnull;
 
 /**
  * The implementation of the IGlobalResearch interface which represents the research on the global level.
@@ -156,8 +154,9 @@ public class GlobalResearch implements IGlobalResearch
     }
 
     @Override
-    public boolean canResearch(final int uni_level, @NotNull final ILocalResearchTree localTree)
+    public boolean canResearch(@NotNull IBuilding building, @NotNull final ILocalResearchTree localTree)
     {
+        final int uni_level = building.getBuildingLevel() == building.getMaxBuildingLevel() ? Integer.MAX_VALUE : building.getBuildingLevel();
         final IGlobalResearch parentResearch = parent == null ? null : IGlobalResearchTree.getInstance().getResearch(branch, parent);
         final ILocalResearch localParentResearch = parent == null ? null : localTree.getResearch(branch, parent);
         final ILocalResearch localResearch = localTree.getResearch(this.getBranch(), this.getId());
@@ -182,7 +181,7 @@ public class GlobalResearch implements IGlobalResearch
      * @return true if the player has enough resources.
      */
     @Override
-    public boolean hasEnoughResources(final @Nonnull Player player, final @Nonnull BlockPos universityPos)
+    public boolean hasEnoughResources(final @NotNull Player player, final @NotNull BlockPos universityPos)
     {
         if (costList.isEmpty())
         {
@@ -190,28 +189,24 @@ public class GlobalResearch implements IGlobalResearch
         }
 
         final IItemHandler playerInventory = new InvWrapper(Minecraft.getInstance().player.getInventory());
-        IItemHandler univInventory = null;
 
         BlockEntity be = player.level().getBlockEntity(universityPos);
-        if (be != null)
-        {
-            LazyOptional<IItemHandler> opt = be.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            univInventory = opt.orElse(null);
-        }
 
         for (final IResearchCost ingredient : costList)
         {
             int totalCount = 0;
             for (final Item cost : ingredient.getItems())
             {
-                if (univInventory != null)
+
+                if (be != null && be instanceof TileEntityColonyBuilding)
                 {
-                    final int count = InventoryUtils.getItemCountInItemHandler(univInventory, stack -> IGlobalResearch.isResearchMatch(stack, cost));
+                    final int count = InventoryUtils.hasBuildingEnoughElseCount( (TileEntityColonyBuilding) be, stack -> IGlobalResearch.isUniversityResearchMatch(stack, cost), ingredient.getCount());
                     totalCount += count;
                 }
-                if (playerInventory != null && totalCount < ingredient.getCount())
+
+                if (totalCount < ingredient.getCount())
                 {
-                    final int count = InventoryUtils.getItemCountInItemHandler(playerInventory, stack -> IGlobalResearch.isResearchMatch(stack, cost));
+                    final int count = InventoryUtils.getItemCountInItemHandler(playerInventory, stack -> IGlobalResearch.isPlayerResearchMatch(stack, cost));
                     totalCount += count;
                 }
             }

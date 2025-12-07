@@ -12,6 +12,7 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IBuildingContainer;
+import com.minecolonies.api.colony.buildings.IBuildingInventory;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.compatibility.newstruct.BlueprintMapping;
@@ -35,7 +36,6 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -68,7 +68,7 @@ import static com.minecolonies.api.util.constant.SchematicTagConstants.BUILDING_
  * Class which handles the tileEntity of our colonyBuildings.
  */
 @SuppressWarnings("PMD.ExcessiveImports")
-public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding implements ITickable
+public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding implements ITickable, IBuildingInventory
 {
     /**
      * NBTTag to store the colony id.
@@ -757,6 +757,41 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
                 tagData.putString(TAG_NAME, location);
                 this.readSchematicDataFromNBT(teCompound);
             }
+        }
+    }
+
+    /**
+     * Get the BlockPos of the containers.
+     *
+     * @return a list of BlockPos representing the containers.
+     * If the building is null, an empty list is returned.
+     * If the building view is null, an empty list is returned.
+     * If the level is client side, the containers are retrieved from the building view.
+     * If the level is server side, the containers are retrieved from the building.
+     */
+    @Override
+    public List<BlockPos> getContainers()
+    {
+        if (getLevel() == null)
+        {
+            return Collections.emptyList();
+        }
+
+        if (getLevel().isClientSide)    
+        {
+            if (this.getBuildingView() == null)
+            {
+                return Collections.emptyList();
+            }
+            return this.getBuildingView().getContainers();
+        }
+        else
+        {   
+            if (building == null)
+            {
+                return Collections.emptyList();
+            }
+            return building.getContainers();
         }
     }
 }

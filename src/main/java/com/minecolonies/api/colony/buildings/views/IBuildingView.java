@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
+import com.minecolonies.api.colony.buildings.IBuildingInventory;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
@@ -14,14 +15,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.Suppression.GENERIC_WILDCARD;
 
-public interface IBuildingView extends IRequester, IModuleContainerView
+public interface IBuildingView extends IRequester, IModuleContainerView, IBuildingInventory
 {
     /**
      * Gets the id for this building.
@@ -52,13 +52,6 @@ public interface IBuildingView extends IRequester, IModuleContainerView
      * @return AbstractBuilding current level.
      */
     int getBuildingLevel();
-
-    /**
-     * Get the BlockPos of the Containers.
-     *
-     * @return containerList.
-     */
-    List<BlockPos> getContainerList();
 
     /**
      * Get the max level of the building.

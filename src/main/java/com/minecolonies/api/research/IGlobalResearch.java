@@ -6,13 +6,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.minecolonies.api.colony.buildings.IBuilding;
 import java.util.List;
-
-import javax.annotation.Nonnull;
 
 /**
  * Interface defining how a research globally is defined.
@@ -22,11 +20,11 @@ public interface IGlobalResearch
     /**
      * Check if this research can be executed at this moment.
      *
-     * @param uni_level the level of the university.
+     * @param building the university building trying to do the research.
      * @param localTree the local tree of the colony.
      * @return true if so.
      */
-    boolean canResearch(int uni_level, @NotNull final ILocalResearchTree localTree);
+    public boolean canResearch(@NotNull IBuilding building, @NotNull final ILocalResearchTree localTree);
 
     /**
      * Check if this research can be displayed in the GUI.
@@ -42,7 +40,7 @@ public interface IGlobalResearch
      * @param inventory the inventory to check in.
      * @return true if so
      */
-    boolean hasEnoughResources(final @Nonnull Player player, final @Nonnull BlockPos universityPos);
+    boolean hasEnoughResources(final @NotNull Player player, final @NotNull BlockPos universityPos);
 
     /**
      * Get the cost list from the research.
@@ -202,9 +200,9 @@ public interface IGlobalResearch
     /**
      * A stack "matches" a research ingredient if:
      * - It has the same Item
-     * - It does NOT carry any extra NBT (enchantments, custom names, etc.)
+     * - It does NOT carry enchantments, custom names, etc.
      */
-    public static boolean isResearchMatch(ItemStack stack, Item cost)
+    public static boolean isPlayerResearchMatch(ItemStack stack, Item cost)
     {
         if (stack.isEmpty() || stack.getItem() != cost)
         {
@@ -213,6 +211,20 @@ public interface IGlobalResearch
 
         // Reject anything enchanted or custom-named
         if (stack.isEnchanted() || stack.hasCustomHoverName())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * A stack "matches" a research ingredient if:
+     * - It has the same Item (even if they are enchanted or have a custom name)
+     */
+    public static boolean isUniversityResearchMatch(ItemStack stack, Item cost)
+    {
+        if (stack.isEmpty() || stack.getItem() != cost)
         {
             return false;
         }

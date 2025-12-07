@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingInventory;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
@@ -744,7 +745,7 @@ public class InventoryUtils
      * @param stack    the stack to check.
      * @return Amount of occurrences of stacks that match the given predicate.
      */
-    public static int hasBuildingEnoughElseCount(@NotNull final IBuilding provider, @NotNull final ItemStorage stack, final int count)
+    public static int hasBuildingEnoughElseCount(@NotNull final IBuildingInventory provider, @NotNull final ItemStorage stack, final int count)
     {
         int totalCount = 0;
         final Level world = provider.getColony().getWorld();
@@ -776,7 +777,7 @@ public class InventoryUtils
      * @param stack    the stack to check.
      * @return Amount of occurrences of stacks that match the given predicate.
      */
-    public static int hasBuildingEnoughElseCount(@NotNull final IBuilding provider, @NotNull final Predicate<ItemStack> stack, final int count)
+    public static int hasBuildingEnoughElseCount(@NotNull final IBuildingInventory provider, @NotNull final Predicate<ItemStack> stack, final int count)
     {
         int totalCount = 0;
         final Level world = provider.getColony().getWorld();

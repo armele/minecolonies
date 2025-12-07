@@ -11,7 +11,6 @@ import com.minecolonies.api.util.*;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,9 +18,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -142,8 +138,15 @@ public class LocalResearchTree implements ILocalResearchTree
         QuestObjectiveEventHandler.onResearchComplete(colony, id);
     }
 
+    /**
+     * Attempt to begin a research.
+     * @param player     the player(s) making the request (and to apply costs toward)
+     * @param colony     the colony doing the research
+     * @param building   the university building that the player is standing in (or null if not in a university)
+     * @param research   the research.
+     */
     @Override
-    public void attemptBeginResearch(final Player player, final IColony colony, final IGlobalResearch research)
+    public void attemptBeginResearch(final Player player, final IColony colony, final BuildingUniversity building, final IGlobalResearch research)
     {
         if (colony.getResearchManager().getResearchTree().getResearch(research.getBranch(), research.getId()) == null)
         {
@@ -162,10 +165,8 @@ public class LocalResearchTree implements ILocalResearchTree
                 colony.getResearchManager().markDirty();
                 return;
             }
-            
-            BlockPos universityPos = colony.getBuildingManager().getBestBuilding(player.getOnPos(), BuildingUniversity.class);
 
-            if (universityPos == null || !research.hasEnoughResources(player, universityPos))
+            if (!research.hasEnoughResources(player, building.getPosition()))
             {
                 MessageUtils.format("com.minecolonies.coremod.research.costnotavailable", MutableComponent.create(research.getName())).sendTo(player);
                 SoundUtils.playErrorSound(player, player.blockPosition());
@@ -184,32 +185,35 @@ public class LocalResearchTree implements ILocalResearchTree
                 }
             }
 
-            IItemHandler univInventory = null;
-
-            BlockEntity be = player.level().getBlockEntity(universityPos);
-            if (be != null)
-            {
-                LazyOptional<IItemHandler> opt = be.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                univInventory = opt.orElse(null);
-            }
             final InvWrapper playerInv = new InvWrapper(player.getInventory());
 
-            // We know the player has the items, so now we can remove them safely.
+            // We know the university or player has the items, so now we can remove them safely.
             for (IResearchCost cost : research.getCostList())
             {
                 int toRemoveLeft = cost.getCount();
 
                 for (Item item : cost.getItems())
                 {
-                    if (univInventory != null)
+                    if (building != null)
                     {
-                        final List<Integer> univSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(univInventory, stack -> IGlobalResearch.isResearchMatch(stack, item));
-                        for (Integer slotNum : univSlotsWithMaterial)
+                        final Map<IItemHandler,List<Integer>> univSlotsWithMaterial = InventoryUtils.findAllSlotsInProviderWith(building, stack -> IGlobalResearch.isUniversityResearchMatch(stack, item));
+                        if (!univSlotsWithMaterial.isEmpty())
                         {
-                            toRemoveLeft = toRemoveLeft - univInventory.extractItem(slotNum, toRemoveLeft, false).getCount();
-                            if (toRemoveLeft <= 0)
+                            for (Map.Entry<IItemHandler, List<Integer>> entry : univSlotsWithMaterial.entrySet())
                             {
-                                break;
+                                final IItemHandler univInventory = entry.getKey();
+                                for (Integer slotNum : entry.getValue())
+                                {
+                                    toRemoveLeft = toRemoveLeft - univInventory.extractItem(slotNum, toRemoveLeft, false).getCount();
+                                    if (toRemoveLeft <= 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if (toRemoveLeft <= 0)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -219,7 +223,7 @@ public class LocalResearchTree implements ILocalResearchTree
                         continue;
                     }
                     
-                    final List<Integer> playerSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(playerInv, stack -> IGlobalResearch.isResearchMatch(stack, item));
+                    final List<Integer> playerSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(playerInv, stack -> IGlobalResearch.isPlayerResearchMatch(stack, item));
                     for (Integer slotNum : playerSlotsWithMaterial)
                     {
                         toRemoveLeft = toRemoveLeft - playerInv.extractItem(slotNum, toRemoveLeft, false).getCount();
