@@ -380,7 +380,8 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
         {
             StatsUtil.trackStat(building, ANIMALS_BUTCHERED, 1);
             worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
-            incrementActionsDoneAndDecSaturation();
+            this.incrementActionsDone();
+            this.worker.decreaseSaturationForContinuousAction();
             fedRecently.remove(toKill.getUUID());
             return DECIDE;
         }
@@ -580,7 +581,8 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             return getState();
         }
 
-        incrementActionsDoneAndDecSaturation();
+        this.incrementActionsDone();
+        this.worker.decreaseSaturationForContinuousAction();
 
         return DECIDE;
     }

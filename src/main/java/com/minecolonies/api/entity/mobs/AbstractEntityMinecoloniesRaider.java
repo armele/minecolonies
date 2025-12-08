@@ -20,10 +20,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -39,7 +36,7 @@ import javax.annotation.Nullable;
 
 import static com.minecolonies.api.util.constant.ColonyManagerConstants.NO_COLONY_ID;
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
-import static com.minecolonies.api.util.constant.RaiderConstants.*;
+import static com.minecolonies.core.colony.events.raid.RaiderConstants.*;
 
 /**
  * Abstract for all raider entities.
@@ -72,6 +69,11 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     private static final int COLONY_SET_RAIDED_CHANCE = 20;
 
     /**
+     * Environmental damage cooldown in ticks
+     */
+    private static final int ENV_DAMAGE_COOLDOWN = 30;
+
+    /**
      * The New PathNavigate navigator.
      */
     protected AbstractAdvancedPathNavigate newNavigator;
@@ -84,7 +86,7 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     /**
      * Current count of ticks.
      */
-    private int currentCount = 0;
+    private int chiefSpeedCooldown = 0;
 
     /**
      * The world time when the barbarian spawns.
@@ -115,16 +117,6 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
      * Environmental damage cooldown timer
      */
     private int envDmgCooldown = 0;
-
-    /**
-     * Environmental damage interval
-     */
-    private int envDamageInterval = 5;
-
-    /**
-     * Environmental damage immunity
-     */
-    private boolean envDamageImmunity = false;
 
     /**
      * Temporary Environmental damage immunity shortly after spawning.
@@ -294,15 +286,19 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
             collisionCounter--;
         }
 
+        if (envDmgCooldown > 0)
+        {
+            envDmgCooldown--;
+        }
+
         if (level().isClientSide)
         {
             super.aiStep();
             return;
         }
 
-        if (currentTick % (random.nextInt(EVERY_X_TICKS) + 1) == 0)
+        if (++currentTick % (random.nextInt(EVERY_X_TICKS) + 1) == 0)
         {
-            envDmgCooldown--;
             if (worldTimeAtSpawn == 0)
             {
                 worldTimeAtSpawn = level().getGameTime();
@@ -329,24 +325,23 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
                 registerWithColony();
             }
 
-            if (currentCount <= 0)
+            if (--chiefSpeedCooldown <= 0)
             {
-                currentCount = COUNTDOWN_SECOND_MULTIPLIER * TIME_TO_COUNTDOWN;
+                chiefSpeedCooldown = TIME_TO_COUNTDOWN;
 
-                if (!this.getMainHandItem().isEmpty() && SPEED_EFFECT != null && this.getMainHandItem().getItem() instanceof IChiefSwordItem
-                      && MinecoloniesAPIProxy.getInstance().getConfig().getServer().raidDifficulty.get() >= BARBARIAN_HORDE_DIFFICULTY_FIVE)
+                if (!this.getMainHandItem().isEmpty() && this.getMainHandItem().getItem() instanceof IChiefSwordItem
+                    && difficulty > CHIEF_SWORD_SPEED_DIFFICULTY)
                 {
-                    RaiderMobUtils.getBarbariansCloseToEntity(this, SPEED_EFFECT_DISTANCE)
-                      .stream().filter(entity -> !entity.hasEffect(MobEffects.MOVEMENT_SPEED))
-                      .forEach(entity -> entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_MULTIPLIER)));
+                    for (AbstractEntityMinecoloniesRaider entity : RaiderMobUtils.getBarbariansCloseToEntity(this, SPEED_EFFECT_DISTANCE))
+                    {
+                        if (!entity.hasEffect(MobEffects.MOVEMENT_SPEED))
+                        {
+                            entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_MULTIPLIER));
+                        }
+                    }
                 }
             }
-            else
-            {
-                --currentCount;
-            }
         }
-        currentTick++;
 
         if (isRegistered)
         {
@@ -430,21 +425,28 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     @Override
     public boolean hurt(@NotNull final DamageSource damageSource, final float damage)
     {
-        if (damageSource.getDirectEntity() == null || damageSource.getDirectEntity() instanceof FakePlayer)
+        if (!(damageSource.getEntity() instanceof LivingEntity) || damageSource.getEntity() instanceof FakePlayer)
         {
-            if (envDamageImmunity || tempEnvDamageImmunity)
+            if (tempEnvDamageImmunity)
             {
                 return false;
             }
 
-            if (--envDmgCooldown <= 0)
-            {
-                envDmgCooldown = envDamageInterval;
-            }
-            else
+            if (envDmgCooldown > 0)
             {
                 return false;
             }
+
+            float minimumHealthPct = getMinRemainingHealthForEnvironmentalDamage((float) difficulty);
+
+            // Ignores armor/reductions
+            float healthLeftPercent = (getHealth() - damage) / getMaxHealth();
+            if (minimumHealthPct > healthLeftPercent)
+            {
+                return false;
+            }
+
+            envDmgCooldown = ENV_DAMAGE_COOLDOWN;
         }
         else if (!level().isClientSide())
         {
@@ -476,6 +478,18 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     }
 
     /**
+     * Calculates the minimum remaining health percentage for taking environmental damage in relation to difficulty value
+     *
+     * @param difficulty
+     * @return
+     */
+    protected float getMinRemainingHealthForEnvironmentalDamage(final float difficulty)
+    {
+        // 20 - 60% health left, depending on difficulty
+        return Math.min(((difficulty) / 10) + 0.2f, 0.6f);
+    }
+
+    /**
      * Set the colony to raid.
      *
      * @param colony the colony to set.
@@ -497,27 +511,6 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     {
         this.eventID = eventID;
     }
-
-    /**
-     * Sets the environmental damage interval
-     *
-     * @param interval damage interval
-     */
-    public void setEnvDamageInterval(final int interval)
-    {
-        envDamageInterval = interval;
-    }
-
-    /**
-     * Sets the immunity to environmental damage
-     *
-     * @param immunity whether immune
-     */
-    public void setEnvDamageImmunity(final boolean immunity)
-    {
-        envDamageImmunity = immunity;
-    }
-
 
     /**
      * Sets the temporary immunity to environmental damage
@@ -542,12 +535,6 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
         super.initStatsFor(baseHealth, difficulty, baseDamage);
 
         this.difficulty = difficulty;
-        this.setEnvDamageInterval((int) (BASE_ENV_DAMAGE_RESIST * difficulty));
-
-        if (difficulty >= 1.4d)
-        {
-            this.setEnvDamageImmunity(true);
-        }
     }
 
     @Override
