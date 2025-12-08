@@ -99,7 +99,6 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      * The current blockPos we're patrolling at.
      */
     protected BlockPos currentPatrolPoint = null;
-    protected BlockPos currentPatrolPoint = null;
 
     /**
      * The guard building assigned to this job.
