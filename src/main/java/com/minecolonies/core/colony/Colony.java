@@ -155,6 +155,11 @@ public class Colony implements IColony
     private final IVisitorManager visitorManager = new VisitorManager(this);
 
     /**
+     * Animal manager of the colony.
+     */
+    private final IAnimalManager animalManager = new AnimalManager(this);
+
+    /**
      * Barbarian manager of the colony.
      */
     private final IRaiderManager raidManager = new RaidManager(this);
@@ -477,6 +482,7 @@ public class Colony implements IColony
         buildingManager.cleanUpBuildings(this);
         citizenManager.onColonyTick(this);
         visitorManager.onColonyTick(this);
+        animalManager.onColonyTick(this);
         updateAttackingPlayers();
         eventManager.onColonyTick(this);
         buildingManager.onColonyTick(this);
@@ -749,6 +755,7 @@ public class Colony implements IColony
 
         citizenManager.read(compound.getCompound(TAG_CITIZEN_MANAGER));
         visitorManager.read(compound);
+        animalManager.read(compound.getCompound(TAG_ANIMAL_MANAGER));
         buildingManager.read(compound.getCompound(TAG_BUILDING_MANAGER));
 
         // Recalculate max after citizens and buildings are loaded.
@@ -915,6 +922,10 @@ public class Colony implements IColony
         compound.put(TAG_CITIZEN_MANAGER, citizenCompound);
 
         visitorManager.write(compound);
+
+        final CompoundTag animalCompound = new CompoundTag();
+        animalManager.write(animalCompound);
+        compound.put(TAG_ANIMAL_MANAGER, animalCompound);
 
         final CompoundTag graveCompound = new CompoundTag();
         graveManager.write(graveCompound);
@@ -1582,6 +1593,17 @@ public class Colony implements IColony
     public IVisitorManager getVisitorManager()
     {
         return visitorManager;
+    }
+
+    /**
+     * Get the animal manager of the colony.
+     *
+     * @return the animal manager.
+     */
+    @Override
+    public IAnimalManager getAnimalManager()
+    {
+        return animalManager;
     }
 
     /**

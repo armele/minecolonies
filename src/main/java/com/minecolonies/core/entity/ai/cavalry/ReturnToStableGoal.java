@@ -175,7 +175,7 @@ public class ReturnToStableGoal extends Goal
      */
     public BlockPos targetDestination()
     {
-        BuildingStable stable = horse.getStableBuilding();
+        BuildingStable stable = (BuildingStable) horse.getStableBuilding();
 
         if (stable == null)
         {

@@ -64,7 +64,8 @@ public final class NbtTagConstants
     public static final String TAG_DISTANCE               = "distance";
     public static final String TAG_TARGET_DISTANCE        = "targetdistance";
     public static final String TAG_CACHED_ABOVE           = "cachedabove";
-
+    public static final String TAG_ANIMAL_MANAGER         = "animalManager";
+    
     public static final String TAG_CITIZEN                = "citizen";
     public static final String TAG_HELD_ITEM_SLOT         = "HeldItemSlot";
     public static final String TAG_OFFHAND_HELD_ITEM_SLOT = "OffhandHeldItemSlot";

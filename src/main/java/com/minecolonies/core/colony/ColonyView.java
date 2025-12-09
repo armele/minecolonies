@@ -97,6 +97,8 @@ public final class ColonyView implements IColonyView
     private final Map<Integer, IVisitorViewData> visitors = new HashMap<>();
     private       String                         name     = "Unknown";
     private       ResourceKey<Level>             dimensionId;
+    //  Colony Animals
+    private final Map<Integer, IAnimalDataView>  animals = new HashMap<>();
 
     /**
      * Colony team color.
@@ -929,6 +931,40 @@ public final class ColonyView implements IColonyView
         }
     }
 
+
+    /**
+     * Handles animal view messages
+     * @param animalBuf the new data to set
+     * @param refresh if all need to be refreshed
+     */
+    @Override
+    public void handleColonyViewAnimalMessage(final FriendlyByteBuf animalBuf, final boolean refresh)
+    {
+        final Map<Integer, IAnimalDataView> animalCache = new HashMap<>(animals);
+
+        if (refresh)
+        {
+            animals.clear();
+        }
+
+        int i = animalBuf.readInt();
+        for (int j = 0; j < i; j++)
+        {
+            final int id = animalBuf.readInt();
+            final IAnimalDataView dataView;
+            if (animalCache.containsKey(id))
+            {
+                dataView = animalCache.get(id);
+            }
+            else
+            {
+                dataView = new AnimalDataView(id, this);
+            }
+            dataView.deserialize(animalBuf);
+            animals.put(dataView.getId(), dataView);
+        }
+    }
+
     /**
      * Remove a citizen from the ColonyView.
      *
@@ -1403,6 +1439,17 @@ public final class ColonyView implements IColonyView
 
     @Override
     public IVisitorManager getVisitorManager()
+    {
+        return null;
+    }
+
+    /**
+     * Gets the animal manager of the colony view.
+     *
+     * @return null in the view
+     */
+    @Override
+    public IAnimalManager getAnimalManager()
     {
         return null;
     }

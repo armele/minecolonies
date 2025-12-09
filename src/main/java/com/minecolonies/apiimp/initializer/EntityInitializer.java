@@ -148,7 +148,7 @@ public class EntityInitializer
               EntityType.Builder.of(CavalryHorseEntity::new, MobCategory.CREATURE)
                 .setTrackingRange(ENTITY_TRACKING_RANGE)
                 .setUpdateInterval(ENTITY_UPDATE_FREQUENCY)
-                .sized(CavalryHorseEntity.BASE_W, CavalryHorseEntity.BASE_H));           
+                .sized(CavalryHorseEntity.SLIM_W, CavalryHorseEntity.BASE_H));           
 
             ModEntities.MUMMY = build(registry, "mummy",
               EntityType.Builder.of(EntityMummyRaider::new, MobCategory.MONSTER)

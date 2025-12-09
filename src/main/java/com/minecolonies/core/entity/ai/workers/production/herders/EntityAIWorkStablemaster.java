@@ -236,10 +236,10 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         // ... and then train it!
         if (horseToTrain != null)
         {
-            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(worker.level, horseToTrain);
+            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level, horseToTrain);
             if (cav == null)
             {
-                Log.getLogger().info("Could not convert candidate to CavalryHorseEntity");
+                Log.getLogger().warn("Could not convert candidate to CavalryHorseEntity");
             }
             else
             {
