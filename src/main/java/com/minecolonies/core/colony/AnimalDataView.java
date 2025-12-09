@@ -1,9 +1,11 @@
 package com.minecolonies.core.colony;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class AnimalDataView implements IAnimalDataView
@@ -17,6 +19,12 @@ public class AnimalDataView implements IAnimalDataView
      * The colony view.
      */
     ColonyView colonyView;
+    
+    /**
+     * The home building of the animal.
+     */
+    @Nullable
+    private BlockPos homeBuilding;
 
     /**
      * Constructor
@@ -38,8 +46,7 @@ public class AnimalDataView implements IAnimalDataView
     @Override
     public void deserialize(@NotNull FriendlyByteBuf buf)
     {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deserialize'");
+        homeBuilding = buf.readBoolean() ? buf.readBlockPos() : null;
     }
 
     /**
@@ -53,4 +60,15 @@ public class AnimalDataView implements IAnimalDataView
         return id;
     }
     
+    /**
+     * Gets the home building of the animal. This is the building that the animal considers to be its home.
+     *
+     * @return the home building of the animal, or null if the animal does not have a home building.
+     */
+    @Override
+    @Nullable
+    public BlockPos getHomeBuilding()
+    {
+        return homeBuilding;
+    }
 }

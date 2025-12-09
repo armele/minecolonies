@@ -2,6 +2,7 @@ package com.minecolonies.api.colony;
 
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.buildings.workerbuildings.ITownHallView;
+import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.colony.permissions.ColonyPlayer;
 import com.minecolonies.api.colony.permissions.IPermissions;
@@ -415,6 +416,14 @@ public interface IColonyView extends IColony
      * @return citizen data for visitor
      */
     ICitizenDataView getVisitor(int citizenId);
+
+    /**
+     * Gets the data view for an animal
+     *
+     * @param animalId id to query
+     * @return animal data for visitor
+     */
+    IAnimalDataView getAnimal(int animalId);
 
     /**
      * Get a list of all available citizen name style options.

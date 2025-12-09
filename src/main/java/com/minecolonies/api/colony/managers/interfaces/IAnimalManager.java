@@ -1,13 +1,16 @@
 package com.minecolonies.api.colony.managers.interfaces;
 
+import java.util.List;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 /**
  * The interface for managed animals, such as Cavalry horses.
@@ -21,12 +24,24 @@ public interface IAnimalManager
     public int getCurrentAnimalCount();
 
     /**
+     * Register a civilian entity with the colony
+     *
+     * @param entity civilian to register
+     */
+    void registerAnimal(IManagedAnimal <? extends Entity> entity);
+
+    /**
      * Get the animal data by ID.
      *
      * @param id The animal ID.
      * @return The animal data, or null if not found.
      */
     public IAnimalData getAnimal(final int id);
+
+    /**
+     * Get all managed animals.
+     */
+    public List<IAnimalData> getAnimals();
 
     /**
      * The colony this manager belongs to.

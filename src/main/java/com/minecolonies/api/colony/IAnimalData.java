@@ -1,9 +1,11 @@
 package com.minecolonies.api.colony;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +24,13 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      * @return the animal data ID
     */
     public int getId();
+
+    /**
+     * Get the globally unique identifier associated with this animal data.
+     *
+     * @return the globally unique identifier associated with this animal data.
+     */
+    public UUID getUUID();
 
     /**
      * Initializes the entities values from animal data.
@@ -55,9 +64,35 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
     public boolean isDirty();
 
     /**
+     * Mark this animal data as dirty and in need of syncing / saving.
+     */
+    public void markDirty();
+
+    /**
      * Writes the animal data to a byte buf for transition.
      *
      * @param buf Buffer to write to.
      */
     void serializeViewNetworkData(@NotNull FriendlyByteBuf buf);
+
+    /**
+     * Gets the home building of the animal.
+     * 
+     * @return the home building, or null if the animal does not have a home building.
+     */
+    public IBuilding getHomeBuilding();
+
+    /**
+     * Sets the home building of the animal.
+     * 
+     * @param building the new home building of the animal.
+     */
+    public void setHomeBuilding(@NotNull IBuilding building);
+
+    /**
+     * Called when a building is removed.
+     * 
+     * @param building the building that was removed.
+     */
+    public void onRemoveBuilding(final IBuilding building);
 }

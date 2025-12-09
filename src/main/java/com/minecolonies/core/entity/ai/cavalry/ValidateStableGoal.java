@@ -31,17 +31,14 @@ public class ValidateStableGoal extends Goal
     public boolean canUse()
     {
         if (cooldown-- > 0) return false;
-        if (!horse.getStablePos().isPresent()) return true;
-        if (horse.getStablePos().get() == BlockPos.ZERO) return true;
+        if (horse.getAnimalData() == null) return true;
+        if (horse.getAnimalData().getHomeBuilding() == BlockPos.ZERO) return true;
 
         cooldown = MAX_COOLDOWN;
         boolean validStable = false;
 
         // Verify that the position set as a stable is really still a stable.
-        BlockPos stablePos = horse.getStablePos().get();
-
-        IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(horse.level(), stablePos);
-        IBuilding stable = colony.getBuildingManager().getBuilding(stablePos);
+        IBuilding stable = horse.getAnimalData().getHomeBuilding();
     
         if (stable != null && stable instanceof BuildingStable)
         {
@@ -72,7 +69,9 @@ public class ValidateStableGoal extends Goal
     {
         IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(horse.level(), horse.getOnPos());
         BlockPos stablePos = colony.getBuildingManager().getBestBuilding(horse.getOnPos(), BuildingStable.class);
-        horse.setStable(stablePos, horse.level().dimension());
+        IBuilding building = colony.getBuildingManager().getBuilding(stablePos);
+
+        horse.getAnimalData().setHomeBuilding(building);
 
         Log.getLogger().info("ValidateStableGoal - set stable position for horse {}: {}", horse.getUUID(), stablePos);
     }

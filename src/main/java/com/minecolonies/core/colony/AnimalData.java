@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
@@ -33,6 +34,12 @@ public class AnimalData implements IAnimalData
      * The colony the citizen belongs to.
      */
     private final IColony colony;
+
+    /**
+     * The home building of the citizen.
+     */
+    @Nullable
+    private IBuilding homeBuilding;
 
     /**
      * The entity associated with this citizen.
@@ -114,6 +121,11 @@ public class AnimalData implements IAnimalData
     {
         // TODO: Serialize any additional view-bound data here
         // Must match deserialization on the view side.
+        buf.writeBoolean(homeBuilding != null);
+        if (homeBuilding != null)
+        {
+            buf.writeBlockPos(homeBuilding.getID());
+        }
     }
 
     @Override
@@ -131,6 +143,17 @@ public class AnimalData implements IAnimalData
     public int getId()
     {
         return id;
+    }
+
+    /**
+     * Gets the globally unique identifier associated with this animal data.
+     *
+     * @return the globally unique identifier associated with this animal data.
+     */
+    @Override
+    public UUID getUUID()
+    {
+        return uuid;
     }
 
     /**
@@ -173,6 +196,16 @@ public class AnimalData implements IAnimalData
     }
 
     /**
+     * Marks this animal data as dirty and in need of syncing / saving.
+     * <p>This method sets the dirty flag to true, indicating that the animal data has been modified and needs to be saved or synced with the client.</p>
+     */
+    @Override
+    public void markDirty()
+    {
+        isDirty = true;
+    }
+
+    /**
      * Clears the dirty flag for this animal data.
      * <p>This method marks the animal data as not needing to be synced with the client.</p>
      */
@@ -192,4 +225,45 @@ public class AnimalData implements IAnimalData
     {
         return isDirty;
     }
+
+    /**
+     * Get the home building of the animal.
+     * 
+     * @return the home building, or null if the animal does not have a home building.
+     */
+    @Override
+    @Nullable
+    public IBuilding getHomeBuilding()
+    {
+        return homeBuilding;
+    }
+
+    /**
+     * Sets the home building of the animal.
+     * <p>This method removes the animal from the current home building and adds it to the new home building.</p>
+     * <p>If the animal's home building is changed, the animal's bed position is reset to zero.</p>
+     * <p>If the animal's entity is present and has a null colony job, the animal's job handler model is reset to null.</p>
+     * @param building the new home building of the animal, or null to remove the animal's home building.
+     */
+    @Override
+    public void setHomeBuilding(@Nullable final IBuilding building)
+    {
+        homeBuilding = building;
+        markDirty();
+    }
+
+    /**
+     * Called when a building is removed.
+     * 
+     * @param building the building that was removed.
+     */
+    @Override
+    public void onRemoveBuilding(final IBuilding building)
+    {
+        if (homeBuilding != null && homeBuilding.getID().equals(building.getID()))
+        {
+            setHomeBuilding(null);
+        }
+    }
+
 }

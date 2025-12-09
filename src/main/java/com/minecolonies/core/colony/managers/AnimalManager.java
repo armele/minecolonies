@@ -1,8 +1,11 @@
 package com.minecolonies.core.colony.managers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +16,11 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.managers.interfaces.IAnimalManager;
+import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
+import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
+import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.EntityUtils;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.Network;
@@ -26,6 +33,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public class AnimalManager implements IAnimalManager
@@ -62,6 +70,73 @@ public class AnimalManager implements IAnimalManager
         this.colony = colony;
     }
 
+    @Override
+    public void registerAnimal(final IManagedAnimal <? extends Entity> animal)
+    {
+        Entity animalEntity = animal.getEntity();
+
+        if (animal.getId() == 0 || animalMap.get(animal.getId()) == null)
+        {
+            if (!animalEntity.isAddedToWorld())
+            {
+                Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
+            }
+
+            animalEntity.remove(Entity.RemovalReason.DISCARDED);
+            return;
+        }
+
+        final IAnimalData data = animalMap.get(animal.getId());
+
+        if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
+        {
+            if (!animalEntity.isAddedToWorld())
+            {
+                Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
+            }
+            animalEntity.remove(Entity.RemovalReason.DISCARDED);
+            return;
+        }
+
+        final Optional<IManagedAnimal <? extends Entity>> existingManagedAnimal = data.getEntity();
+
+        if (!existingManagedAnimal.isPresent())
+        {
+            data.setEntity(animal);
+            animal.setAnimalData(data);
+            return;
+        }
+
+        if (existingManagedAnimal.get() == animal)
+        {
+            return;
+        }
+
+        if (animalEntity.isAlive())
+        {
+            existingManagedAnimal.get().getEntity().remove(Entity.RemovalReason.DISCARDED);
+            data.setEntity(animal);
+            animal.setAnimalData(data);
+            return;
+        }
+
+        if (!animalEntity.isAddedToWorld())
+        {
+            Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
+        }
+
+        animalEntity.remove(Entity.RemovalReason.DISCARDED);
+    }
+
+    /**
+     * Gets a list of all animal data managed by this animal manager.
+     * 
+     * @return a list of all animal data managed by this animal manager.
+     */
+    public List<IAnimalData> getAnimals()
+    {
+        return new ArrayList<>(animalMap.values());
+    }
 
     /**
      * Get the current amount of citizens, might be bigger then {@link #getMaxCitizens()}

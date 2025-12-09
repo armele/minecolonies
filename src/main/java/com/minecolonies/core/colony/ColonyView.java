@@ -50,6 +50,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -1530,6 +1531,12 @@ public final class ColonyView implements IColonyView
     public ICitizenDataView getVisitor(final int citizenId)
     {
         return visitors.get(citizenId);
+    }
+
+    @Override
+    public IAnimalDataView getAnimal(final int animalId)
+    {
+        return animals.get(animalId);
     }
 
     @Override

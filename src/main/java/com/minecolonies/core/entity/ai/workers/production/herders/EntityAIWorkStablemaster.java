@@ -243,7 +243,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             }
             else
             {
-                cav.setStable(building.getPosition(), cav.level().dimension());
+                cav.getAnimalData().setHomeBuilding(building);
                 worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
                 StatsUtil.trackStat(building, HORSES_TRAINED, 1);
                 incrementActionsDoneAndDecSaturation();

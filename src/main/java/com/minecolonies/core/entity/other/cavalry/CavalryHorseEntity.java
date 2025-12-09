@@ -1,22 +1,27 @@
 package com.minecolonies.core.entity.other.cavalry;
 
-import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
+import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 import com.minecolonies.api.entity.ModEntities;
+import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.constant.CitizenConstants;
+import com.minecolonies.core.MineColonies;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.ai.cavalry.ReturnToStableGoal;
 import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
+import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
+import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import net.minecraft.core.BlockPos;
@@ -26,8 +31,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -63,10 +66,14 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
  */
 public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryHorseEntity>
 {
+    public static final EntityDataAccessor<Integer>  DATA_COLONY_ID       = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer>  DATA_CITIZEN_ID      = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+
     /**
      * The key used to store whether the horse is reserved for cavalry.
      */
     private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
+
 
     /** 
      * The base width and height of the horse entity. 
@@ -89,16 +96,25 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
     public static final float COMBAT_READINESS_THRESHOLD = .66f;
 
-    @Nullable
-    private BlockPos stablePos = null;
-    @Nullable
-    private ResourceKey<Level> stableDim = null;
+    /**
+     * The animal colony handler.
+     */
+    private IAnimalColonyHandler animalColonyHandler = null;
 
     /**
      * The animal data associated with this cavalry horse.
      */
     IAnimalData animalData;
 
+    /**
+     * Animal data view.
+     */
+    private IAnimalDataView animalDataView;
+
+    /**
+     * The stable position of the cavalry horse.
+     */
+    private int managedAnimalID = 0;
 
     /**
      * NBT Tags for saving/loading additional data.
@@ -135,6 +151,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super(type, level);
         this.setMaxUpStep(1.1F);
+        this.animalColonyHandler = new AnimalColonyHandler(this);
 
         debugSetUuidName();
     }
@@ -165,6 +182,41 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
 
     /**
+     * Main AI update loop for the cavalry horse entity.
+     * <p>
+     * This method is called every tick and is responsible for updating the entity's AI.
+     * It will mark the entity as dirty if it has been hurt by a player recently, and will update the client side of the citizen entity if necessary.
+     * If the entity is not on the client side, it will register the entity with the colony if necessary.
+     */
+    @Override
+    public void aiStep()
+    {
+        super.aiStep();
+
+        if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
+        {
+            animalColonyHandler.updateColonyClient();
+            if (animalColonyHandler.getColonyId() != 0 && managedAnimalID != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
+            {
+                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
+                if (colonyView != null)
+                {
+                    this.animalDataView = colonyView.getAnimal(managedAnimalID);
+                }
+            }
+        }
+        else
+        {
+            animalColonyHandler.registerWithColony(animalColonyHandler.getColonyId(), managedAnimalID);
+            if (tickCount % 500 == 0)
+            {
+                this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
+            }
+        }
+    }
+    
+
+    /**
      * Defines the synced data for this entity.
      */
     @Override
@@ -172,40 +224,30 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.defineSynchedData();
         this.entityData.define(DATA_COMBAT_CD, 0f);
+        this.entityData.define(DATA_COLONY_ID, 0);
+        this.entityData.define(DATA_CITIZEN_ID, 0);
     }
 
     /**
-     * Sets the stable position of the horse to the given position and dimension.
-     * <p>
-     * This is used to set the horse's stable position when the horse is spawned or when the horse's stable is changed.
-     * 
-     * @param pos the position of the stable
-     * @param dim the dimension of the stable
+     * Gets the accessor for the colony ID of this entity.
+     *
+     * @return the accessor for the colony ID
      */
-    public void setStable(BlockPos pos, ResourceKey<Level> dim)
+    @Override
+    public EntityDataAccessor<Integer> getColonyIdAccessor()
     {
-        this.stablePos = pos.immutable();
-        this.stableDim = dim;
+        return DATA_COLONY_ID;
     }
 
     /**
-     * Gets the stable position of the horse.
+     * Gets the accessor for the animal ID of this entity.
      * 
-     * @return the position of the stable
+     * @return the accessor for the animal ID
      */
-    public Optional<BlockPos> getStablePos()
+    @Override
+    public EntityDataAccessor<Integer> getAnimalIdAccessor()
     {
-        return Optional.ofNullable(stablePos);
-    }
-
-    /**
-     * Gets the dimension of the stable.
-     * 
-     * @return the dimension of the stable, or an empty optional if the horse does not have a stable set.
-     */
-    public Optional<ResourceKey<Level>> getStableDimension()
-    {
-        return Optional.ofNullable(stableDim);
+        return DATA_CITIZEN_ID;
     }
 
     /**
@@ -631,14 +673,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public void addAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.addAdditionalSaveData(tag);
-        if (stablePos != null)
-        {
-            tag.put(NBT_STABLE_POS, net.minecraft.nbt.NbtUtils.writeBlockPos(stablePos));
-        }
-        if (stableDim != null)
-        {
-            tag.putString(NBT_STABLE_DIM, stableDim.location().toString());
-        }
 
         tag.putFloat(NBT_COMBAT_COOLDOWN, getCombatCooldown());
     }
@@ -651,23 +685,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public void readAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(NBT_STABLE_POS))
-        {
-            stablePos = net.minecraft.nbt.NbtUtils.readBlockPos(tag.getCompound(NBT_STABLE_POS));
-        }
-        else
-        {
-            stablePos = null;
-        }
-        if (tag.contains(NBT_STABLE_DIM))
-        {
-            stableDim = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
-                new ResourceLocation(tag.getString(NBT_STABLE_DIM)));
-        }
-        else
-        {
-            stableDim = null;
-        }
 
         setCombatCooldown(tag.getFloat(NBT_COMBAT_COOLDOWN));
         debugSetUuidName();
@@ -815,15 +832,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public IBuilding getStableBuilding()
     {
-        Optional<BlockPos> opt = this.getStablePos();
-        if (opt.isEmpty()) return null;
+        IBuilding building = this.getAnimalData().getHomeBuilding();
 
-        BlockPos stablePos = opt.get();
+        if ((building == null) || !(building instanceof BuildingStable)) return null;
 
-        IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(this.level(), stablePos);
-        IBuilding stable = colony.getBuildingManager().getBuilding(stablePos);
-
-        return stable;
+        return building;
     }
 
     /**

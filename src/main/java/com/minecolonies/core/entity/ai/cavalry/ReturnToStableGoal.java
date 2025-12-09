@@ -6,13 +6,13 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import javax.annotation.Nullable;
 
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import java.util.EnumSet;
-import java.util.Optional;
 
 public class ReturnToStableGoal extends Goal
 {
@@ -71,14 +71,13 @@ public class ReturnToStableGoal extends Goal
 
         if (horse.isInStable()) return false;
 
-        Optional<BlockPos> opt = horse.getStablePos();
-        if (opt.isEmpty()) return false;
+        IBuilding building = horse.getAnimalData().getHomeBuilding();
+        if (building == null) return false;
 
-        BlockPos stable = opt.get();
-        double distSqr = horse.distanceToSqr(stable.getX() + 0.5, stable.getY() + 0.5, stable.getZ() + 0.5);
+        double distSqr = horse.distanceToSqr(building.getPosition().getX() + 0.5, building.getPosition().getY() + 0.5, building.getPosition().getZ() + 0.5);
         if (distSqr <= startDistanceSqr) return false;
 
-        targetStable = stable.immutable();
+        targetStable = building.getPosition().immutable();
         lastTarget = targetStable;
 
         return true;

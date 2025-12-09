@@ -1,7 +1,9 @@
 package com.minecolonies.api.colony.managers.interfaces;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
 public interface IAnimalDataView 
@@ -19,4 +21,12 @@ public interface IAnimalDataView
      * @return the animal id.
      */
     int getId();
+
+    /**
+     * Gets the block position of the animal's home building.
+     * 
+     * @return the block position of the home building, or null if the animal does not have a home building.
+     */
+    @Nullable
+    public BlockPos getHomeBuilding();
 }
