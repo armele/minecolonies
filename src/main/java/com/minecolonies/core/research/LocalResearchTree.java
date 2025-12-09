@@ -22,6 +22,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.minecolonies.api.research.util.ResearchConstants.MAX_DEPTH;
 import static com.minecolonies.api.research.util.ResearchConstants.TAG_RESEARCH_TREE;
@@ -185,55 +186,17 @@ public class LocalResearchTree implements ILocalResearchTree
                 }
             }
 
-            final InvWrapper playerInv = new InvWrapper(player.getInventory());
-
             // We know the university or player has the items, so now we can remove them safely.
             for (IResearchCost cost : research.getCostList())
             {
-                int toRemoveLeft = cost.getCount();
-
                 for (Item item : cost.getItems())
                 {
-                    if (building != null)
-                    {
-                        final Map<IItemHandler,List<Integer>> univSlotsWithMaterial = InventoryUtils.findAllSlotsInProviderWith(building, stack -> IGlobalResearch.isUniversityResearchMatch(stack, item));
-                        if (!univSlotsWithMaterial.isEmpty())
-                        {
-                            for (Map.Entry<IItemHandler, List<Integer>> entry : univSlotsWithMaterial.entrySet())
-                            {
-                                final IItemHandler univInventory = entry.getKey();
-                                for (Integer slotNum : entry.getValue())
-                                {
-                                    toRemoveLeft = toRemoveLeft - univInventory.extractItem(slotNum, toRemoveLeft, false).getCount();
-                                    if (toRemoveLeft <= 0)
-                                    {
-                                        break;
-                                    }
-                                }
-                                if (toRemoveLeft <= 0)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (toRemoveLeft <= 0)
-                    {
-                        continue;
-                    }
-                    
-                    final List<Integer> playerSlotsWithMaterial = InventoryUtils.findAllSlotsInItemHandlerWith(playerInv, stack -> IGlobalResearch.isPlayerResearchMatch(stack, item));
-                    for (Integer slotNum : playerSlotsWithMaterial)
-                    {
-                        toRemoveLeft = toRemoveLeft - playerInv.extractItem(slotNum, toRemoveLeft, false).getCount();
-                        if (toRemoveLeft <= 0)
-                        {
-                            break;
-                        }
-                    }
+                    ItemStorage itemsToTake = new ItemStorage(item, cost.getCount());
+                    InventoryUtils.reduceBuildingThenPlayerInventory(building,  player, itemsToTake, stack -> IGlobalResearch.isUniversityResearchMatch(stack, item), stack -> IGlobalResearch.isPlayerResearchMatch(stack, item));
                 }
+
             }
+
             MessageUtils.format(MESSAGE_RESEARCH_STARTED, MutableComponent.create(research.getName())).sendTo(player);
             research.startResearch(colony.getResearchManager().getResearchTree());
             colony.getResearchManager().markDirty();
