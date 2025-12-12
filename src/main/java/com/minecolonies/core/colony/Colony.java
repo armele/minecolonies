@@ -394,7 +394,10 @@ public class Colony implements IColony
             citizenManager.tickCitizenData(TICKS_SECOND * 3);
             return false;
         }, () -> ACTIVE, TICKS_SECOND * 3));
-
+        colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, () -> {
+            animalManager.tickAnimalData(TICKS_SECOND * 3);
+            return false;
+        }, () -> ACTIVE, TICKS_SECOND * 3));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::updateSubscribers, () -> ACTIVE, UPDATE_SUBSCRIBERS_INTERVAL));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::tickRequests, () -> ACTIVE, UPDATE_RS_INTERVAL));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::tickTravellers, () -> ACTIVE, UPDATE_TRAVELING_INTERVAL));

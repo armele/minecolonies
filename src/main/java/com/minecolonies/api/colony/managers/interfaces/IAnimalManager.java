@@ -72,6 +72,13 @@ public interface IAnimalManager
     void onColonyTick(IColony colony);
 
     /**
+     * Actions to execute on a tick.
+     *
+     * @param tickRate the event.
+     */
+    public boolean tickAnimalData(final int tickRate);
+    
+    /**
      * Mark this manager dirty, and in need of syncing / saving.
      */
     public void markDirty();

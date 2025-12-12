@@ -59,7 +59,7 @@ public class ReturnToStableGoal extends Goal
     @Override
     public boolean canUse()
     {
-        if (horse.getControllingPassenger() != null || horse.hasReservation())
+        if (horse.getControllingPassenger() != null || horse.hasReservation() || horse.getAnimalData() == null)
         {
             // Log.getLogger().info("ReturnToStable - Horse {} at {} has a rider or a reservation to be ridden and cannot run.", this.horse.getUUID(), this.horse.getOnPos());
             return false;

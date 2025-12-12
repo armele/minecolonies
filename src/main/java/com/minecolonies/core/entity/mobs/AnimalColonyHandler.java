@@ -22,15 +22,15 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
     protected boolean registered = false;
 
     /**
-     * It's colony id.
-     */
-    protected int colonyId = 0;
-
-    /**
      * The colony reference.
      */
     @Nullable
     protected IColony colony;
+
+    /**
+     * The id of the colony.
+     */
+    protected int colonyId = 0;
 
     private boolean needsClientUpdate = false;
 
@@ -59,11 +59,11 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
             return;
         }
 
-        this.colonyId = colonyID;
-        animal.setId(animalID);
+        animal.setManagedAnimalId(animalID);
 
-        if (colonyId == 0 || animal.getId() == 0)
+        if (colonyId == 0 || animal.getManagedAnimalId() == 0)
         {
+            Log.getLogger().warn(String.format("IManagedAnimal '%s' has an unassigned colony id (#%d) or animal id (#%d)", animal.getEntity().getUUID(), colonyId, animal.getManagedAnimalId()));
             animal.getEntity().remove(Entity.RemovalReason.DISCARDED);
             return;
         }
@@ -112,6 +112,11 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
     @Override
     public void setColonyId(final int colonyId)
     {
+        if (colonyId != this.colonyId)
+        {
+            colony = IColonyManager.getInstance().getColonyByWorld(colonyId, animal.getEntity().level());
+        }
+
         this.colonyId = colonyId;
     }
 
@@ -135,9 +140,9 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
             }
             colony = IColonyManager.getInstance().getColonyView(colonyId, animal.getEntity().level().dimension());
 
-            if (animal.getId() == 0)
+            if (animal.getManagedAnimalId() == 0)
             {
-                animal.setId(animal.getEntity().getEntityData().get(animal.getAnimalIdAccessor()));
+                animal.setManagedAnimalId(animal.getEntity().getEntityData().get(animal.getAnimalIdAccessor()));
             }
 
             needsClientUpdate = false;

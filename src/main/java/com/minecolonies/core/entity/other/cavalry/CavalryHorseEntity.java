@@ -14,6 +14,7 @@ import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.CitizenConstants;
+import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobCavalry;
@@ -66,8 +67,8 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
  */
 public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryHorseEntity>
 {
-    public static final EntityDataAccessor<Integer>  DATA_COLONY_ID       = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer>  DATA_CITIZEN_ID      = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer>  DATA_COLONY_ID         = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer>  DATA_MANAGED_ANIMAL_ID = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
 
     /**
      * The key used to store whether the horse is reserved for cavalry.
@@ -110,11 +111,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * Animal data view.
      */
     private IAnimalDataView animalDataView;
-
-    /**
-     * The stable position of the cavalry horse.
-     */
-    private int managedAnimalID = 0;
 
     /**
      * NBT Tags for saving/loading additional data.
@@ -196,18 +192,18 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
             animalColonyHandler.updateColonyClient();
-            if (animalColonyHandler.getColonyId() != 0 && managedAnimalID != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
+            if (animalColonyHandler.getColonyId() != 0 && getManagedAnimalId() != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
             {
                 final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
                 if (colonyView != null)
                 {
-                    this.animalDataView = colonyView.getAnimal(managedAnimalID);
+                    this.animalDataView = colonyView.getAnimal(getManagedAnimalId());
                 }
             }
         }
         else
         {
-            animalColonyHandler.registerWithColony(animalColonyHandler.getColonyId(), managedAnimalID);
+            animalColonyHandler.registerWithColony(animalColonyHandler.getColonyId(), getManagedAnimalId());
             if (tickCount % 500 == 0)
             {
                 this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
@@ -225,7 +221,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         super.defineSynchedData();
         this.entityData.define(DATA_COMBAT_CD, 0f);
         this.entityData.define(DATA_COLONY_ID, 0);
-        this.entityData.define(DATA_CITIZEN_ID, 0);
+        this.entityData.define(DATA_MANAGED_ANIMAL_ID, 0);
     }
 
     /**
@@ -247,7 +243,29 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     @Override
     public EntityDataAccessor<Integer> getAnimalIdAccessor()
     {
-        return DATA_CITIZEN_ID;
+        return DATA_MANAGED_ANIMAL_ID;
+    }
+
+    /**
+     * Get the managed animal ID of this entity.
+     *
+     * @return the managed animal ID
+     */
+    @Override
+    public int getManagedAnimalId()
+    {
+        return entityData.get(DATA_MANAGED_ANIMAL_ID);
+    }
+
+    /**
+     * Set the managed animal ID of this entity.
+     *
+     * @param id the managed animal ID
+     */
+    @Override
+    public void setManagedAnimalId(int id)
+    {
+        entityData.set(DATA_MANAGED_ANIMAL_ID, id);
     }
 
     /**
@@ -439,7 +457,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public void tick()
     {
         super.tick();
-        // logActiveGoals();
+        logActiveGoals();
 
         if (!level().isClientSide)
         {
@@ -538,6 +556,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         // If not a living vanilla horse, return null
         if (vanilla == null || !vanilla.isAlive() || vanilla.isVehicle()) return null;
 
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 1.", vanilla.getUUID());
+
         // --- Snapshot generic AbstractHorse state ---
         final boolean wasTamed = vanilla.isTamed();
         final UUID owner = vanilla.getOwnerUUID();
@@ -561,6 +581,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             variant = h.getVariant();
         }
 
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 2.", vanilla.getUUID());
+
         // Leash (if any)
         Entity leashHolder = vanilla.getLeashHolder();
 
@@ -580,6 +602,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         {
             cavSpeedAttr.setBaseValue(moveSpeed);
         }
+
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 3.", cav.getUUID());
 
         AttributeInstance cavJumpAttr = cav.getAttribute(Attributes.JUMP_STRENGTH);
         if (cavJumpAttr != null)
@@ -602,6 +626,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             cav.setVariant(variant);
         }
 
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 4.", cav.getUUID());
+
         // Name & leash
         if (customName != null)
         {
@@ -613,9 +639,15 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             cav.setLeashedTo(leashHolder, true);
         }
 
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 5.", cav.getUUID());
+
         IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData();
-        animalData.setEntity(cav);
+        cav.setManagedAnimalId(animalData.getId());
+        cav.entityData.set(DATA_COLONY_ID, colony.getID());
+        animalData.setManagedAnimal(cav);
         cav.setAnimalData(animalData);
+
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 6.", cav.getUUID());
 
         return cav;
     }
@@ -674,17 +706,55 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.addAdditionalSaveData(tag);
 
+        tag.putInt(NbtTagConstants.TAG_COLONY_ID, animalColonyHandler.getColonyId());
+        if (animalData != null)
+        {
+            tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, animalData.getId());
+        }
+
         tag.putFloat(NBT_COMBAT_COOLDOWN, getCombatCooldown());
     }
 
+
     /**
-     * Read additional data from a CompoundTag. This method reads the following additional data from the tag: - stablePos: The position
-     * of the stable block, or null if not set. - stableDim: The dimension of the stable block, or null if not set.
+     * Reads additional data from the given CompoundTag that is specific to this entity type.
+     * <p>
+     * This method is called when the entity is loaded from disk, and the data read is used to initialize the entity.
+     * <p>
+     * The data that is read is as follows:
+     * - TAG_COLONY_ID: The id of the colony that the entity is associated with.
+     * - TAG_MANAGED_ANIMALID: The id of the managed animal data that is associated with the entity.
+     * <p>
+     * If the TAG_MANAGED_ANIMALID is not present, then a new managed animal data is created and associated with the entity.
+     * Other persisted data is managed through the associated IAnimalData.
      */
     @Override
     public void readAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.readAdditionalSaveData(tag);
+
+        if (tag.contains(NbtTagConstants.TAG_COLONY_ID))
+        {
+            int colonyId = tag.getInt(NbtTagConstants.TAG_COLONY_ID);
+            animalColonyHandler.setColonyId(colonyId);
+            entityData.set(DATA_COLONY_ID, colonyId);
+
+            if (tag.contains(NbtTagConstants.TAG_MANAGED_ANIMALID))
+            {
+                setManagedAnimalId(tag.getInt(NbtTagConstants.TAG_MANAGED_ANIMALID));
+            }
+            else
+            {
+                IColony colony = animalColonyHandler.getColony();
+
+                if (colony != null)
+                {
+                    IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData();
+                    animalData.setManagedAnimal(this);
+                    this.setAnimalData(animalData); 
+                }
+            }
+        }
 
         setCombatCooldown(tag.getFloat(NBT_COMBAT_COOLDOWN));
         debugSetUuidName();
@@ -832,6 +902,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public IBuilding getStableBuilding()
     {
+        if (this.getAnimalData() == null) return null;
+
         IBuilding building = this.getAnimalData().getHomeBuilding();
 
         if ((building == null) || !(building instanceof BuildingStable)) return null;

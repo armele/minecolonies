@@ -10,10 +10,12 @@ import org.jetbrains.annotations.Nullable;
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +49,11 @@ public class AnimalData implements IAnimalData
     private boolean isDirty = false;
 
     /**
+     * The last position of the animal.
+     */
+    private BlockPos lastPosition = new BlockPos(0, 0, 0);
+
+    /**
      * Its entitity.
      */
     @NotNull
@@ -65,21 +72,39 @@ public class AnimalData implements IAnimalData
     }
 
     /**
+     * Updates the animal data.
+     * This method is called every tick and is responsible for updating the animal data.
+     * It currently does nothing, but may be used in the future for tick-based animal management.
+     * 
+     * @param tickRate the tick rate.
+     */
+    @Override
+    public void update(final int tickRate)
+    {
+        if (!getManagedAnimal().isPresent() || !getManagedAnimal().get().getEntity().isAlive())
+        {
+            return;
+        }
+
+        // No-op placeholder for future tick-based animal management
+    }
+
+    /**
      * Initializes vital entity values from animal data.
      *
      */    
     @Override
     public void initEntityValues()
     {
-        if (!getEntity().isPresent())
+        if (!getManagedAnimal().isPresent())
         {
             Log.getLogger().warn("Missing entity upon adding data to that entity!" + this, new Exception());
             return;
         }
 
-        final IManagedAnimal <? extends Entity> animal = getEntity().get();
+        final IManagedAnimal <? extends Entity> animal = getManagedAnimal().get();
 
-        // TODO: Implement initailization logic here
+        setLastPosition(animal.getEntity().blockPosition());
     }    
 
     /**
@@ -105,8 +130,29 @@ public class AnimalData implements IAnimalData
     public CompoundTag serializeNBT()
     {
         CompoundTag compoundNBT = new CompoundTag();
-        // TODO: Serialize any additional data here
+        BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_POS, getManagedAnimal().isPresent() ? getManagedAnimal().get().getEntity().blockPosition() : lastPosition);
+        BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_ANIMALHOME, homeBuilding != null ? homeBuilding.getID() : BlockPos.ZERO);
+
         return compoundNBT;
+    }
+
+
+    /**
+     * Deserializes the animal data from nbt.
+     *
+     * @param nbtTagCompound the nbt compound to read from.
+     */
+    @Override
+    public void deserializeNBT(final CompoundTag nbtTagCompound)
+    {
+        lastPosition = BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_POS);
+        BlockPos homePos = nbtTagCompound.contains(NbtTagConstants.TAG_ANIMALHOME) ? BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_ANIMALHOME) : BlockPos.ZERO;
+
+        if (!homePos.equals(BlockPos.ZERO))
+        {
+            homeBuilding = colony.getBuildingManager().getBuilding(homePos);
+        }
+
     }
 
     /**
@@ -126,12 +172,6 @@ public class AnimalData implements IAnimalData
         {
             buf.writeBlockPos(homeBuilding.getID());
         }
-    }
-
-    @Override
-    public void deserializeNBT(final CompoundTag nbtTagCompound)
-    {
-        // TODO: Deserialize any additional data here
     }
 
     /**
@@ -163,7 +203,7 @@ public class AnimalData implements IAnimalData
      */
     @Override
     @NotNull
-    public Optional<IManagedAnimal <? extends Entity>> getEntity()
+    public Optional<IManagedAnimal <? extends Entity>> getManagedAnimal()
     {
         final IManagedAnimal <? extends Entity> animal = entity.get();
 
@@ -182,7 +222,7 @@ public class AnimalData implements IAnimalData
      * @param animal the animal entity.
      */
     @Override
-    public void setEntity(@Nullable final IManagedAnimal <? extends Entity> animal)
+    public void setManagedAnimal(@Nullable final IManagedAnimal <? extends Entity> animal)
     {
         if (entity.get() != null)
         {
@@ -264,6 +304,29 @@ public class AnimalData implements IAnimalData
         {
             setHomeBuilding(null);
         }
+    }
+
+
+    /**
+     * Sets the last position of the animal.
+     * 
+     * @param lastPosition the last position of the animal.
+     */
+    @Override
+    public void setLastPosition(final BlockPos lastPosition)
+    {
+        this.lastPosition = lastPosition;
+    }
+
+    /**
+     * Gets the last position of the animal.
+     * 
+     * @return the last position of the animal.
+     */
+    @Override
+    public BlockPos getLastPosition()
+    {
+        return lastPosition;
     }
 
 }

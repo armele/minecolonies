@@ -117,7 +117,7 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
         }
         else
         {
-            colony.handleColonyViewVisitorMessage(animalBuf, refresh);
+            colony.handleColonyViewAnimalMessage(animalBuf, refresh);
         }
         animalBuf.release();
     }

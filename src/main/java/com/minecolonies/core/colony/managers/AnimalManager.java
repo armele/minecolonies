@@ -9,32 +9,20 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.minecolonies.api.colony.IAnimalData;
-import com.minecolonies.api.colony.ICitizenData;
-import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.managers.interfaces.IAnimalManager;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
-import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
-import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import com.minecolonies.api.util.EntityUtils;
 import com.minecolonies.api.util.Log;
-import com.minecolonies.api.util.MessageUtils;
-import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.AnimalData;
-import com.minecolonies.core.colony.CitizenData;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewAnimalViewDataMessage;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 
 public class AnimalManager implements IAnimalManager
 {
@@ -70,12 +58,20 @@ public class AnimalManager implements IAnimalManager
         this.colony = colony;
     }
 
+    /**
+     * Registers a managed animal with the colony.
+     * If the animal ID is 0 or the animal data associated with the ID is null, the animal is removed from the world.
+     * If the animal UUID does not match the UUID of the data, the animal is removed from the world.
+     * If an existing managed animal with the same ID is found, the existing animal is removed from the world if it is alive.
+     * If the animal is not added to the world, it is removed from the world and a warn message is logged.
+     * @param animal the managed animal to register
+     */
     @Override
     public void registerAnimal(final IManagedAnimal <? extends Entity> animal)
     {
         Entity animalEntity = animal.getEntity();
 
-        if (animal.getId() == 0 || animalMap.get(animal.getId()) == null)
+        if (animal.getManagedAnimalId() == 0 || animalMap.get(animal.getManagedAnimalId()) == null)
         {
             if (!animalEntity.isAddedToWorld())
             {
@@ -86,7 +82,7 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        final IAnimalData data = animalMap.get(animal.getId());
+        final IAnimalData data = animalMap.get(animal.getManagedAnimalId());
 
         if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
         {
@@ -98,11 +94,11 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        final Optional<IManagedAnimal <? extends Entity>> existingManagedAnimal = data.getEntity();
+        final Optional<IManagedAnimal <? extends Entity>> existingManagedAnimal = data.getManagedAnimal();
 
         if (!existingManagedAnimal.isPresent())
         {
-            data.setEntity(animal);
+            data.setManagedAnimal(animal);
             animal.setAnimalData(data);
             return;
         }
@@ -115,7 +111,7 @@ public class AnimalManager implements IAnimalManager
         if (animalEntity.isAlive())
         {
             existingManagedAnimal.get().getEntity().remove(Entity.RemovalReason.DISCARDED);
-            data.setEntity(animal);
+            data.setManagedAnimal(animal);
             animal.setAnimalData(data);
             return;
         }
@@ -159,14 +155,28 @@ public class AnimalManager implements IAnimalManager
     @Override
     public IAnimalData createAndRegisterAnimalData()
     {
-        //This ensures that IDs are getting reused.
-        //That's needed to prevent bugs when calling IDs that are not used.
-        for (int i = 1; i <= this.getCurrentAnimalCount() + 1; i++)
+
+        if (colony == null)
         {
-            if (this.getAnimal(i) == null)
+            Log.getLogger().warn("Missing colony while attempting to create and register managed animal data. This should not happen - report to devs." + this, new Exception());
+            return null;
+        }
+
+        if (this.getCurrentAnimalCount() == 0)
+        {
+            nextAnimalID = 1;
+        }
+        else
+        {
+            //This ensures that IDs are getting reused.
+            //That's needed to prevent bugs when calling IDs that are not used.
+            for (int i = 1; i <= this.getCurrentAnimalCount() + 1; i++)
             {
-                nextAnimalID = i;
-                break;
+                if (this.getAnimal(i) == null)
+                {
+                    nextAnimalID = i;
+                    break;
+                }
             }
         }
 
@@ -237,6 +247,16 @@ public class AnimalManager implements IAnimalManager
     public void onColonyTick(IColony colony)
     {
         // No-Op scaffolding for future tick-based animal management.
+    }
+
+    @Override
+    public boolean tickAnimalData(final int tickRate)
+    {
+        for (IAnimalData animalData : this.getAnimals())
+        {
+            animalData.update(tickRate);
+        }
+        return false;
     }
 
     /**

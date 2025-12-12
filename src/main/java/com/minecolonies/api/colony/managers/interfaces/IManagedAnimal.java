@@ -28,12 +28,12 @@ public interface IManagedAnimal<T extends Entity>
     /**
      * Get the unique ID of this managed animal.
      */
-    int getId();
+    int getManagedAnimalId();
 
     /**
      * Set the unique ID of this managed animal.
      */
-    void setId(final int id);
+    void setManagedAnimalId(final int id);
 
     /**
      * Get the animal data associated with this managed animal.
@@ -50,6 +50,6 @@ public interface IManagedAnimal<T extends Entity>
      */
     default int getOffsetTicks()
     {
-        return this.getEntity().tickCount + CitizenConstants.OFFSET_TICK_MULTIPLIER * this.getId();
+        return this.getEntity().tickCount + CitizenConstants.OFFSET_TICK_MULTIPLIER * this.getManagedAnimalId();
     }
 }

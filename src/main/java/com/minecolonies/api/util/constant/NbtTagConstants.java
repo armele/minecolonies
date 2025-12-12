@@ -769,6 +769,12 @@ public final class NbtTagConstants
     public static final String TAG_WORKING_OFFSET = "workingoffset";
 
     /**
+     * Managed animal related things.
+     */
+    public static final String TAG_ANIMALHOME       = "animalhome";
+    public static final String TAG_MANAGED_ANIMALID = "animalid";
+
+    /**
      * Private constructor to hide the implicit one.
      */
     private NbtTagConstants()

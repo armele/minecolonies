@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -42,14 +43,14 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      *
      * @return the animal entity.
      */
-    public Optional<IManagedAnimal <? extends Entity>> getEntity();
+    public Optional<IManagedAnimal <? extends Entity>> getManagedAnimal();
 
     /**
      * Set the animal entity.
      *
      * @param entity the animal entity.
      */
-    public void setEntity(final IManagedAnimal<? extends Entity> entity);
+    public void setManagedAnimal(final IManagedAnimal<? extends Entity> entity);
 
     /**
      * Clear the dirty flag for this animal data.
@@ -67,6 +68,13 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      * Mark this animal data as dirty and in need of syncing / saving.
      */
     public void markDirty();
+
+    /**
+     * Update the animal data.
+     *
+     * @param tickRate the tick rate
+     */
+    public void update(final int tickRate);
 
     /**
      * Writes the animal data to a byte buf for transition.
@@ -95,4 +103,18 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      * @param building the building that was removed.
      */
     public void onRemoveBuilding(final IBuilding building);
+
+    /**
+     * Sets the last position of the animal.
+     * 
+     * @param lastPosition the last position of the animal.
+     */
+    public void setLastPosition(final BlockPos lastPosition);
+
+    /**
+     * Gets the last position of the animal.
+     * 
+     * @return the last position of the animal.
+     */
+    public BlockPos getLastPosition();
 }

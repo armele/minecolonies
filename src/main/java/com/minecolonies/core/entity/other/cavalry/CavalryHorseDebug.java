@@ -47,7 +47,7 @@ public class CavalryHorseDebug
     {
         if (e.getEntity() instanceof CavalryHorseEntity ch)
         {
-            Log.getLogger().warn("CavHorse left level: {} reason={}", ch.getUUID(), ch.getRemovalReason()); // may be null sometimes
+            Log.getLogger().warn("CavHorse left level: {} reason={}; stacktrace={}", ch.getUUID(), ch.getRemovalReason(), new Exception().getStackTrace()); // may be null sometimes
         }
     }
 }
