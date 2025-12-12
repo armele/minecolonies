@@ -29,4 +29,12 @@ public interface IAnimalDataView
      */
     @Nullable
     public BlockPos getHomeBuilding();
+
+    /**
+     * Gets the combat cooldown of the animal.
+     * 
+     * @return the combat cooldown of the animal.
+     */
+    public float getCombatCooldown();
+
 }

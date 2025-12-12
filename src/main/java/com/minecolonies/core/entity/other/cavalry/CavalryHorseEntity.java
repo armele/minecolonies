@@ -113,24 +113,10 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     private IAnimalDataView animalDataView;
 
     /**
-     * NBT Tags for saving/loading additional data.
-     */
-    private static final String NBT_STABLE_POS = "stablePos";
-    private static final String NBT_STABLE_DIM = "stableDim";
-    private static final String NBT_COMBAT_COOLDOWN = "combatCooldown";
-
-    /**
      * The limit after which a reservation expires (in ticks).
      */
     private static final int RESERVATION_EXPIRATION_LIMIT = 200;
     private int reservationExpiration = 0;
-
-    /*
-     * A measure of how unprepared for combat a mount is, representing damaged equipment, morale,
-     * fatigue or other non-HP factors.
-     */
-    private static final EntityDataAccessor<Float> DATA_COMBAT_CD =
-        SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.FLOAT);
 
     /**
      * The timepoint at which the entity last collided
@@ -177,17 +163,35 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     }
 
 
+
     /**
-     * Main AI update loop for the cavalry horse entity.
-     * <p>
-     * This method is called every tick and is responsible for updating the entity's AI.
-     * It will mark the entity as dirty if it has been hurt by a player recently, and will update the client side of the citizen entity if necessary.
-     * If the entity is not on the client side, it will register the entity with the colony if necessary.
+     * This method is called by the entity every tick to update its state.
+     * It handles registration of the entity to the closest colony if it was summoned into the world via an ops command.
+     * It also handles updating the client side of the managed animal data and the animal colony handler.
      */
     @Override
     public void aiStep()
     {
         super.aiStep();
+
+        int colonyId = entityData.get(DATA_COLONY_ID);
+
+        // Log.getLogger().info("About to register with Colony. Colony id: {}, managed animal id: {}", colonyId, getManagedAnimalId());
+
+        // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
+        if (colonyId == 0)
+        {
+            if (getAnimalData() == null)
+            {
+                IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
+                if (colony != null)
+                {
+                    animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
+                    colonyId = colony.getID();
+                }
+            }
+            return;
+        }
 
         if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
@@ -197,13 +201,14 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
                 if (colonyView != null)
                 {
+                    Log.getLogger().info("Refreshing animal data view. Colony id: {}, managed animal id: {}", colonyId, getManagedAnimalId());
                     this.animalDataView = colonyView.getAnimal(getManagedAnimalId());
                 }
             }
         }
         else
         {
-            animalColonyHandler.registerWithColony(animalColonyHandler.getColonyId(), getManagedAnimalId());
+            animalColonyHandler.registerWithColony(colonyId, getManagedAnimalId());
             if (tickCount % 500 == 0)
             {
                 this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
@@ -219,7 +224,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     protected void defineSynchedData() 
     {
         super.defineSynchedData();
-        this.entityData.define(DATA_COMBAT_CD, 0f);
         this.entityData.define(DATA_COLONY_ID, 0);
         this.entityData.define(DATA_MANAGED_ANIMAL_ID, 0);
     }
@@ -257,15 +261,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         return entityData.get(DATA_MANAGED_ANIMAL_ID);
     }
 
-    /**
-     * Set the managed animal ID of this entity.
-     *
-     * @param id the managed animal ID
-     */
+
     @Override
-    public void setManagedAnimalId(int id)
-    {
-        entityData.set(DATA_MANAGED_ANIMAL_ID, id);
+    public void setManagedAnimalId(final int managedAnimalId)
+    {   
+        entityData.set(DATA_MANAGED_ANIMAL_ID, managedAnimalId);
     }
 
     /**
@@ -581,14 +581,19 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             variant = h.getVariant();
         }
 
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 2.", vanilla.getUUID());
-
         // Leash (if any)
         Entity leashHolder = vanilla.getLeashHolder();
 
-        // Convert to our entity type ---
+        // Convert to CavalryHorseEntity
         CavalryHorseEntity cav = vanilla.convertTo(ModEntities.CAVALRY_HORSE, true);
         if (cav == null) return null;
+
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 2. Colony ID: {}", vanilla.getUUID(), colony.getID());
+
+        IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData(cav);
+        cav.setAnimalData(animalData);
+
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 3. Colony ID: {}", cav.getUUID(), cav.entityData.get(DATA_COLONY_ID));
 
         // Re-apply attributes & health
         AttributeInstance cavHealthAttr = cav.getAttribute(Attributes.MAX_HEALTH);
@@ -602,8 +607,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         {
             cavSpeedAttr.setBaseValue(moveSpeed);
         }
-
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 3.", cav.getUUID());
 
         AttributeInstance cavJumpAttr = cav.getAttribute(Attributes.JUMP_STRENGTH);
         if (cavJumpAttr != null)
@@ -641,14 +644,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         Log.getLogger().info("{}: Horse lifecycle checkpoint 5.", cav.getUUID());
 
-        IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData();
-        cav.setManagedAnimalId(animalData.getId());
-        cav.entityData.set(DATA_COLONY_ID, colony.getID());
-        animalData.setManagedAnimal(cav);
-        cav.setAnimalData(animalData);
-
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 6.", cav.getUUID());
-
         return cav;
     }
 
@@ -673,12 +668,14 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     @Override
     public boolean hurt(@Nonnull DamageSource damageSource, float damageAmount)
     {
-        // TODO: Create research that provides combat cooldown mitigation
+       
+        if (level().isClientSide)
+        {
+            return true;
+        }
 
         // Percentage of damage applied to combat cooldown
         float cooldownImpact = .40f;
-
-
 
         if (damageSource.is(DamageTypeTags.IS_EXPLOSION) && damageSource.getEntity() instanceof Creeper) 
         {
@@ -692,7 +689,10 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             damageAmount *= 0.0f;
         }
 
-        setCombatCooldown(getCombatCooldown() + (damageAmount * cooldownImpact));
+        // TODO: Create research that provides combat cooldown mitigation
+        animalData.setCombatCooldown(animalData.getCombatCooldown() + (damageAmount * cooldownImpact));
+        animalData.markDirty();
+
         return super.hurt(damageSource, damageAmount);
     }
 
@@ -709,10 +709,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         tag.putInt(NbtTagConstants.TAG_COLONY_ID, animalColonyHandler.getColonyId());
         if (animalData != null)
         {
-            tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, animalData.getId());
+            tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, getManagedAnimalId());
         }
-
-        tag.putFloat(NBT_COMBAT_COOLDOWN, getCombatCooldown());
     }
 
 
@@ -749,37 +747,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
                 if (colony != null)
                 {
-                    IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData();
-                    animalData.setManagedAnimal(this);
-                    this.setAnimalData(animalData); 
+                    animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
                 }
             }
         }
 
-        setCombatCooldown(tag.getFloat(NBT_COMBAT_COOLDOWN));
         debugSetUuidName();
-    }
-
-    /**
-     * Returns the current combat cooldown of the horse. 
-     * A higher value means the horse is currently less ready for combat.
-     * 
-     * @return the current combat cooldown of the horse
-     */
-    public float getCombatCooldown()
-    {
-        return this.entityData.get(DATA_COMBAT_CD);
-    }
-
-    /**
-     * Sets the combat cooldown of the horse.
-     * 
-     * @param newCooldown the new combat cooldown of the horse
-     */
-    public void setCombatCooldown(float newCooldown) 
-    {
-        newCooldown = Math.min(newCooldown, this.getMaxHealth());
-        this.entityData.set(DATA_COMBAT_CD, Math.max(0f, newCooldown));
     }
 
     /**
@@ -790,7 +763,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public void prepareForCombat(float combatReadiness)
     {
-        setCombatCooldown(getCombatCooldown() - Math.abs(combatReadiness));
+        animalData.setCombatCooldown(animalData.getCombatCooldown() - Math.abs(combatReadiness));
     }
 
     /**
@@ -801,7 +774,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public boolean isReadyForCombat()
     {
-        return getCombatCooldown() <= (this.getMaxHealth() * COMBAT_READINESS_THRESHOLD);
+        if (animalData == null) return false;
+
+        return animalData.getCombatCooldown() <= (this.getMaxHealth() * COMBAT_READINESS_THRESHOLD);
     }
 
     /**
@@ -902,9 +877,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public IBuilding getStableBuilding()
     {
-        if (this.getAnimalData() == null) return null;
+        if (animalData == null) return null;
 
-        IBuilding building = this.getAnimalData().getHomeBuilding();
+        IBuilding building = animalData.getHomeBuilding();
 
         if ((building == null) || !(building instanceof BuildingStable)) return null;
 
@@ -945,6 +920,17 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     }
 
     /**
+     * Returns the animal data view associated with this horse.
+     *
+     * @return the animal data view associated with this horse.
+     */
+    @Override
+    public IAnimalDataView getAnimalDataView()
+    {
+        return animalDataView;
+    }
+
+    /**
      * Sets the animal data associated with this horse.
      *
      * @param data The animal data associated with this horse.
@@ -952,6 +938,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     @Override
     public void setAnimalData(IAnimalData data)
     {
+        if (data == null) 
+        {
+            Log.getLogger().warn("Attempting to set animal data to null.", new Exception());
+            return;
+        }
+
         this.animalData = data;
     }
 

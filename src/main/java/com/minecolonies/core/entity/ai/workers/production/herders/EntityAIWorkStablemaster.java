@@ -432,12 +432,12 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
             if (task == MountMaintenance.READYING)
             {   
-                float combatCooldownBefore = horse.getCombatCooldown();
+                float combatCooldownBefore = horse.getAnimalData().getCombatCooldown();
 
                 // TODO: Reasearch to influence readiness recovery rate?
                 if (stackToUse.getItem() == Items.SADDLE)
                 {
-                    horse.setCombatCooldown(0);
+                    horse.getAnimalData().setCombatCooldown(0);
                 }
                 else
                 {
@@ -445,7 +445,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                     horse.prepareForCombat(recovery);
                 }
 
-                Log.getLogger().info("Readied mount with {} from {} to {}.", stackToUse.getHoverName(), combatCooldownBefore, horse.getCombatCooldown());
+                Log.getLogger().info("Readied mount with {} from {} to {}.", stackToUse.getHoverName(), combatCooldownBefore, horse.getAnimalData().getCombatCooldown());
                 StatsUtil.trackStatByStack(building, ITEM_USED, stackToUse, 1);
 
                 stackToUse.shrink(1);
@@ -553,7 +553,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
             if (horseToRetrieve.isLeashed())
             {
-                if (!walkToBuilding()) 
+                if (!walkToSafePos(building.getNextStallPosition())) 
                 {
                     horseToRetrieve.clearRestriction();
                     horseToRetrieve.restrictTo(worker.blockPosition(), 3);
@@ -703,7 +703,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
    {
        // TODO: Research to increase the range of the stablemaster's round-up
        final BlockPos center = building.getPosition();
-       final double radius = 20.0D;
+       final double radius = 30.0D;
        final double r2 = radius * radius;
 
        // Build a cube search box once; we'll do a spherical check in the predicate.

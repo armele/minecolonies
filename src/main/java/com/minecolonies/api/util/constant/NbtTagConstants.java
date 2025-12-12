@@ -773,6 +773,8 @@ public final class NbtTagConstants
      */
     public static final String TAG_ANIMALHOME       = "animalhome";
     public static final String TAG_MANAGED_ANIMALID = "animalid";
+    public static final String TAG_COMBAT_COOLDOWN  = "combatcooldown";
+    public static final String TAG_MAX_HEALTH       = "maxhealth";
 
     /**
      * Private constructor to hide the implicit one.

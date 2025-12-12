@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
 public class AnimalData implements IAnimalData
 {
@@ -44,6 +45,16 @@ public class AnimalData implements IAnimalData
     private IBuilding homeBuilding;
 
     /**
+     * The combat readiness of the animal.
+     */
+    private float combatCooldown = 0;
+
+    /**
+     * The maximum health of the animal.
+     */
+    private float maxHealth = 0;
+
+    /**
      * The entity associated with this citizen.
      */
     private boolean isDirty = false;
@@ -57,7 +68,7 @@ public class AnimalData implements IAnimalData
      * Its entitity.
      */
     @NotNull
-    private WeakReference<IManagedAnimal <? extends Entity>> entity = new WeakReference<>(null);
+    private WeakReference<IManagedAnimal <? extends Animal>> entity = new WeakReference<>(null);
 
     /**
      * Create an AnimalData given an ID and colony.
@@ -130,8 +141,13 @@ public class AnimalData implements IAnimalData
     public CompoundTag serializeNBT()
     {
         CompoundTag compoundNBT = new CompoundTag();
+        compoundNBT.putInt(NbtTagConstants.TAG_ID, getId());
+
         BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_POS, getManagedAnimal().isPresent() ? getManagedAnimal().get().getEntity().blockPosition() : lastPosition);
         BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_ANIMALHOME, homeBuilding != null ? homeBuilding.getID() : BlockPos.ZERO);
+        compoundNBT.putFloat(NbtTagConstants.TAG_MAX_HEALTH, maxHealth);
+        compoundNBT.putFloat(NbtTagConstants.TAG_COMBAT_COOLDOWN, getCombatCooldown());
+        compoundNBT.putUUID(NbtTagConstants.TAG_UUID, uuid != null ? uuid : UUID.randomUUID());
 
         return compoundNBT;
     }
@@ -153,6 +169,10 @@ public class AnimalData implements IAnimalData
             homeBuilding = colony.getBuildingManager().getBuilding(homePos);
         }
 
+        maxHealth = nbtTagCompound.contains(NbtTagConstants.TAG_MAX_HEALTH) ? nbtTagCompound.getFloat(NbtTagConstants.TAG_MAX_HEALTH) : 0.0f;
+        setCombatCooldown(nbtTagCompound.contains(NbtTagConstants.TAG_COMBAT_COOLDOWN) ? nbtTagCompound.getFloat(NbtTagConstants.TAG_COMBAT_COOLDOWN) : 0.0f);
+        uuid = nbtTagCompound.contains(NbtTagConstants.TAG_UUID) ? nbtTagCompound.getUUID(NbtTagConstants.TAG_UUID) : UUID.randomUUID();
+
     }
 
     /**
@@ -165,13 +185,14 @@ public class AnimalData implements IAnimalData
     @Override
     public void serializeViewNetworkData(@NotNull final FriendlyByteBuf buf)
     {
-        // TODO: Serialize any additional view-bound data here
-        // Must match deserialization on the view side.
+        // Serialize any additional view-bound data here
+        // MUST match deserialization on the view side.
         buf.writeBoolean(homeBuilding != null);
         if (homeBuilding != null)
         {
             buf.writeBlockPos(homeBuilding.getID());
         }
+        buf.writeFloat(this.combatCooldown);
     }
 
     /**
@@ -203,7 +224,7 @@ public class AnimalData implements IAnimalData
      */
     @Override
     @NotNull
-    public Optional<IManagedAnimal <? extends Entity>> getManagedAnimal()
+    public Optional<IManagedAnimal <? extends Animal>> getManagedAnimal()
     {
         final IManagedAnimal <? extends Entity> animal = entity.get();
 
@@ -222,7 +243,7 @@ public class AnimalData implements IAnimalData
      * @param animal the animal entity.
      */
     @Override
-    public void setManagedAnimal(@Nullable final IManagedAnimal <? extends Entity> animal)
+    public void setManagedAnimal(@Nullable final IManagedAnimal <? extends Animal> animal)
     {
         if (entity.get() != null)
         {
@@ -231,7 +252,9 @@ public class AnimalData implements IAnimalData
 
         if (animal != null)
         {
-            entity = new WeakReference<IManagedAnimal <? extends Entity>>(animal);
+            entity = new WeakReference<IManagedAnimal <? extends Animal>>(animal);
+            uuid = animal.getEntity().getUUID();
+            maxHealth = animal.getEntity().getMaxHealth();
         }
     }
 
@@ -327,6 +350,28 @@ public class AnimalData implements IAnimalData
     public BlockPos getLastPosition()
     {
         return lastPosition;
+    }
+
+    /**
+     * Returns the current combat cooldown of the horse. 
+     * A higher value means the horse is currently less ready for combat.
+     * 
+     * @return the current combat cooldown of the horse
+     */
+    public float getCombatCooldown()
+    {
+        return combatCooldown;
+    }
+
+    /**
+     * Sets the combat cooldown of the horse.
+     * 
+     * @param newCooldown the new combat cooldown of the horse
+     */
+    public void setCombatCooldown(float newCooldown) 
+    {
+        newCooldown = Math.min(newCooldown, maxHealth);
+        combatCooldown = Math.max(0f, newCooldown);
     }
 
 }

@@ -23,6 +23,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
 public class AnimalManager implements IAnimalManager
 {
@@ -67,9 +68,11 @@ public class AnimalManager implements IAnimalManager
      * @param animal the managed animal to register
      */
     @Override
-    public void registerAnimal(final IManagedAnimal <? extends Entity> animal)
+    public void registerAnimal(final IManagedAnimal <? extends Animal> animal)
     {
         Entity animalEntity = animal.getEntity();
+
+        Log.getLogger().info("During animalManager.registerAnimal. Colony id: {}, managed animal id: {}", colony.getID(), animal.getManagedAnimalId());
 
         if (animal.getManagedAnimalId() == 0 || animalMap.get(animal.getManagedAnimalId()) == null)
         {
@@ -84,6 +87,8 @@ public class AnimalManager implements IAnimalManager
 
         final IAnimalData data = animalMap.get(animal.getManagedAnimalId());
 
+        Log.getLogger().info("During animalManager.registerAnimal UUID check. data: {}, animalEntity.UUID: {}, data.UUID {}", data, animalEntity.getUUID(), data.getUUID());
+
         if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
         {
             if (!animalEntity.isAddedToWorld())
@@ -94,10 +99,11 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        final Optional<IManagedAnimal <? extends Entity>> existingManagedAnimal = data.getManagedAnimal();
+        final Optional<IManagedAnimal <? extends Animal>> existingManagedAnimal = data.getManagedAnimal();
 
         if (!existingManagedAnimal.isPresent())
         {
+            Log.getLogger().info("During animalManager.registerAnimal: No existing managed animal.");
             data.setManagedAnimal(animal);
             animal.setAnimalData(data);
             return;
@@ -105,11 +111,13 @@ public class AnimalManager implements IAnimalManager
 
         if (existingManagedAnimal.get() == animal)
         {
+            Log.getLogger().info("During animalManager.registerAnimal: Reregistering same animal.");
             return;
         }
 
         if (animalEntity.isAlive())
         {
+            Log.getLogger().info("During animalManager.registerAnimal: Wiring up managed animal.");
             existingManagedAnimal.get().getEntity().remove(Entity.RemovalReason.DISCARDED);
             data.setManagedAnimal(animal);
             animal.setAnimalData(data);
@@ -153,7 +161,7 @@ public class AnimalManager implements IAnimalManager
      * @return The newly created animal data.
      */
     @Override
-    public IAnimalData createAndRegisterAnimalData()
+    public IAnimalData createAndRegisterAnimalData(final IManagedAnimal<? extends Animal> managedAnimal)
     {
 
         if (colony == null)
@@ -183,6 +191,11 @@ public class AnimalManager implements IAnimalManager
         final AnimalData animalData = new AnimalData(nextAnimalID, colony);
         animalMap.put(animalData.getId(), animalData);
 
+        // Create all necessary associations between the animal data and the managed animal
+        managedAnimal.setManagedAnimalId(animalData.getId());
+        managedAnimal.getEntity().getEntityData().set(managedAnimal.getColonyIdAccessor(), colony.getID());
+        animalData.setManagedAnimal(managedAnimal);
+
         return animalData;
     }
 
@@ -204,21 +217,67 @@ public class AnimalManager implements IAnimalManager
      * @param compound the compound to read it from.
      */
     @Override
-    public void read(@NotNull CompoundTag compound)
+    public void read(@NotNull final CompoundTag compound)
     {
-        if (compound.contains(TAG_ANIMAL_MANAGER))
+        // If the tag doesn't exist, don't mutate current state.
+        if (!compound.contains(TAG_ANIMAL_MANAGER, Tag.TAG_COMPOUND))
         {
-            final CompoundTag animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
-            final ListTag animalList = animalManagerNBT.getList(TAG_ANIMALS, Tag.TAG_COMPOUND);
-            for (final Tag animal : animalList)
-            {
-                final IAnimalData data = AnimalData.loadAnimalFromNBT(colony, (CompoundTag) animal);
-                animalMap.put(data.getId(), data);
-            }
+            return;
+        }
 
+        final CompoundTag animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
+
+        // Start from a clean slate so reloads don't accumulate stale entries.
+        animalMap.clear();
+
+        // Restore next id even if animals list is absent/corrupt.
+        if (animalManagerNBT.contains(TAG_NEXTID, Tag.TAG_INT))
+        {
             nextAnimalID = animalManagerNBT.getInt(TAG_NEXTID);
         }
-        markDirty();
+        else
+        {
+            nextAnimalID = 1;
+        }
+
+        // Read animals list (if present). If missing, we still keep nextAnimalID restored.
+        if (animalManagerNBT.contains(TAG_ANIMALS, Tag.TAG_LIST))
+        {
+            final ListTag animalList = animalManagerNBT.getList(TAG_ANIMALS, Tag.TAG_COMPOUND);
+
+            Log.getLogger().info("Restoring animal list with {} entries.", animalList.size());
+
+            for (int i = 0; i < animalList.size(); i++)
+            {
+                final CompoundTag animalTag = animalList.getCompound(i);
+
+                try
+                {
+                    final IAnimalData data = AnimalData.loadAnimalFromNBT(colony, animalTag);
+                    if (data == null)
+                    {
+                        Log.getLogger().warn("Skipped null animal data at index {} while reading animal manager.", i);
+                        continue;
+                    }
+
+                    final int id = data.getId();
+                    final IAnimalData prev = animalMap.put(id, data);
+                    if (prev != null)
+                    {
+                        Log.getLogger().warn("Duplicate animal id {} while reading animal manager; overwrote previous entry.", id);
+                    }
+                }
+                catch (final Exception e)
+                {
+                    // Don't abort the entire load on one bad entry.
+                    Log.getLogger().error("Failed to load animal data at index {} in animal manager; skipping entry.", i, e);
+                }
+            }
+        }
+        else
+        {
+            Log.getLogger().warn("No animals list while reading animal manager; skipping.");
+        }
     }
 
     /**

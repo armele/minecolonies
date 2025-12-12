@@ -52,14 +52,18 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
      * @param animalID the id of the animal.
      */
     @Override
-    public void registerWithColony(final int colonyID, final int animalID)
+    public void registerWithColony(final int registeringToColony, final int animalID)
     {
         if (registered)
         {
             return;
         }
 
+        this.colonyId = registeringToColony;
+
         animal.setManagedAnimalId(animalID);
+
+        Log.getLogger().info("During registration of AnimalColonyHandler with Colony. Colony id: {}, managed animal id: {}", colonyId, animalID);
 
         if (colonyId == 0 || animal.getManagedAnimalId() == 0)
         {

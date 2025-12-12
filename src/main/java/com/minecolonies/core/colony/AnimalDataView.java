@@ -27,6 +27,11 @@ public class AnimalDataView implements IAnimalDataView
     private BlockPos homeBuilding;
 
     /**
+     * The combat cooldown of the animal.
+     */
+    private float combatCooldown;
+
+    /**
      * Constructor
      * 
      * @param id
@@ -47,6 +52,7 @@ public class AnimalDataView implements IAnimalDataView
     public void deserialize(@NotNull FriendlyByteBuf buf)
     {
         homeBuilding = buf.readBoolean() ? buf.readBlockPos() : null;
+        combatCooldown = buf.readFloat();
     }
 
     /**
@@ -70,5 +76,16 @@ public class AnimalDataView implements IAnimalDataView
     public BlockPos getHomeBuilding()
     {
         return homeBuilding;
+    }
+
+    /**
+     * Gets the combat cooldown of the animal.
+     *
+     * @return the combat cooldown of the animal
+     */
+    @Override
+    public float getCombatCooldown()
+    {
+        return combatCooldown;
     }
 }

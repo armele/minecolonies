@@ -6,9 +6,9 @@ import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.util.constant.CitizenConstants;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
-public interface IManagedAnimal<T extends Entity>
+public interface IManagedAnimal<T extends Animal>
 {   
     /**
      * @return the backing entity
@@ -39,6 +39,11 @@ public interface IManagedAnimal<T extends Entity>
      * Get the animal data associated with this managed animal.
      */
     IAnimalData getAnimalData();
+
+    /**
+     * Get the animal data view associated with this managed animal.
+     */
+    IAnimalDataView getAnimalDataView();
 
     /**
      * Set the animal data associated with this managed animal.

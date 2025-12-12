@@ -11,7 +11,7 @@ import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
@@ -43,14 +43,14 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      *
      * @return the animal entity.
      */
-    public Optional<IManagedAnimal <? extends Entity>> getManagedAnimal();
+    public Optional<IManagedAnimal <? extends Animal>> getManagedAnimal();
 
     /**
      * Set the animal entity.
      *
      * @param entity the animal entity.
      */
-    public void setManagedAnimal(final IManagedAnimal<? extends Entity> entity);
+    public void setManagedAnimal(final IManagedAnimal<? extends Animal> entity);
 
     /**
      * Clear the dirty flag for this animal data.
@@ -117,4 +117,19 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      * @return the last position of the animal.
      */
     public BlockPos getLastPosition();
+
+    /**
+     * Returns the current combat cooldown of the horse. 
+     * A higher value means the horse is currently less ready for combat.
+     * 
+     * @return the current combat cooldown of the horse
+     */
+    public float getCombatCooldown();
+
+    /**
+     * Sets the combat cooldown of the horse.
+     * 
+     * @param newCooldown the new combat cooldown of the horse
+     */
+    public void setCombatCooldown(float newCooldown);
 }

@@ -6,11 +6,9 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 
 /**
  * The interface for managed animals, such as Cavalry horses.
@@ -28,7 +26,7 @@ public interface IAnimalManager
      *
      * @param entity civilian to register
      */
-    void registerAnimal(IManagedAnimal <? extends Entity> entity);
+    void registerAnimal(IManagedAnimal <? extends Animal> entity);
 
     /**
      * Get the animal data by ID.
@@ -48,7 +46,7 @@ public interface IAnimalManager
      *
      * @return The colony.
      */
-    public IAnimalData createAndRegisterAnimalData();
+    public IAnimalData createAndRegisterAnimalData(IManagedAnimal<? extends Animal> entity);
 
     /**
      * Read the animal information from nbt.

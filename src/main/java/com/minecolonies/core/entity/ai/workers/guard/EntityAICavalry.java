@@ -168,7 +168,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (targetMount == null)
         {
-            Log.getLogger().info("No horses found nearby - let's go to the stable.");
+            Log.getLogger().info("No cavalry horses found nearby - let's go to the stable.");
 
             if (stableChecked)
             {
@@ -435,7 +435,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         List<CavalryHorseEntity> pool = level.getEntitiesOfClass(CavalryHorseEntity.class, box, EntitySelector.NO_SPECTATORS);
         if (pool.isEmpty())
         {
-            Log.getLogger().info("No horses in search AABB.");
+            Log.getLogger().info("No cavalry horses in search AABB.");
             return null;
         }
 
@@ -453,7 +453,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (available == null)
         {            
-            Log.getLogger().info("{}: No available (unreserved, riderless, adult, tamed) horses found.", worker.getName());
+            Log.getLogger().info("{}: No available (unreserved, riderless, adult, tamed) cavalry horses found.", worker.getName());
         }
 
         return available;
