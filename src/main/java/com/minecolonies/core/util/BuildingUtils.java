@@ -4,8 +4,12 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.minecolonies.api.blocks.AbstractBlockHut;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.IColonyManager;
+import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.HiringMode;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingInventory;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
@@ -183,5 +187,37 @@ public final class BuildingUtils
             return blockState.getValue(DirectionalBlock.FACING).get2DDataValue();
         }
         return -1;
+    }
+
+    /**
+     * Get the IBuildingInventory for a given BlockPos on a specific side (client or server).
+     * If the building doesn't exist, it returns null.
+     * @param level the level.
+     * @param pos the position of the building.
+     * @return the IBuildingInventory of the building, or null.
+     */
+    public static IBuildingInventory buildingInventoryForSide(Level level, BlockPos pos)
+    {
+        IBuildingInventory buildingInventory = null;
+        
+
+        if (level.isClientSide)    
+        {
+            IColonyView colonyView = IColonyManager.getInstance().getColonyView(level, pos);
+            if (colonyView != null)
+            {
+                buildingInventory = colonyView.getBuilding(pos);
+            }
+            return buildingInventory;
+        }
+        else
+        {   
+            IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(level, pos);
+            if (colony != null)
+            {
+                buildingInventory = colony.getBuildingManager().getBuilding(pos);
+            }
+            return buildingInventory;
+        }
     }
 }

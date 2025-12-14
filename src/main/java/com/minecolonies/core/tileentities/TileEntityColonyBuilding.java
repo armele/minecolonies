@@ -68,7 +68,7 @@ import static com.minecolonies.api.util.constant.SchematicTagConstants.BUILDING_
  * Class which handles the tileEntity of our colonyBuildings.
  */
 @SuppressWarnings("PMD.ExcessiveImports")
-public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding implements ITickable, IBuildingInventory
+public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding implements ITickable
 {
     /**
      * NBTTag to store the colony id.
@@ -757,41 +757,6 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
                 tagData.putString(TAG_NAME, location);
                 this.readSchematicDataFromNBT(teCompound);
             }
-        }
-    }
-
-    /**
-     * Get the BlockPos of the containers.
-     *
-     * @return a list of BlockPos representing the containers.
-     * If the building is null, an empty list is returned.
-     * If the building view is null, an empty list is returned.
-     * If the level is client side, the containers are retrieved from the building view.
-     * If the level is server side, the containers are retrieved from the building.
-     */
-    @Override
-    public List<BlockPos> getContainers()
-    {
-        if (getLevel() == null)
-        {
-            return Collections.emptyList();
-        }
-
-        if (getLevel().isClientSide)    
-        {
-            if (this.getBuildingView() == null)
-            {
-                return Collections.emptyList();
-            }
-            return this.getBuildingView().getContainers();
-        }
-        else
-        {   
-            if (building == null)
-            {
-                return Collections.emptyList();
-            }
-            return building.getContainers();
         }
     }
 }
