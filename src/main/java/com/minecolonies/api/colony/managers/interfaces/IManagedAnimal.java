@@ -36,6 +36,16 @@ public interface IManagedAnimal<T extends Animal>
     void setManagedAnimalId(final int id);
 
     /**
+     * Get the colony associated with this managed animal.
+     */
+    int getColonyId();
+
+    /**
+     * Set the colony associated with this managed animal.
+     */
+    void setColonyId(final int id);
+
+    /**
      * Get the animal data associated with this managed animal.
      */
     IAnimalData getAnimalData();

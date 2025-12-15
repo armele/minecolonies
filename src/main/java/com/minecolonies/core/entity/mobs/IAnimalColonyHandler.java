@@ -4,6 +4,8 @@ import org.jetbrains.annotations.Nullable;
 
 import com.minecolonies.api.colony.IColony;
 
+import net.minecraft.network.syncher.EntityDataAccessor;
+
 public interface IAnimalColonyHandler 
 {
     /**
@@ -39,5 +41,12 @@ public interface IAnimalColonyHandler
      * Update the client side of the citizen entity.
      */
     public void updateColonyClient();
+
+    /**
+     * Called when the entity's data is updated from the server.
+     * 
+     * @param dataAccessor The data accessor which contains the updated data.
+     */
+    public void onSyncedDataUpdated(final EntityDataAccessor<?> data);
 
 }

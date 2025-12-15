@@ -5,10 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
-import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Log;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -150,6 +149,20 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
             }
 
             needsClientUpdate = false;
+        }
+    }
+
+    /**
+     * Called when the entity's data is updated from the server.
+     * If the entity data accessor is the animal id accessor or the colony id accessor, it sets the needs client update flag to true.
+     * @param data The data accessor which contains the updated data.
+     */
+    @Override
+    public void onSyncedDataUpdated(final EntityDataAccessor<?> data)
+    {
+        if (data.equals(animal.getAnimalIdAccessor()) || data.equals(animal.getColonyIdAccessor()))
+        {
+            needsClientUpdate = true;
         }
     }
 

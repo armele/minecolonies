@@ -162,7 +162,20 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         }
     }
 
-
+    /**
+     * Called when the entity's data is updated from the server. If the entity has a citizen colony handler, it calls the handler's onSyncDataUpdate method.
+     * If the entity is on the client side and the data accessor is DATA_STYLE, it checks if the entity's style is in the list of valid styles and if not, it sets the style to the first valid style in the list.
+     * @param dataAccessor The data accessor which contains the updated data.
+     */
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor)
+    {
+        super.onSyncedDataUpdated(dataAccessor);
+        if (animalColonyHandler != null)
+        {
+            animalColonyHandler.onSyncedDataUpdated(dataAccessor);
+        }
+    }
 
     /**
      * This method is called by the entity every tick to update its state.
@@ -174,34 +187,37 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.aiStep();
 
-        int colonyId = entityData.get(DATA_COLONY_ID);
-
-        // Log.getLogger().info("About to register with Colony. Colony id: {}, managed animal id: {}", colonyId, getManagedAnimalId());
+        int colonyId = getColonyId();
 
         // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
         if (colonyId == 0)
         {
+            IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
+
+            if (colony == null)
+            {
+                this.remove(Entity.RemovalReason.DISCARDED);
+                return;
+            }
+
             if (getAnimalData() == null)
             {
-                IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
-                if (colony != null)
-                {
-                    animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
-                    colonyId = colony.getID();
-                }
-            }
-            return;
+                animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
+            } 
+
+            colonyId =  colony.getID();
+            setColonyId(colonyId);
         }
 
         if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
             animalColonyHandler.updateColonyClient();
+
             if (animalColonyHandler.getColonyId() != 0 && getManagedAnimalId() != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
             {
                 final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
                 if (colonyView != null)
                 {
-                    Log.getLogger().info("Refreshing animal data view. Colony id: {}, managed animal id: {}", colonyId, getManagedAnimalId());
                     this.animalDataView = colonyView.getAnimal(getManagedAnimalId());
                 }
             }
@@ -237,6 +253,19 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public EntityDataAccessor<Integer> getColonyIdAccessor()
     {
         return DATA_COLONY_ID;
+    }
+
+    @Override
+    public int getColonyId()
+    {
+        return entityData.get(DATA_COLONY_ID);
+    }
+
+    @Override
+    public void setColonyId(final int colonyId)
+    {
+        entityData.set(DATA_COLONY_ID, colonyId);
+        animalColonyHandler.setColonyId(colonyId);
     }
 
     /**
@@ -592,8 +621,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData(cav);
         cav.setAnimalData(animalData);
+        cav.setColonyId(colony.getID());
 
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 3. Colony ID: {}", cav.getUUID(), cav.entityData.get(DATA_COLONY_ID));
+        Log.getLogger().info("{}: Horse lifecycle checkpoint 3. Colony ID: {}", cav.getUUID(), cav.getColonyId());
 
         // Re-apply attributes & health
         AttributeInstance cavHealthAttr = cav.getAttribute(Attributes.MAX_HEALTH);
@@ -734,8 +764,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         if (tag.contains(NbtTagConstants.TAG_COLONY_ID))
         {
             int colonyId = tag.getInt(NbtTagConstants.TAG_COLONY_ID);
-            animalColonyHandler.setColonyId(colonyId);
-            entityData.set(DATA_COLONY_ID, colonyId);
+            setColonyId(colonyId);
 
             if (tag.contains(NbtTagConstants.TAG_MANAGED_ANIMALID))
             {
