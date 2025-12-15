@@ -1,13 +1,24 @@
 package com.minecolonies.core.entity.other.cavalry;
 
-import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import com.minecolonies.api.colony.IAnimalData;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.IColonyManager;
+import com.minecolonies.api.colony.IColonyView;
+import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
+import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 import com.minecolonies.api.entity.ModEntities;
+import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.DamageSourceKeys;
+import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.constant.CitizenConstants;
+import com.minecolonies.api.util.constant.NbtTagConstants;
+import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
+import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
+import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import net.minecraft.core.BlockPos;
@@ -17,8 +28,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -34,83 +43,101 @@ import net.minecraft.world.entity.animal.horse.Variant;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStandGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
-public class CavalryHorseEntity extends Horse
+/**
+ * Cavalry Horse Entity class for Minecolonies.
+ * Extends the vanilla Horse entity with custom behavior for cavalry units.
+ */
+public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryHorseEntity>
 {
+    public static final EntityDataAccessor<Integer>  DATA_COLONY_ID         = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer>  DATA_MANAGED_ANIMAL_ID = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
+
+    /**
+     * The key used to store whether the horse is reserved for cavalry.
+     */
     private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
 
-    public static final float BASE_W = 1.4F;
-    public static final float BASE_H = 1.6F;
+
+    /** 
+     * The base width and height of the horse entity. 
+     * Note that the width is deliberately slim to allow 1-wide pathing for cavalry units. 
+     * Base height matches vanilla horse height.
+     */
     public static final float SLIM_W = 0.70F;
+    public static final float BASE_H = 1.6F;
 
+    /**
+     * The offset used to adjust the position of the rider on the horse.
+     */
     private static final float SEATING_OFFSET = 0.40F;
-    public int logCooldown = 0;
-    public static final int LOG_COOLDOWN_INTERVAL = 200;
 
-    private static final int SLIM_GRACE_MAX_TICKS = 40;
-    private int slimGraceTicks = 0;
+    /**
+     * The cooldown for logging when debugging.
+     */
+    public static final int LOG_COOLDOWN_INTERVAL = 200;
+    private int logCooldown = 0;
 
     public static final float COMBAT_READINESS_THRESHOLD = .66f;
 
-    @Nullable
-    private BlockPos stablePos = null;
-    @Nullable
-    private ResourceKey<Level> stableDim = null;
+    /**
+     * The animal colony handler.
+     */
+    private IAnimalColonyHandler animalColonyHandler = null;
 
-    private static final String NBT_STABLE_POS = "stablePos";
-    private static final String NBT_STABLE_DIM = "stableDim";
-    private static final String NBT_COMBAT_COOLDOWN = "combatCooldown";
+    /**
+     * The animal data associated with this cavalry horse.
+     */
+    IAnimalData animalData;
 
+    /**
+     * Animal data view.
+     */
+    private IAnimalDataView animalDataView;
+
+    /**
+     * The limit after which a reservation expires (in ticks).
+     */
     private static final int RESERVATION_EXPIRATION_LIMIT = 200;
     private int reservationExpiration = 0;
-
-    /*
-     * A measure of how unprepared for combat a mount is, representing damaged equipment, morale,
-     * fatigue or other non-HP factors.
-     */
-    private static final EntityDataAccessor<Float> DATA_COMBAT_CD =
-        SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Boolean> DATA_IS_SLIM =
-        SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.BOOLEAN);
 
     /**
      * The timepoint at which the entity last collided
      */
     private long lastHorizontalCollision = 0;
 
+    /**
+     * Constructor for CavalryHorseEntity.
+     *
+     * @param type  The entity type
+     * @param level The level the entity is in
+     */
     public CavalryHorseEntity(EntityType<? extends Horse> type, Level level)
     {
         super(type, level);
         this.setMaxUpStep(1.1F);
+        this.animalColonyHandler = new AnimalColonyHandler(this);
     }
-
 
     /**
-     * Called when this entity is added to the world. 
-     * It will set the horse as "slim" when appropriate.
+     * Registers the goals for this entity.
+     * <p>
+     * This sets the float goal, follow parent goal, breed goal, validate stable goal, return to stable goal, water avoiding random stroll goal, look at player goal, and random look around goal.
+     * If the entity can perform rearing, it also sets the random stand goal.
      */
-    @Override
-    public void onAddedToWorld()
-    {
-        super.onAddedToWorld();
-        if (!level().isClientSide)
-        {
-            setSlim(shouldBeSlim());
-        }
-    }
-
     @Override
     public void registerGoals()
     {
@@ -129,6 +156,71 @@ public class CavalryHorseEntity extends Horse
         }
     }
 
+    /**
+     * Called when the entity's data is updated from the server. If the entity has a citizen colony handler, it calls the handler's onSyncDataUpdate method.
+     * If the entity is on the client side and the data accessor is DATA_STYLE, it checks if the entity's style is in the list of valid styles and if not, it sets the style to the first valid style in the list.
+     * @param dataAccessor The data accessor which contains the updated data.
+     */
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor)
+    {
+        super.onSyncedDataUpdated(dataAccessor);
+        if (animalColonyHandler != null)
+        {
+            animalColonyHandler.onSyncedDataUpdated(dataAccessor);
+        }
+    }
+
+    /**
+     * This method is called by the entity every tick to update its state.
+     * It handles registration of the entity to the closest colony if it was summoned into the world via an ops command.
+     * It also handles updating the client side of the managed animal data and the animal colony handler.
+     */
+    @Override
+    public void aiStep()
+    {
+        super.aiStep();
+
+        int colonyId = getColonyId();
+
+        // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
+        if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide)
+        {
+            IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
+
+            if (colony == null)
+            {
+                return;
+            }
+
+            if (getAnimalData() == null)
+            {
+                animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
+            } 
+
+            colonyId =  colony.getID();
+            setColonyId(colonyId);
+        }
+
+        if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
+        {
+            animalColonyHandler.updateColonyClient();
+
+            if (animalColonyHandler.getColonyId() != 0 && getManagedAnimalId() != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
+            {
+                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
+                if (colonyView != null)
+                {
+                    this.animalDataView = colonyView.getAnimal(getManagedAnimalId());
+                }
+            }
+        }
+        else
+        {
+            animalColonyHandler.registerWithColony(colonyId, getManagedAnimalId());
+        }
+    }
+    
 
     /**
      * Defines the synced data for this entity.
@@ -137,47 +229,70 @@ public class CavalryHorseEntity extends Horse
     protected void defineSynchedData() 
     {
         super.defineSynchedData();
-        this.entityData.define(DATA_COMBAT_CD, 0f);
-        this.entityData.define(DATA_IS_SLIM, false);
+        this.entityData.define(DATA_COLONY_ID, 0);
+        this.entityData.define(DATA_MANAGED_ANIMAL_ID, 0);
     }
 
     /**
-     * Called when the entity's synced data is updated.
-     * 
-     * If the updated data is the "isSlim" flag, the entity's dimensions are refreshed.
-     * @param key the data accessor that was updated
+     * Gets the accessor for the colony ID of this entity.
+     *
+     * @return the accessor for the colony ID
      */
     @Override
-    public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) 
+    public EntityDataAccessor<Integer> getColonyIdAccessor()
     {
-        super.onSyncedDataUpdated(key);
-
-        if (key == DATA_IS_SLIM) 
-        {
-            this.refreshDimensions();
-        }
+        return DATA_COLONY_ID;
     }
 
-    public void setStable(BlockPos pos, ResourceKey<Level> dim)
+    @Override
+    public int getColonyId()
     {
-        this.stablePos = pos.immutable();
-        this.stableDim = dim;
+        return entityData.get(DATA_COLONY_ID);
     }
 
-    public Optional<BlockPos> getStablePos()
+    @Override
+    public void setColonyId(final int colonyId)
     {
-        return Optional.ofNullable(stablePos);
-    }
-
-    public Optional<ResourceKey<Level>> getStableDimension()
-    {
-        return Optional.ofNullable(stableDim);
+        entityData.set(DATA_COLONY_ID, colonyId);
+        animalColonyHandler.setColonyId(colonyId);
     }
 
     /**
-     * Checks if the rider is a guard and if they have a JobCavalry job. If true, the horse will be slim.
+     * Gets the accessor for the animal ID of this entity.
      * 
-     * @return true if the horse should be slim, false otherwise.
+     * @return the accessor for the animal ID
+     */
+    @Override
+    public EntityDataAccessor<Integer> getAnimalIdAccessor()
+    {
+        return DATA_MANAGED_ANIMAL_ID;
+    }
+
+    /**
+     * Get the managed animal ID of this entity.
+     *
+     * @return the managed animal ID
+     */
+    @Override
+    public int getManagedAnimalId()
+    {
+        return entityData.get(DATA_MANAGED_ANIMAL_ID);
+    }
+
+
+    @Override
+    public void setManagedAnimalId(final int managedAnimalId)
+    {   
+        entityData.set(DATA_MANAGED_ANIMAL_ID, managedAnimalId);
+    }
+
+    /**
+     * Check if the horse has a valid cavalry rider.
+     * 
+     * The rider must be an instance of EntityCitizen and have a valid job handler.
+     * The job handler must also be an instance of JobCavalry.
+     * 
+     * @return true if the horse has a valid cavalry rider, false otherwise.
      */
     public boolean hasCavalryRider()
     {
@@ -190,19 +305,9 @@ public class CavalryHorseEntity extends Horse
         {
             return false;
         }
-        
-        return false;
-        // return guard.getCitizenJobHandler().getColonyJob() instanceof JobCavalry;
-    }
 
-    /**
-     * Checks if the horse should be slim (using the custom width/height), allowing it
-     * to conveniently use Minecolonies pathing.
-     * @return true if the horse should be slim, false otherwise.
-     */
-    private boolean shouldBeSlim()
-    {
-        return hasTrainer() || hasCavalryRider();
+        /* Implementation will be finalized in Cavalry PR 4 of 4 */
+        return false;
     }
 
     /**
@@ -211,7 +316,7 @@ public class CavalryHorseEntity extends Horse
      *
      * @return true if the horse has a trainer citizen, false otherwise.
      */
-    private boolean hasTrainer()
+    public boolean hasTrainer()
     {
         Entity trainer = this.getLeashHolder();
 
@@ -221,93 +326,6 @@ public class CavalryHorseEntity extends Horse
         }
 
         return trainer instanceof EntityCitizen;
-    }
-
-    /**
-     * Checks if the horse's wide bounding box doesn't collide with anything when in the given pose. This is used to determine if the
-     * horse should remain slim (using the vanilla width/height) or can be wide (using the custom width/height). The collision check is
-     * done by using the entity-aware collision check, which respects other entities in the world.
-     * 
-     * @return true if the horse's wide bounding box does not collide with anything, false otherwise.
-     */
-    private boolean canWidenSafelyHere()
-    {
-        final Pose pose = this.getPose();
-        final EntityDimensions wide = super.getDimensions(pose); // vanilla width/height for this pose
-        final AABB aabb = wide.makeBoundingBox(this.position());
-        // Use the entity-aware collision check to also respect other entities
-        return this.level().noCollision(this, aabb.deflate(1.0E-7));
-    }
-
-    /**
-     * Try a few nearby offsets (±0.4, ±0.8, etc.) to find a place the wide AABB fits.
-     */
-    private boolean tryNudgeToWidenSpot()
-    {
-        final Pose pose = this.getPose();
-        final EntityDimensions wide = super.getDimensions(pose);
-        final double[] OFF = {0.0, 0.4, -0.4, 0.8, -0.8, 1.2, -1.2};
-        final var lvl = this.level();
-        final var here = this.position();
-
-        for (double dx : OFF) for (double dz : OFF)
-        {
-            if (dx == 0.0 && dz == 0.0) continue;
-            final var p = here.add(dx, 0.0, dz);
-            final AABB box = wide.makeBoundingBox(p);
-            if (lvl.noCollision(this, box.deflate(1.0E-7)))
-            {
-                // gentle move (no teleport)
-                this.setPos(p.x, p.y, p.z);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Gets the dimensions of the horse entity, adjusting the width for slim poses (i.e. when the rider is a guard with a JobCavalry
-     * job). The height is kept the same as the vanilla horse dimensions for the given pose.
-     *
-     * @param pose the pose of the horse
-     * @return the adjusted dimensions of the horse entity
-     */
-    @Override
-    public EntityDimensions getDimensions(@Nonnull Pose pose)
-    {
-        EntityDimensions base = super.getDimensions(pose);
-        return isSlim() ? EntityDimensions.scalable(SLIM_W, base.height) : base;
-    }
-
-
-    /**
-     * Returns true if the horse is in a slim pose (i.e. when the rider is a guard with a JobCavalry job), false otherwise.
-     * 
-     * In a slim pose, the horse's width is reduced to accommodate the guard's shield.
-     * This is done by scaling the width of the horse's bounding box by a factor of SLIM_W.
-     * 
-     * @return true if the horse is in a slim pose, false otherwise.
-     */
-    private boolean isSlim()
-    {
-        return this.entityData.get(DATA_IS_SLIM);
-    }
-
-
-
-    /**
-     * Sets the slim state of the horse. If the state changes this method will update the 
-     * horse's entity data and refresh its dimensions (sending tracker updates to all clients).
-     * 
-     * @param slim the new slim state of the horse
-     */
-    private void setSlim(boolean slim)
-    {
-        if (this.entityData.get(DATA_IS_SLIM) != slim)
-        {
-            this.entityData.set(DATA_IS_SLIM, slim);
-            this.refreshDimensions();
-        }
     }
 
     /**
@@ -323,7 +341,6 @@ public class CavalryHorseEntity extends Horse
     {
         return super.getStandingEyeHeight(pose, dims);
     }
-
     
     /**
      * Adds a passenger to the horse, dropping the leash and setting the navigation options of any citizen passenger
@@ -337,10 +354,12 @@ public class CavalryHorseEntity extends Horse
         super.addPassenger(passenger);
         dropLeash(true, false);
         
-        if (passenger instanceof EntityCitizen guard) {
+        if (passenger instanceof EntityCitizen guard) 
+        {
             AbstractAdvancedPathNavigate nav = guard.getNavigation();
 
-            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) {
+            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) 
+            {
                 mcnav.getPathingOptions().setEnterDoors(false);
                 mcnav.getPathingOptions().setCanOpenDoors(false);
             }
@@ -379,7 +398,6 @@ public class CavalryHorseEntity extends Horse
     {
         super.setLeashedTo(entity, sendPacket);
     }
-
 
     /**
      * Drops the leash for this horse, optionally sending a packet to clients and dropping the lead item.
@@ -431,23 +449,10 @@ public class CavalryHorseEntity extends Horse
         return pathNavigation;
     }
 
-    /**
-     * Linearly interpolates between the current angle and the target angle, not exceeding the maximum turn angle per tick.
+    /** 
+     * Allow breeding even when not tamed. Keep vanilla species rules. 
      * 
-     * @param current        the current angle
-     * @param target         the target angle
-     * @param maxTurnPerTick the maximum angle to turn per tick
-     * @return the new angle after turning
      */
-    private static float turnToward(float current, float target, float maxTurnPerTick)
-    {
-        float delta = net.minecraft.util.Mth.wrapDegrees(target - current);
-        if (delta > maxTurnPerTick) delta = maxTurnPerTick;
-        if (delta < -maxTurnPerTick) delta = -maxTurnPerTick;
-        return current + delta;
-    }
-
-    /** Allow breeding even when not tamed. Keep vanilla species rules. */
     @Override
     public boolean canMate(@Nonnull Animal other)
     {
@@ -465,54 +470,15 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
-     * A slimmed version of the tick function that only runs on the server side.
-     * This function is responsible for updating the horse's slim state based on 
-     * whether it is being ridden by a guard or trainer. If the horse is being ridden, 
-     * it will be slimmed. Otherwise, it will not be slimmed unless it is unable to 
-     * widen safely, in which case it will be given a certain number of ticks to try 
-     * and move to a safe location.
-     */
-    protected void slimTick() 
-    {
-        if (!level().isClientSide) {
-
-            if (hasCavalryRider() || hasTrainer()) 
-            {
-                slimGraceTicks = SLIM_GRACE_MAX_TICKS;
-            }
-            else 
-            {
-                if (canWidenSafelyHere()) 
-                {
-                    slimGraceTicks = 0;
-                } 
-                else if (!(tryNudgeToWidenSpot() && canWidenSafelyHere())) 
-                {
-                    slimGraceTicks = Math.max(0, slimGraceTicks - 1);
-                } 
-                else 
-                {
-                    slimGraceTicks = 0;
-                }
-            }
-
-            boolean slimNow = shouldBeSlim() || (slimGraceTicks > 0 && !canWidenSafelyHere());
-            setSlim(slimNow);
-        }
-    }
-
-    /**
      * Called every tick to update the horse. 
      */
     @Override
     public void tick()
     {
         super.tick();
-        // logActiveGoals();
 
         if (!level().isClientSide)
         {
-            slimTick();
 
             if (hasReservation())
             {
@@ -548,13 +514,47 @@ public class CavalryHorseEntity extends Horse
     }
 
     /**
+     * Logs all active goals for this horse, including both the wrapped goal selector goals
+     * and the target selector goals. This is useful for debugging purposes.
+     * This function will only be executed every LOG_COOLDOWN_INTERVAL ticks.
+     */
+    public void logActiveGoals()
+    {
+        if (logCooldown > 0)
+        {
+            logCooldown--;
+            return;
+        }
+
+        logCooldown = LOG_COOLDOWN_INTERVAL;
+
+        for (WrappedGoal wrapped : this.goalSelector.getAvailableGoals())
+        {
+            Goal goal = wrapped.getGoal();
+            if (wrapped.isRunning())
+            {
+                Log.getLogger().info("Active Wrapped Goal for horse {}: {}", this.getUUID(), goal.getClass().getSimpleName());
+            }
+        }
+
+        for (WrappedGoal wrapped : this.targetSelector.getAvailableGoals())
+        {
+            Goal goal = wrapped.getGoal();
+            if (wrapped.isRunning())
+            {
+                Log.getLogger().info("Active Target Goal for horse {}: {}", this.getUUID(), goal.getClass().getSimpleName());
+            }
+        }
+    }
+
+    /**
      * Creates a new CavalryHorseEntity from a vanilla AbstractHorse, attempting to preserve as much information as possible.
      * 
      * @param level   the level to spawn the new entity in
      * @param vanilla the vanilla horse to convert
      * @return the new CavalryHorseEntity, or null if the conversion failed
      */
-    public static CavalryHorseEntity createFromVanilla(Level level, AbstractHorse vanilla)
+    public static CavalryHorseEntity createFromVanilla(IColony colony, Level level, AbstractHorse vanilla)
     {
         if (level.isClientSide) return null;
 
@@ -590,9 +590,13 @@ public class CavalryHorseEntity extends Horse
         // Leash (if any)
         Entity leashHolder = vanilla.getLeashHolder();
 
-        // Convert to our entity type ---
+        // Convert to CavalryHorseEntity
         CavalryHorseEntity cav = vanilla.convertTo(ModEntities.CAVALRY_HORSE, true);
         if (cav == null) return null;
+
+        IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData(cav);
+        cav.setAnimalData(animalData);
+        cav.setColonyId(colony.getID());
 
         // Re-apply attributes & health
         AttributeInstance cavHealthAttr = cav.getAttribute(Attributes.MAX_HEALTH);
@@ -663,12 +667,14 @@ public class CavalryHorseEntity extends Horse
     @Override
     public boolean hurt(@Nonnull DamageSource damageSource, float damageAmount)
     {
-        // TODO: Create research that provides combat cooldown mitigation
+       
+        if (level().isClientSide)
+        {
+            return true;
+        }
 
         // Percentage of damage applied to combat cooldown
         float cooldownImpact = .40f;
-
-
 
         if (damageSource.is(DamageTypeTags.IS_EXPLOSION) && damageSource.getEntity() instanceof Creeper) 
         {
@@ -681,7 +687,10 @@ public class CavalryHorseEntity extends Horse
             damageAmount *= 0.0f;
         }
 
-        setCombatCooldown(getCombatCooldown() + (damageAmount * cooldownImpact));
+        // TODO: Create research that provides combat cooldown mitigation
+        animalData.setCombatCooldown(animalData.getCombatCooldown() + (damageAmount * cooldownImpact));
+        animalData.markDirty();
+
         return super.hurt(damageSource, damageAmount);
     }
 
@@ -694,69 +703,51 @@ public class CavalryHorseEntity extends Horse
     public void addAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.addAdditionalSaveData(tag);
-        if (stablePos != null)
-        {
-            tag.put(NBT_STABLE_POS, net.minecraft.nbt.NbtUtils.writeBlockPos(stablePos));
-        }
-        if (stableDim != null)
-        {
-            tag.putString(NBT_STABLE_DIM, stableDim.location().toString());
-        }
 
-        tag.putFloat(NBT_COMBAT_COOLDOWN, getCombatCooldown());
+        tag.putInt(NbtTagConstants.TAG_COLONY_ID, animalColonyHandler.getColonyId());
+        if (animalData != null)
+        {
+            tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, getManagedAnimalId());
+        }
     }
 
+
     /**
-     * Read additional data from a CompoundTag. This method reads the following additional data from the tag: - stablePos: The position
-     * of the stable block, or null if not set. - stableDim: The dimension of the stable block, or null if not set.
+     * Reads additional data from the given CompoundTag that is specific to this entity type.
+     * <p>
+     * This method is called when the entity is loaded from disk, and the data read is used to initialize the entity.
+     * <p>
+     * The data that is read is as follows:
+     * - TAG_COLONY_ID: The id of the colony that the entity is associated with.
+     * - TAG_MANAGED_ANIMALID: The id of the managed animal data that is associated with the entity.
+     * <p>
+     * If the TAG_MANAGED_ANIMALID is not present, then a new managed animal data is created and associated with the entity.
+     * Other persisted data is managed through the associated IAnimalData.
      */
     @Override
     public void readAdditionalSaveData(@Nonnull CompoundTag tag)
     {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(NBT_STABLE_POS))
-        {
-            stablePos = net.minecraft.nbt.NbtUtils.readBlockPos(tag.getCompound(NBT_STABLE_POS));
-        }
-        else
-        {
-            stablePos = null;
-        }
-        if (tag.contains(NBT_STABLE_DIM))
-        {
-            stableDim = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
-                new ResourceLocation(tag.getString(NBT_STABLE_DIM)));
-        }
-        else
-        {
-            stableDim = null;
-        }
 
-        setCombatCooldown(tag.getFloat(NBT_COMBAT_COOLDOWN));
+        if (tag.contains(NbtTagConstants.TAG_COLONY_ID))
+        {
+            int colonyId = tag.getInt(NbtTagConstants.TAG_COLONY_ID);
+            setColonyId(colonyId);
 
-        setSlim(shouldBeSlim());
-    }
+            if (tag.contains(NbtTagConstants.TAG_MANAGED_ANIMALID))
+            {
+                setManagedAnimalId(tag.getInt(NbtTagConstants.TAG_MANAGED_ANIMALID));
+            }
+            else
+            {
+                IColony colony = animalColonyHandler.getColony();
 
-    /**
-     * Returns the current combat cooldown of the horse. 
-     * A higher value means the horse is currently less ready for combat.
-     * 
-     * @return the current combat cooldown of the horse
-     */
-    public float getCombatCooldown()
-    {
-        return this.entityData.get(DATA_COMBAT_CD);
-    }
-
-    /**
-     * Sets the combat cooldown of the horse.
-     * 
-     * @param newCooldown the new combat cooldown of the horse
-     */
-    public void setCombatCooldown(float newCooldown) 
-    {
-        newCooldown = Math.min(newCooldown, this.getMaxHealth());
-        this.entityData.set(DATA_COMBAT_CD, Math.max(0f, newCooldown));
+                if (colony != null)
+                {
+                    animalData = colony.getAnimalManager().createAndRegisterAnimalData(this);
+                }
+            }
+        }
     }
 
     /**
@@ -767,7 +758,7 @@ public class CavalryHorseEntity extends Horse
      */
     public void prepareForCombat(float combatReadiness)
     {
-        setCombatCooldown(getCombatCooldown() - Math.abs(combatReadiness));
+        animalData.setCombatCooldown(animalData.getCombatCooldown() - Math.abs(combatReadiness));
     }
 
     /**
@@ -778,7 +769,9 @@ public class CavalryHorseEntity extends Horse
      */
     public boolean isReadyForCombat()
     {
-        return getCombatCooldown() <= (this.getMaxHealth() * COMBAT_READINESS_THRESHOLD);
+        if (animalData == null) return false;
+
+        return animalData.getCombatCooldown() <= (this.getMaxHealth() * COMBAT_READINESS_THRESHOLD);
     }
 
     /**
@@ -806,7 +799,6 @@ public class CavalryHorseEntity extends Horse
         return level.getGameTime() - lastHorizontalCollision < 10;
     }
 
-
     /**
      * Reserves the horse for the given entity. When the horse is reserved, it will not be able to be mounted or interacted with
      * by other entities until the reservation is cleared.
@@ -819,7 +811,6 @@ public class CavalryHorseEntity extends Horse
         data.putUUID(RESERVE_KEY, reserver.getUUID());
         reservationExpiration = 0;
     }
-
 
     /**
      * Clears the reservation on the horse. When the reservation is cleared, 
@@ -873,4 +864,91 @@ public class CavalryHorseEntity extends Horse
         return reservedBy() != null;
     }
 
+    /**
+     * Returns the stable building of the horse if it exists. If the horse does not have a stable block position, 
+     * or if the block position is not a stable building, this method returns null.
+     * 
+     * @return the stable building of the horse, or null if the horse does not have one.
+     */
+    public IBuilding getStableBuilding()
+    {
+        if (animalData == null) return null;
+
+        IBuilding building = animalData.getHomeBuilding();
+
+        return building;
+    }
+
+    /**
+     * Checks if the horse is currently within the boundaries of its stable building.
+     * <p>
+     * If the horse does not have a stable, returns false.
+     * </p>
+     * <p>
+     * If the horse is currently within the boundaries of its stable building, returns true. Otherwise, returns false.
+     * </p>
+     * @return true if the horse is within its stable building, false otherwise
+     */
+    public boolean isInStable()
+    {
+        IBuilding stable = getStableBuilding();
+        if (stable == null) return false;
+        
+        if (stable.isInBuilding(this.getOnPos())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the animal data associated with this horse.
+     *
+     * @return the animal data associated with this horse.
+     */
+    @Override
+    public IAnimalData getAnimalData()
+    {
+        return animalData;
+    }
+
+    /**
+     * Returns the animal data view associated with this horse.
+     *
+     * @return the animal data view associated with this horse.
+     */
+    @Override
+    public IAnimalDataView getAnimalDataView()
+    {
+        return animalDataView;
+    }
+
+    /**
+     * Sets the animal data associated with this horse.
+     *
+     * @param data The animal data associated with this horse.
+     */
+    @Override
+    public void setAnimalData(IAnimalData data)
+    {
+        if (data == null) 
+        {
+            return;
+        }
+
+        this.animalData = data;
+    }
+
+    /**
+     * Returns the entity itself. This is used in the IManagedAnimal interface to get the entity associated with the managed animal.
+     * <p>
+     * This method is used to get the entity associated with the managed animal, which in this case is the horse entity.
+     * <p>
+     * @return the horse entity associated with the managed animal.
+     */
+    @Override
+    public CavalryHorseEntity getEntity()
+    {
+        return this;
+    }
 }

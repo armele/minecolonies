@@ -2,6 +2,7 @@ package com.minecolonies.core.entity.ai.minimal;
 
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
@@ -24,6 +25,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import javax.annotation.Nullable;
 
 import static net.minecraft.world.level.block.FenceGateBlock.OPEN;
 

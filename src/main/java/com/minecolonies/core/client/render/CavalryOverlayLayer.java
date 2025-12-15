@@ -3,7 +3,6 @@ package com.minecolonies.core.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -47,7 +46,7 @@ public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>>
 
         // Compute readiness from cooldown
         float threshold = horse.getMaxHealth() * CavalryHorseEntity.COMBAT_READINESS_THRESHOLD;
-        float cooldown  = Math.max(0f, cavhorse.getCombatCooldown());
+        float cooldown  = Math.max(0f, cavhorse.getAnimalDataView() == null ? 0 : cavhorse.getAnimalDataView().getCombatCooldown());
         float readiness = net.minecraft.util.Mth.clamp(1.0f - (cooldown / Math.max(0.001f, threshold)), 0f, 1f);
 
         int segments = net.minecraft.util.Mth.clamp((int)Math.floor(readiness * 5f + 0.0001f), 0, 5);
