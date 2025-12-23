@@ -1983,6 +1983,11 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             colony.getRequestManager().updateRequestState(request.getId(), RequestState.RECEIVED);
         }
 
+        //Check if the citizen did not die.
+        if (colony.getCitizenManager().getCivilian(citizenThatRequested) != null)
+        {
+            colony.getCitizenManager().getCivilian(citizenThatRequested).onRequestCompleted(request.getId());
+        }
         markDirty();
     }
 
