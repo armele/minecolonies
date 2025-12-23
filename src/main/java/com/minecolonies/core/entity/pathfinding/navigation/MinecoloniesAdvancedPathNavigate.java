@@ -9,6 +9,7 @@ import com.minecolonies.api.entity.pathfinding.IDynamicHeuristicNavigator;
 import com.minecolonies.api.entity.pathfinding.IMinecoloniesNavigator;
 import com.minecolonies.api.entity.pathfinding.IStuckHandler;
 import com.minecolonies.api.util.*;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.PathFindingStatus;
 import com.minecolonies.core.entity.pathfinding.PathPointExtended;
 import com.minecolonies.core.entity.pathfinding.Pathfinding;
@@ -966,7 +967,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
                  return;
             }
 
-            if (!pEx.isOnRails() && ourEntity.vehicle != null)
+            if (!pEx.isOnRails() && ourEntity.vehicle != null && !(ourEntity.vehicle instanceof CavalryHorseEntity))
             {
                 final Entity entity = ourEntity.vehicle;
                 ourEntity.stopRiding();
@@ -1086,7 +1087,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
             pathResult.cancel();
             pathResult.setStatus(PathFindingStatus.CANCELLED);
             pathResult = null;
-            if (ourEntity.getVehicle() != null)
+            if ((ourEntity.getVehicle() != null) && !(ourEntity.getVehicle() instanceof CavalryHorseEntity))
             {
                 final Entity entity = ourEntity.getVehicle();
                 ourEntity.stopRiding();
