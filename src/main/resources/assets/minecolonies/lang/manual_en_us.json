@@ -3019,5 +3019,6 @@
   "com.minecolonies.coremod.gui.chat.missanilka": "Bring me in and your commons rise fast without crowns, hands work lighter, songs get louder, people stay free!",
 
   "com.minecolonies.coremod.stablemaster.needed.readyitems": "Cavalry readiness items.",
-  "com.minecolonies.coremod.stablemaster.needed.feeditems": "Cavalry feed items."
+  "com.minecolonies.coremod.stablemaster.needed.feeditems": "Cavalry feed items.",
+  "entity.minecolonies.cavalry_horse": "Cavalry Horse"
 }
