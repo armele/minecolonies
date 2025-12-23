@@ -159,6 +159,11 @@ public class Colony implements IColony
     private final IVisitorManager visitorManager;
 
     /**
+     * Animal manager of the colony.
+     */
+    private final IAnimalManager animalManager = new AnimalManager(this);
+
+    /**
      * Barbarian manager of the colony.
      */
     private final IRaiderManager raidManager;
@@ -399,7 +404,10 @@ public class Colony implements IColony
             citizenManager.tickCitizenData(TICKS_SECOND * 3);
             return false;
         }, () -> ACTIVE, TICKS_SECOND * 3));
-
+        colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, () -> {
+            animalManager.tickAnimalData(TICKS_SECOND * 3);
+            return false;
+        }, () -> ACTIVE, TICKS_SECOND * 3));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::updateSubscribers, () -> ACTIVE, UPDATE_SUBSCRIBERS_INTERVAL));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::tickRequests, () -> ACTIVE, UPDATE_RS_INTERVAL));
         colonyStateMachine.addTransition(new TickingTransition<>(ACTIVE, this::tickTravellers, () -> ACTIVE, UPDATE_TRAVELING_INTERVAL));
@@ -484,6 +492,7 @@ public class Colony implements IColony
         buildingManager.cleanUpBuildings(this);
         citizenManager.onColonyTick(this);
         visitorManager.onColonyTick(this);
+        animalManager.onColonyTick(this);
         updateAttackingPlayers();
         eventManager.onColonyTick(this);
         buildingManager.onColonyTick(this);
@@ -747,6 +756,7 @@ public class Colony implements IColony
 
         citizenManager.read(provider, compound.getCompound(TAG_CITIZEN_MANAGER));
         visitorManager.read(provider, compound);
+        animalManager.read(provider, compound.getCompound(TAG_ANIMAL_MANAGER));
         buildingManager.read(provider, compound.getCompound(TAG_BUILDING_MANAGER));
 
         // Recalculate max after citizens and buildings are loaded.
@@ -923,6 +933,8 @@ public class Colony implements IColony
         compound.put(TAG_CITIZEN_MANAGER, citizenCompound);
 
         visitorManager.write(provider, compound);
+        final CompoundTag animalCompound = new CompoundTag();
+        animalManager.write(provider, animalCompound);
 
         final CompoundTag graveCompound = new CompoundTag();
         graveManager.write(graveCompound);
@@ -1609,6 +1621,17 @@ public class Colony implements IColony
     public IVisitorManager getVisitorManager()
     {
         return visitorManager;
+    }
+
+    /**
+     * Get the animal manager of the colony.
+     *
+     * @return the animal manager.
+     */
+    @Override
+    public IAnimalManager getAnimalManager()
+    {
+        return animalManager;
     }
 
     /**
