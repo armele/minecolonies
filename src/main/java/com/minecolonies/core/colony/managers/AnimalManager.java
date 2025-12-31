@@ -9,15 +9,15 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
+
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.managers.interfaces.IAnimalManager;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 import com.minecolonies.api.util.Log;
-import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.AnimalData;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewAnimalViewDataMessage;
-
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -74,7 +74,7 @@ public class AnimalManager implements IAnimalManager
 
         if (animal.getManagedAnimalId() == 0 || animalMap.get(animal.getManagedAnimalId()) == null)
         {
-            if (!animalEntity.isAddedToWorld())
+            if (!animalEntity.isAddedToLevel())
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -87,7 +87,7 @@ public class AnimalManager implements IAnimalManager
 
         if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
         {
-            if (!animalEntity.isAddedToWorld())
+            if (!animalEntity.isAddedToLevel())
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -117,7 +117,7 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        if (!animalEntity.isAddedToWorld())
+        if (!animalEntity.isAddedToLevel())
         {
             Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
         }
@@ -136,9 +136,9 @@ public class AnimalManager implements IAnimalManager
     }
 
     /**
-     * Get the current amount of citizens, might be bigger then {@link #getMaxCitizens()}
+     * Get the current number of managed animals
      *
-     * @return The current amount of citizens in the colony.
+     * @return The current number of managed animals
      */
     @Override
     public int getCurrentAnimalCount()
@@ -210,7 +210,7 @@ public class AnimalManager implements IAnimalManager
      * @param compound the compound to read it from.
      */
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compound)
     {
         // If the tag doesn't exist, don't mutate current state.
         if (!compound.contains(TAG_ANIMAL_MANAGER, Tag.TAG_COMPOUND))
@@ -244,7 +244,7 @@ public class AnimalManager implements IAnimalManager
 
                 try
                 {
-                    final IAnimalData data = AnimalData.loadAnimalFromNBT(colony, animalTag);
+                    final IAnimalData data = AnimalData.loadAnimalFromNBT(colony, animalTag, provider);
                     if (data == null)
                     {
                         Log.getLogger().warn("Skipped null animal data at index {} while reading animal manager.", i);
@@ -278,14 +278,14 @@ public class AnimalManager implements IAnimalManager
      * @throws UnsupportedOperationException if not implemented.
      */
     @Override
-    public void write(@NotNull CompoundTag compoundNBT)
+    public void write(@NotNull final HolderLookup.Provider provider, @NotNull CompoundTag compoundNBT)
     {
         final CompoundTag animalManagerNBT = new CompoundTag();
 
         final ListTag animalList = new ListTag();
         for (Map.Entry<Integer, IAnimalData> entry : animalMap.entrySet())
         {
-            animalList.add(entry.getValue().serializeNBT());
+            animalList.add(entry.getValue().serializeNBT(provider));
         }
 
         animalManagerNBT.put(TAG_ANIMALS, animalList);
@@ -373,11 +373,8 @@ public class AnimalManager implements IAnimalManager
         Set<ServerPlayer> players = new HashSet<>(newSubscribers);
         players.addAll(closeSubscribers);
 
-        final ColonyViewAnimalViewDataMessage message = new ColonyViewAnimalViewDataMessage(colony, toSend, refresh);
+        Log.getLogger().info("Sending {} animal packets to {} players.", toSend.size(), players.size());
 
-        for (final ServerPlayer player : players)
-        {
-            Network.getNetwork().sendToPlayer(message, player);
-        }
+        new ColonyViewAnimalViewDataMessage(colony, toSend, refresh).sendToPlayer(players);
     }
 }

@@ -422,6 +422,7 @@ public class MineColonies
         PlayAudioMessage.TYPE.register(registry);
         PlayMusicAtPosMessage.TYPE.register(registry);
         ColonyVisitorViewDataMessage.TYPE.register(registry);
+        ColonyViewAnimalViewDataMessage.TYPE.register(registry);
         SyncPathMessage.TYPE.register(registry);
         SyncPathReachedMessage.TYPE.register(registry);
         ReactivateBuildingMessage.TYPE.register(registry);

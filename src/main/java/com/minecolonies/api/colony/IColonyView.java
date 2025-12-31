@@ -219,7 +219,7 @@ public interface IColonyView extends IColony
      * @param refresh if all need to be refreshed.
      * @param animalViewData the new data to set
      */
-    void handleColonyViewAnimalMessage(final FriendlyByteBuf animalViewData, final boolean refresh);
+    void handleColonyViewAnimalMessage(final RegistryFriendlyByteBuf animalViewData, final boolean refresh);
 
     /**
      * Remove a citizen from the ColonyView.

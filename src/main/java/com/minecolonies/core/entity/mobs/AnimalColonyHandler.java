@@ -47,7 +47,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
      * Registers the managed animal with the colony.
      * If the animal ID is 0 or the colony ID is 0, the animal is removed from the world.
      * If the colony is not found, the animal is removed from the world and a warn message is logged.
-     * @param colonyID the id of the colony.
+     * @param registeringToColony the id of the colony to which it is being registered.
      * @param animalID the id of the animal.
      */
     @Override

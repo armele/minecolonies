@@ -756,7 +756,7 @@ public class Colony implements IColony
 
         citizenManager.read(provider, compound.getCompound(TAG_CITIZEN_MANAGER));
         visitorManager.read(provider, compound);
-        animalManager.read(provider, compound.getCompound(TAG_ANIMAL_MANAGER));
+        animalManager.read(provider, compound);
         buildingManager.read(provider, compound.getCompound(TAG_BUILDING_MANAGER));
 
         // Recalculate max after citizens and buildings are loaded.
@@ -933,8 +933,8 @@ public class Colony implements IColony
         compound.put(TAG_CITIZEN_MANAGER, citizenCompound);
 
         visitorManager.write(provider, compound);
-        final CompoundTag animalCompound = new CompoundTag();
-        animalManager.write(provider, animalCompound);
+        
+        animalManager.write(provider, compound);
 
         final CompoundTag graveCompound = new CompoundTag();
         graveManager.write(graveCompound);

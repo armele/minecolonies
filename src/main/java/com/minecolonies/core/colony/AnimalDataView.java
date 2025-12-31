@@ -3,10 +3,11 @@ package com.minecolonies.core.colony;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.ldtteam.blockui.mod.Log;
 import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class AnimalDataView implements IAnimalDataView
 {
@@ -49,7 +50,7 @@ public class AnimalDataView implements IAnimalDataView
      * @param buf the buffer to deserialize from
      */
     @Override
-    public void deserialize(@NotNull FriendlyByteBuf buf)
+    public void deserialize(@NotNull final RegistryFriendlyByteBuf buf)
     {
         homeBuilding = buf.readBoolean() ? buf.readBlockPos() : null;
         combatCooldown = buf.readFloat();

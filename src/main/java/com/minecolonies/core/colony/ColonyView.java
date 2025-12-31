@@ -49,12 +49,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -955,11 +953,9 @@ public final class ColonyView implements IColonyView
      * @param refresh if all need to be refreshed
      */
     @Override
-    public void handleColonyViewAnimalMessage(final FriendlyByteBuf animalBuf, final boolean refresh)
+    public void handleColonyViewAnimalMessage(final RegistryFriendlyByteBuf animalBuf, final boolean refresh)
     {
         final Map<Integer, IAnimalDataView> animalCache = new HashMap<>(animals);
-
-        Log.getLogger().info("ColonyView.handleColonyViewAnimalMessage");
 
         if (refresh)
         {

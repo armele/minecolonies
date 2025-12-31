@@ -39,21 +39,29 @@ public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>>
      */
     @Override
     public void render(@Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int packedLight,
-                       @Nonnull Horse horse, float limbSwing, float limbSwingAmount,
-                       float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) 
+                    @Nonnull Horse horse, float limbSwing, float limbSwingAmount,
+                    float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
     {
         if (!(horse instanceof CavalryHorseEntity cavhorse)) return;
 
-        // Compute readiness from cooldown
         float threshold = horse.getMaxHealth() * CavalryHorseEntity.COMBAT_READINESS_THRESHOLD;
         float cooldown  = Math.max(0f, cavhorse.getAnimalDataView() == null ? 0 : cavhorse.getAnimalDataView().getCombatCooldown());
         float readiness = net.minecraft.util.Mth.clamp(1.0f - (cooldown / Math.max(0.001f, threshold)), 0f, 1f);
 
-        int segments = net.minecraft.util.Mth.clamp((int)Math.floor(readiness * 5f + 0.0001f), 0, 5);
+        int segments = net.minecraft.util.Mth.clamp((int) Math.floor(readiness * 5f + 0.0001f), 0, 5);
 
-        ResourceLocation OVERLAY_TEX = new ResourceLocation(Constants.MOD_ID, "textures/entity/horse/cavalry_overlay_layer" + segments + ".png");
+        ResourceLocation OVERLAY_TEX = new ResourceLocation(
+            Constants.MOD_ID,
+            "textures/entity/horse/cavalry_overlay_layer" + segments + ".png"
+        );
 
         VertexConsumer vc = buffer.getBuffer(net.minecraft.client.renderer.RenderType.entityTranslucent(OVERLAY_TEX));
-        this.getParentModel().renderToBuffer(pose, vc, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, .85f);
+
+        // 0.85f alpha -> 217 (out of 255)
+        int alpha = (int)(0.85f * 255.0f);
+        int color = net.minecraft.util.FastColor.ARGB32.color(alpha, 255, 255, 255);
+
+        this.getParentModel().renderToBuffer(pose, vc, packedLight, OverlayTexture.NO_OVERLAY, color);
     }
+
 }

@@ -16,8 +16,9 @@ import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 
@@ -125,10 +126,10 @@ public class AnimalData implements IAnimalData
      * @param nbt    nbt compound to read from
      * @return new AnimalData
      */
-    public static IAnimalData loadAnimalFromNBT(final IColony colony, final CompoundTag nbt)
+    public static IAnimalData loadAnimalFromNBT(final IColony colony, final CompoundTag nbt, final HolderLookup.@NotNull Provider provider)
     {
         final IAnimalData data = new AnimalData(nbt.getInt(NbtTagConstants.TAG_ID), colony);
-        data.deserializeNBT(nbt);
+        data.deserializeNBT(provider, nbt);
         return data;
     }
 
@@ -138,7 +139,7 @@ public class AnimalData implements IAnimalData
      * @return A compound nbt containing the animal data.
      */
     @Override
-    public CompoundTag serializeNBT()
+    public CompoundTag serializeNBT(@NotNull final HolderLookup.Provider provider)
     {
         CompoundTag compoundNBT = new CompoundTag();
         compoundNBT.putInt(NbtTagConstants.TAG_ID, getId());
@@ -159,7 +160,7 @@ public class AnimalData implements IAnimalData
      * @param nbtTagCompound the nbt compound to read from.
      */
     @Override
-    public void deserializeNBT(final CompoundTag nbtTagCompound)
+    public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag nbtTagCompound)
     {
         lastPosition = BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_POS);
         BlockPos homePos = nbtTagCompound.contains(NbtTagConstants.TAG_ANIMALHOME) ? BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_ANIMALHOME) : BlockPos.ZERO;
@@ -183,7 +184,7 @@ public class AnimalData implements IAnimalData
      * @param buf Buffer to write to.
      */
     @Override
-    public void serializeViewNetworkData(@NotNull final FriendlyByteBuf buf)
+    public void serializeViewNetworkData(@NotNull final RegistryFriendlyByteBuf buf)
     {
         // Serialize any additional view-bound data here
         // MUST match deserialization on the view side.

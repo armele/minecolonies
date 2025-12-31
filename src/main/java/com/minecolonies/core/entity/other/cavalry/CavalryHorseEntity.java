@@ -15,7 +15,6 @@ import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
 import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
@@ -33,7 +32,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Donkey;
@@ -128,7 +126,13 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public CavalryHorseEntity(EntityType<? extends Horse> type, Level level)
     {
         super(type, level);
-        this.setMaxUpStep(1.1F);
+
+        final AttributeInstance step = this.getAttribute(Attributes.STEP_HEIGHT);
+        if (step != null)
+        {
+            step.setBaseValue(1.1D);
+        }
+
         this.animalColonyHandler = new AnimalColonyHandler(this);
     }
 
@@ -186,7 +190,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
         if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
-            IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
+            IColony colony = IColonyManager.getInstance().getClosestColony(level(), this.getOnPos());
 
             if (colony == null)
             {
@@ -208,7 +212,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
             if (animalColonyHandler.getColonyId() != 0 && getManagedAnimalId() != 0 && getOffsetTicks() % CitizenConstants.TICKS_20 == 0)
             {
-                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level.dimension());
+                final IColonyView colonyView = IColonyManager.getInstance().getColonyView(animalColonyHandler.getColonyId(), level().dimension());
                 if (colonyView != null)
                 {
                     this.animalDataView = colonyView.getAnimal(getManagedAnimalId());
@@ -226,11 +230,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * Defines the synced data for this entity.
      */
     @Override
-    protected void defineSynchedData() 
+    protected void defineSynchedData(SynchedEntityData.Builder builder) 
     {
-        super.defineSynchedData();
-        this.entityData.define(DATA_COLONY_ID, 0);
-        this.entityData.define(DATA_MANAGED_ANIMAL_ID, 0);
+        super.defineSynchedData(builder);
+        builder.define(DATA_COLONY_ID, 0);          // NEEDS CONVERSION
+        builder.define(DATA_MANAGED_ANIMAL_ID, 0);  // NEEDS CONVERSION
     }
 
     /**
@@ -279,6 +283,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         return entityData.get(DATA_MANAGED_ANIMAL_ID);
     }
 
+    /**
+     * Set the managed animal ID of this entity.
+     * This method is also called whenever the entity is registered to a new colony.
+     * 
+     * @param managedAnimalId the managed animal ID to set
+     */
 
     @Override
     public void setManagedAnimalId(final int managedAnimalId)
@@ -326,20 +336,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         }
 
         return trainer instanceof EntityCitizen;
-    }
-
-    /**
-     * Adjusts the standing eye height based on the pose and dimensions given. For cavalry horses, this height is the same as the
-     * standard horse height, since the width change doesn’t affect the eye height.
-     * 
-     * @param pose the pose of the horse
-     * @param dims the dimensions of the horse
-     * @return the adjusted eye height
-     */
-    @Override
-    protected float getStandingEyeHeight(@Nonnull Pose pose, @Nonnull EntityDimensions dims)
-    {
-        return super.getStandingEyeHeight(pose, dims);
     }
     
     /**
@@ -412,19 +408,26 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     }
 
     /**
-     * Gets the offset that passengers are riding at relative to the horse's y position. In this case, we lower the seat by 0.35 units
-     * to make the rider's feet line up with the saddle. This is important for the cavalry horse model.
+     * Returns the attachment point for the given passenger entity, taking into account the entity dimensions and the partial tick.
+     * This method is overridden to lower the attachment point by {@link #SEATING_OFFSET} to line up with the saddle visuals.
      * 
-     * @return the double value of the y offset
+     * @param passenger the passenger entity
+     * @param dims the entity dimensions
+     * @param partialTick the partial tick
+     * @return the attachment point
      */
     @Override
-    public double getPassengersRidingOffset()
+    protected Vec3 getPassengerAttachmentPoint(@Nonnull Entity passenger,
+                                            @Nonnull EntityDimensions dims,
+                                            float partialTick)
     {
-        double vanilla = super.getPassengersRidingOffset();
-        double seatLowering = SEATING_OFFSET;
+        // Vanilla attachment point
+        Vec3 base = super.getPassengerAttachmentPoint(passenger, dims, partialTick);
 
-        return vanilla - seatLowering;
+        // Lower rider to line up with your saddle visuals
+        return base.add(0.0D, -SEATING_OFFSET, 0.0D);
     }
+
 
     /**
      * Creates a new PathNavigation for this horse entity, overriding the default vanilla horse navigation. This allows the horse to
@@ -616,7 +619,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         {
             cavJumpAttr.setBaseValue(jumpStrength);
         }
-        cav.setMaxUpStep(1.1F);
+
+        final AttributeInstance step = cav.getAttribute(Attributes.STEP_HEIGHT);
+        if (step != null)
+        {
+            step.setBaseValue(1.1D);
+        }
 
         cav.setHealth((float) Math.min(health, maxHealth));
 
@@ -688,7 +696,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         }
 
         // TODO: Create research that provides combat cooldown mitigation
-        animalData.setCombatCooldown(animalData.getCombatCooldown() + (damageAmount * cooldownImpact));
+        float combatCooldown = animalData.getCombatCooldown() + (damageAmount * cooldownImpact);
+
+        animalData.setCombatCooldown(combatCooldown);
         animalData.markDirty();
 
         return super.hurt(damageSource, damageAmount);
@@ -785,7 +795,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     @Override
     protected boolean isHorizontalCollisionMinor(@Nonnull Vec3 vec3)
     {
-        lastHorizontalCollision = level.getGameTime();
+        lastHorizontalCollision = level().getGameTime();
         return super.isHorizontalCollisionMinor(vec3);
     }
 
@@ -796,7 +806,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public boolean hadHorizontalCollission()
     {
-        return level.getGameTime() - lastHorizontalCollision < 10;
+        return level().getGameTime() - lastHorizontalCollision < 10;
     }
 
     /**
@@ -843,10 +853,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         return false;
     }
 
+
     /**
-     * Retrieves the UUID of the entity that has reserved the horse, or null if no one has reserved it.
-     * @param horse the horse to query
-     * @return the UUID of the reserver, or null if no one has reserved it
+     * Returns the UUID of the entity that has reserved this horse, or null if it is not reserved.
+     * 
+     * @return the UUID of the entity that has reserved this horse, or null if it is not reserved.
      */
     public UUID reservedBy()
     {
@@ -854,10 +865,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         return data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY) ? data.getUUID(RESERVE_KEY) : null;
     }
 
+
     /**
-     * Returns true if the horse is reserved by any entity, false otherwise.
-     * @param horse the horse to check
-     * @return true if the horse is reserved, false otherwise
+     * Checks if the horse has a reservation by another entity. If the horse has a reservation, 
+     * it will not be available as a cavalry mountn to other entities until the reservation is cleared.
+     *
+     * @return true if the horse has a reservation, false otherwise
      */
     public boolean hasReservation()
     {

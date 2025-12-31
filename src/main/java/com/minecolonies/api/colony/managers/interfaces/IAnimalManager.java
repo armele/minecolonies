@@ -6,6 +6,8 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
+
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.animal.Animal;
@@ -53,14 +55,14 @@ public interface IAnimalManager
      *
      * @param compound the compound to read it from.
      */
-    void read(@NotNull CompoundTag compound);
+    void read(@NotNull final HolderLookup.Provider provider, @NotNull CompoundTag compound);
 
     /**
      * Write the animal information to nbt.
      *
      * @param compoundNBT the compound to write it to.
      */
-    void write(@NotNull CompoundTag compoundNBT);
+    void write(@NotNull final HolderLookup.Provider provider, @NotNull CompoundTag compoundNBT);
 
     /**
      * Actions to execute on a colony tick.

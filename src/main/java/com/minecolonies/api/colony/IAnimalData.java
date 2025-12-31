@@ -7,12 +7,11 @@ import org.jetbrains.annotations.NotNull;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
-
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Data interface for animals managed by the Animal Manager.
@@ -81,7 +80,7 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      *
      * @param buf Buffer to write to.
      */
-    void serializeViewNetworkData(@NotNull FriendlyByteBuf buf);
+    void serializeViewNetworkData(@NotNull final RegistryFriendlyByteBuf buf);
 
     /**
      * Gets the home building of the animal.
