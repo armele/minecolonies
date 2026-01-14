@@ -18,12 +18,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 import static com.minecolonies.api.research.util.ResearchConstants.MAX_DEPTH;
 import static com.minecolonies.api.research.util.ResearchConstants.TAG_RESEARCH_TREE;
 import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_RESEARCH_STARTED;
