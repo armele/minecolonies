@@ -129,7 +129,7 @@ public final class RecipeAnalyzer
             }
             catch (final LinkageError | Exception ex) 
             {
-                Log.getLogger().error("Couldnt analyze animal: {}", id, ex);
+                Log.getLogger().error("Couldnt analyze animal: {}. Please report this to the author of {}." , id, id.getNamespace(), ex);
             }
         }
 
