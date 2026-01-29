@@ -3031,5 +3031,6 @@
   "com.ldtteam.gatehouse.travel.cost": "You don't have enough nuggets to pay for this trip!",
 
   "com.minecolonies.coremod.stablemaster.needed.readyitems": "Cavalry readiness items.",
-  "com.minecolonies.coremod.stablemaster.needed.feeditems": "Cavalry feed items."
+  "com.minecolonies.coremod.stablemaster.needed.feeditems": "Cavalry feed items.",
+  "entity.minecolonies.cavalry_horse": "Cavalry Horse"
 }

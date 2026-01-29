@@ -101,6 +101,9 @@ public final class ColonyView implements IColonyView
     private       String                         name        = "Unknown";
     private       ResourceKey<Level>                            dimensionId;
 
+    //  Colony Animals
+    private final Map<Integer, IAnimalDataView>  animals = new HashMap<>();
+    
     /**
      * Colony team color.
      */
@@ -943,6 +946,40 @@ public final class ColonyView implements IColonyView
         }
     }
 
+
+    /**
+     * Handles animal view messages
+     * @param animalBuf the new data to set
+     * @param refresh if all need to be refreshed
+     */
+    @Override
+    public void handleColonyViewAnimalMessage(final RegistryFriendlyByteBuf animalBuf, final boolean refresh)
+    {
+        final Map<Integer, IAnimalDataView> animalCache = new HashMap<>(animals);
+
+        if (refresh)
+        {
+            animals.clear();
+        }
+
+        int i = animalBuf.readInt();
+        for (int j = 0; j < i; j++)
+        {
+            final int id = animalBuf.readInt();
+            final IAnimalDataView dataView;
+            if (animalCache.containsKey(id))
+            {
+                dataView = animalCache.get(id);
+            }
+            else
+            {
+                dataView = new AnimalDataView(id, this);
+            }
+            dataView.deserialize(animalBuf);
+            animals.put(dataView.getId(), dataView);
+        }
+    }
+
     /**
      * Remove a citizen from the ColonyView.
      *
@@ -1418,6 +1455,17 @@ public final class ColonyView implements IColonyView
         return null;
     }
 
+    /**
+     * Gets the animal manager of the colony view.
+     *
+     * @return null in the view
+     */
+    @Override
+    public IAnimalManager getAnimalManager()
+    {
+        return null;
+    }
+
     @Override
     public IRaiderManager getRaiderManager()
     {
@@ -1494,6 +1542,12 @@ public final class ColonyView implements IColonyView
     public ICitizenDataView getVisitor(final int citizenId)
     {
         return visitors.get(citizenId);
+    }
+
+    @Override
+    public IAnimalDataView getAnimal(final int animalId)
+    {
+        return animals.get(animalId);
     }
 
     @Override

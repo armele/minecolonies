@@ -45,13 +45,14 @@ import com.minecolonies.core.entity.mobs.raider.pirates.EntityPirateRaider;
 import com.minecolonies.core.entity.other.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,6 +142,12 @@ public class EntityInitializer
                 .setTrackingRange(ENTITY_TRACKING_RANGE)
                 .setUpdateInterval(ENTITY_UPDATE_FREQUENCY)
                 .sized(0.98F, 0.7F));
+
+            ModEntities.CAVALRY_HORSE = build(registry, "cavalry_horse",
+              EntityType.Builder.of(CavalryHorseEntity::new, MobCategory.CREATURE)
+                .setTrackingRange(ENTITY_TRACKING_RANGE)
+                .setUpdateInterval(ENTITY_UPDATE_FREQUENCY)
+                .sized(CavalryHorseEntity.SLIM_W, CavalryHorseEntity.BASE_H));           
 
             ModEntities.MUMMY = build(registry, "mummy",
               EntityType.Builder.of(EntityMummyRaider::new, MobCategory.MONSTER)
