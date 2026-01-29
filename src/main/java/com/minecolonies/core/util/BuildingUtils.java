@@ -9,7 +9,7 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.HiringMode;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.colony.buildings.IBuildingInventory;
+import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
@@ -191,15 +191,15 @@ public final class BuildingUtils
     }
 
     /**
-     * Get the IBuildingInventory for a given BlockPos on a specific side (client or server).
+     * Get the ICommonBuilding for a given BlockPos on a specific side (client or server).
      * If the building doesn't exist, it returns null.
      * @param level the level.
      * @param pos the position of the building.
-     * @return the IBuildingInventory of the building, or null.
+     * @return the ICommonBuilding of the building, or null.
      */
-    public static IBuildingInventory buildingInventoryForSide(Level level, BlockPos pos)
+    public static ICommonBuilding buildingInventoryForSide(Level level, BlockPos pos)
     {
-        IBuildingInventory buildingInventory = null;
+        ICommonBuilding buildingInventory = null;
         
 
         if (level.isClientSide)    
@@ -207,7 +207,7 @@ public final class BuildingUtils
             IColonyView colonyView = IColonyManager.getInstance().getColonyView(level, pos);
             if (colonyView != null)
             {
-                buildingInventory = colonyView.getBuilding(pos);
+                buildingInventory = colonyView.getClientBuildingManager().getBuilding(pos);
             }
             return buildingInventory;
         }
@@ -216,7 +216,7 @@ public final class BuildingUtils
             IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(level, pos);
             if (colony != null)
             {
-                buildingInventory = colony.getBuildingManager().getBuilding(pos);
+                buildingInventory = colony.getServerBuildingManager().getBuilding(pos);
             }
             return buildingInventory;
         }

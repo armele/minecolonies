@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
-import com.minecolonies.api.colony.buildings.IBuildingInventory;
 import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
@@ -22,7 +21,7 @@ import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.Suppression.GENERIC_WILDCARD;
 
-public interface IBuildingView extends IRequester, IModuleContainerView, IBuildingInventory, ICommonBuilding
+public interface IBuildingView extends IRequester, IModuleContainerView, ICommonBuilding
 {
     /**
      * Gets the id for this building.
