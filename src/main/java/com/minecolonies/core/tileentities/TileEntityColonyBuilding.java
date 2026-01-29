@@ -198,7 +198,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
 
         if (building == null && colony != null && !getLevel().isClientSide)
         {
-            building = colony.getBuildingManager().getBuilding(getPosition());
+            building = colony.getServerBuildingManager().getBuilding(getPosition());
             if (building != null)
             {
                 registryName = building.getBuildingType().getRegistryName();
@@ -356,7 +356,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     public IBuildingView getBuildingView()
     {
         final IColonyView c = IColonyManager.getInstance().getColonyView(colonyId, level.dimension());
-        return c == null ? null : c.getBuilding(getPosition());
+        return c == null ? null : c.getClientBuildingManager().getBuilding(getPosition());
     }
 
     @Override
@@ -468,9 +468,9 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
         }
         else
         {
-            if (colony instanceof IColonyView && level.getGameTime() % 20 == 0)
+            if (colony instanceof IColonyView colonyView && level.getGameTime() % 20 == 0)
             {
-                final IBuildingView buildingView = ((IColonyView) colony).getBuilding(buildingPos);
+                final IBuildingView buildingView = colonyView.getClientBuildingManager().getBuilding(buildingPos);
                 if (buildingView != null)
                 {
                     for (final BlockPos buildingSignPos : getWorldTagNamePosMap().getOrDefault(BUILDING_SIGN, Collections.emptySet()))
