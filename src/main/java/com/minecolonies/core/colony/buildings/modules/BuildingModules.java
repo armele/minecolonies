@@ -542,7 +542,7 @@ public class BuildingModules
       "druid_barracks_work", () -> new GuardBuildingModule(ModGuardTypes.druid.get(), true, ICommonBuilding::getBuildingLevel),
       () -> CombinedHiringLimitModuleView::new);
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CAVALRY_BARRACKS_WORK = new BuildingEntry.ModuleProducer<>(
-      "cavalry_barracks_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, ISchematicProvider::getBuildingLevel),
+      "cavalry_barracks_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, ICommonBuilding::getBuildingLevel),
       () -> CombinedHiringLimitModuleView::new);
       
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> KNIGHT_TOWER_WORK =

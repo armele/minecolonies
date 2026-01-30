@@ -128,7 +128,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (stablePos == null)
         {
-            stablePos = colony.getBuildingManager().getBestBuilding(worker.getOnPos(), BuildingStable.class);
+            stablePos = colony.getServerBuildingManager().getBestBuilding(worker.getOnPos(), BuildingStable.class);
         }
 
         if (stablePos != null)
@@ -254,7 +254,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return null;
         }
 
-        IBuilding targetBuilding = buildingGuards.getColony().getBuildingManager().getBuilding(targetPos);
+        IBuilding targetBuilding = buildingGuards.getColony().getServerBuildingManager().getBuilding(targetPos);
 
         // The proposed patrol point was not a building location - just use it.
         if (targetBuilding == null)
@@ -338,7 +338,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
                 if (worker.getRandom().nextInt(5) <= 1)
                 {
-                    BlockPos buildingPos = buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
+                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> true);
                     currentPatrolPoint = patrolPointForBuilding(buildingPos);
 
                     if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
@@ -356,7 +356,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
             if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
             {
-                buildingPos = buildingGuards.getColony().getBuildingManager().getRandomBuilding(b -> true);
+                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> true);
             }
 
             currentPatrolPoint = patrolPointForBuilding(buildingPos);

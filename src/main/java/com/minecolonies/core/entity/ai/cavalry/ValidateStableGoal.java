@@ -68,8 +68,8 @@ public class ValidateStableGoal extends Goal
     public void start()
     {
         IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(horse.level(), horse.getOnPos());
-        BlockPos stablePos = colony.getBuildingManager().getBestBuilding(horse.getOnPos(), BuildingStable.class);
-        IBuilding building = colony.getBuildingManager().getBuilding(stablePos);
+        BlockPos stablePos = colony.getServerBuildingManager().getBestBuilding(horse.getOnPos(), BuildingStable.class);
+        IBuilding building = colony.getServerBuildingManager().getBuilding(stablePos);
 
         horse.getAnimalData().setHomeBuilding(building);
 
