@@ -39,7 +39,7 @@ import static com.minecolonies.api.util.constant.EquipmentLevelConstants.BASIC_T
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
 import static com.minecolonies.api.util.constant.Suppression.GENERIC_WILDCARD;
 
-public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer, IRequestResolverProvider, IRequester, ISchematicProvider
+public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer, IRequestResolverProvider, IRequester, ISchematicProvider, ICommonBuilding
 {
     /**
      * Minimal level to ask for wood tools. (WOOD_HUT_LEVEL + 1 == stone)
@@ -422,13 +422,6 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
      * @param player the player picking it up.
      */
     void pickUp(final Player player);
-
-    /**
-     * Get the Building type
-     *
-     * @return building type
-     */
-    BuildingEntry getBuildingType();
 
     /**
      * Set the building type

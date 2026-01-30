@@ -226,7 +226,7 @@ public class EntityAICitizenChild implements IStateAI
                 actionTimer = 3 * 60 * 20;
             }
 
-            final IRegisteredStructureManager mgr = colony.getBuildingManager();
+            final IRegisteredStructureManager mgr = colony.getServerBuildingManager();
 
             final List<IBuilding> buildings = mgr.getBuildings()
                 .values()
