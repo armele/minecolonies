@@ -158,7 +158,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
       final String hash,
       final Player player)
     {
-        final IBuildingView warehouse = buildingView.getColony().getBuilding(warehouseBlockPos);
+        final IBuildingView warehouse = buildingView.getColony().getClientBuildingManager().getBuilding(warehouseBlockPos);
 
         if (warehouse == null)
         {

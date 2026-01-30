@@ -188,7 +188,7 @@ public class ChunkClaimData implements IChunkClaimData, INBTSerializable<Compoun
                         for (final Iterator<BlockPos> buildingIt = colonyEntry.getValue().iterator(); buildingIt.hasNext(); )
                         {
                             final BlockPos buildingPos = buildingIt.next();
-                            if (colony.getBuildingManager().getBuilding(buildingPos) != null)
+                            if (colony.getCommonBuildingManager().getBuilding(buildingPos) != null)
                             {
                                 colony.addLoadedChunk(ChunkPos.asLong(chunk.getPos().x, chunk.getPos().z), chunk);
                                 setOwningColony(colonyEntry.getKey(), chunk);
