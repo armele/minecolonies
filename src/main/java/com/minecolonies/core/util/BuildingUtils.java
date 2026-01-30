@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.stringtemplate.v4.compiler.STParser.region_return;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -190,7 +191,6 @@ public final class BuildingUtils
         return -1;
     }
 
-
     /**
      * Retrieves the ICommonBuilding at the given position in the given level.
      * 
@@ -198,16 +198,14 @@ public final class BuildingUtils
      * @param pos the position to search for.
      * @return the ICommonBuilding at the given position, or null if none exists.
      */
-    public static ICommonBuilding commonBuildingFromPosition(Level level, BlockPos pos)
+    public static ICommonBuilding commonBuildingFromPosition(@NotNull final Level level, @NotNull final BlockPos pos)
     {
-        ICommonBuilding buildingInventory = null;
-        
         IColony colony = IColonyManager.getInstance().getIColony(level, pos);
         if (colony != null)
         {
-            buildingInventory = colony.getCommonBuildingManager().getBuilding(pos);
+            return colony.getCommonBuildingManager().getBuilding(pos);
         }
 
-        return buildingInventory;
+        return null;
     }
 }
