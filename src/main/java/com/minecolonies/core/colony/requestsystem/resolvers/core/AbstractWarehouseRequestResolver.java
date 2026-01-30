@@ -176,37 +176,41 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
         final int totalRequested = request.getRequest().getCount();
         int totalAvailable = 0;
         final Map<ItemStorage, Integer> storages = new HashMap<>();
-        int toKeep = 0;
 
-        if (request.getRequest() instanceof INonExhaustiveDeliverable)
-        {
-            toKeep = ((INonExhaustiveDeliverable) request.getRequest()).getLeftOver();
-        }
+        final int toKeep = request.getRequest() instanceof INonExhaustiveDeliverable
+            ? ((INonExhaustiveDeliverable) request.getRequest()).getLeftOver()
+            : 0;
 
         final List<Tuple<ItemStack, BlockPos>> inv = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> request.getRequest().matches(itemStack));
         for (final Tuple<ItemStack, BlockPos> stack : inv)
         {
-            if (!stack.getA().isEmpty())
+            final ItemStack s = stack.getA();
+            if (s.isEmpty())
             {
-                if (toKeep > 0)
+                continue;
+            }
+
+            if (toKeep > 0)
+            {
+                final ItemStorage key = new ItemStorage(s);
+                int alreadyKept = storages.getOrDefault(key, 0);
+                if (alreadyKept < toKeep)
                 {
-                    int alreadyKept = storages.getOrDefault(new ItemStorage(stack.getA()), 0);
-                    if (alreadyKept < toKeep)
+                    final int stackCount = s.getCount();
+
+                    if (stackCount + alreadyKept <= toKeep)
                     {
-                        if (stack.getA().getCount() + alreadyKept <= toKeep)
-                        {
-                            storages.put(new ItemStorage(stack.getA()), storages.getOrDefault(new ItemStorage(stack.getA()), 0) + stack.getA().getCount());
-                            continue;
-                        }
-                        int toKeepThisStack = toKeep - alreadyKept;
-                        storages.put(new ItemStorage(stack.getA()), storages.getOrDefault(new ItemStorage(stack.getA()), 0) + toKeepThisStack);
-                        totalAvailable += stack.getA().getCount() - toKeepThisStack;
+                        storages.put(key, alreadyKept + stackCount);
                         continue;
                     }
-                    totalAvailable -= toKeep;
+                    
+                    int toKeepThisStack = toKeep - alreadyKept;
+                    storages.put(key, alreadyKept + toKeepThisStack);
+                    totalAvailable += stackCount - toKeepThisStack;
+                    continue;
                 }
-                totalAvailable += stack.getA().getCount();
             }
+            totalAvailable += s.getCount();
         }
 
         if (totalAvailable >= totalRequested || totalAvailable >= request.getRequest().getMinimumCount())
