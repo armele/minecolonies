@@ -16,10 +16,6 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.MineColonies;
-import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
-import com.minecolonies.core.colony.jobs.JobCavalry;
-import com.minecolonies.core.entity.ai.cavalry.ReturnToStableGoal;
-import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
 import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
@@ -134,8 +130,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         super(type, level);
         this.setMaxUpStep(1.1F);
         this.animalColonyHandler = new AnimalColonyHandler(this);
-
-        debugSetUuidName();
     }
 
     /**
@@ -150,8 +144,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(3, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(5, new ValidateStableGoal(this));
-        this.goalSelector.addGoal(6, new ReturnToStableGoal(this, 1.15, 20.0));
+        // this.goalSelector.addGoal(5, new ValidateStableGoal(this));
+        // this.goalSelector.addGoal(6, new ReturnToStableGoal(this, 1.15, 20.0));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
@@ -190,13 +184,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         int colonyId = getColonyId();
 
         // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
-        if (colonyId == 0)
+        if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
             IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
 
             if (colony == null)
             {
-                this.remove(Entity.RemovalReason.DISCARDED);
                 return;
             }
 
@@ -225,10 +218,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         else
         {
             animalColonyHandler.registerWithColony(colonyId, getManagedAnimalId());
-            if (tickCount % 500 == 0)
-            {
-                this.setCustomNameVisible(MineColonies.getConfig().getServer().alwaysRenderNameTag.get());
-            }
         }
     }
     
@@ -317,7 +306,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             return false;
         }
 
-        return guard.getCitizenJobHandler().getColonyJob() instanceof JobCavalry;
+        /* Implementation will be finalized in Cavalry PR 4 of 4 */
+        return false;
     }
 
     /**
@@ -486,7 +476,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public void tick()
     {
         super.tick();
-        logActiveGoals();
 
         if (!level().isClientSide)
         {
@@ -522,16 +511,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 }
             }
         }
-    }
-
-    /**
-     * Sets the custom name of the horse to its UUID, and makes the custom name visible above the entity.
-     * This is intended for debugging purposes only, and should not be used in production code.
-     */
-    public void debugSetUuidName()
-    {
-        this.setCustomName(Component.literal(this.getUUID().toString()));
-        this.setCustomNameVisible(true); // ensures it shows above the entity
     }
 
     /**
@@ -585,8 +564,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         // If not a living vanilla horse, return null
         if (vanilla == null || !vanilla.isAlive() || vanilla.isVehicle()) return null;
 
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 1.", vanilla.getUUID());
-
         // --- Snapshot generic AbstractHorse state ---
         final boolean wasTamed = vanilla.isTamed();
         final UUID owner = vanilla.getOwnerUUID();
@@ -617,13 +594,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         CavalryHorseEntity cav = vanilla.convertTo(ModEntities.CAVALRY_HORSE, true);
         if (cav == null) return null;
 
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 2. Colony ID: {}", vanilla.getUUID(), colony.getID());
-
         IAnimalData animalData = colony.getAnimalManager().createAndRegisterAnimalData(cav);
         cav.setAnimalData(animalData);
         cav.setColonyId(colony.getID());
-
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 3. Colony ID: {}", cav.getUUID(), cav.getColonyId());
 
         // Re-apply attributes & health
         AttributeInstance cavHealthAttr = cav.getAttribute(Attributes.MAX_HEALTH);
@@ -659,8 +632,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             cav.setVariant(variant);
         }
 
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 4.", cav.getUUID());
-
         // Name & leash
         if (customName != null)
         {
@@ -671,8 +642,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         {
             cav.setLeashedTo(leashHolder, true);
         }
-
-        Log.getLogger().info("{}: Horse lifecycle checkpoint 5.", cav.getUUID());
 
         return cav;
     }
@@ -715,7 +684,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         if (damageSource.is(DamageSourceKeys.STUCK_DAMAGE))
         {
-            Log.getLogger().info("Stuck damage mitigated for horse {}: {}", this.getUUID(), damageAmount);
             damageAmount *= 0.0f;
         }
 
@@ -780,8 +748,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 }
             }
         }
-
-        debugSetUuidName();
     }
 
     /**
@@ -910,8 +876,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         IBuilding building = animalData.getHomeBuilding();
 
-        if ((building == null) || !(building instanceof BuildingStable)) return null;
-
         return building;
     }
 
@@ -969,7 +933,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         if (data == null) 
         {
-            Log.getLogger().warn("Attempting to set animal data to null.", new Exception());
             return;
         }
 

@@ -141,7 +141,7 @@ public class FoodUtils
         int bestScore = Integer.MAX_VALUE;
         int bestSlot = -1;
         Item bestItem = null;
-        final boolean restaurantExists = citizenData.getColony().getBuildingManager().getBestBuilding(citizenData.getWorkBuilding() == null ? citizenData.getHomePosition() : citizenData.getWorkBuilding().getPosition(), BuildingCook.class) != null;
+        final boolean restaurantExists = citizenData.getColony().getServerBuildingManager().getBestBuilding(citizenData.getWorkBuilding() == null ? citizenData.getHomePosition() : citizenData.getWorkBuilding().getPosition(), BuildingCook.class) != null;
 
         final ICitizenFoodHandler foodHandler = citizenData.getCitizenFoodHandler();
         final ICitizenFoodHandler.CitizenFoodStats foodStats = foodHandler.getFoodHappinessStats();
@@ -173,7 +173,7 @@ public class FoodUtils
         }
 
         // If we're not at the restaurant and are the brink of complaining about food, go to the restaurant instead of eating the food you got in the inventory.
-        if (restaurantExists && menu == null &&
+        if (restaurantExists && menu == null && citizenData.getCitizenFoodHandler().hasFullFoodHistory() &&
               ((bestScore >= 0 && foodStats.diversity() <= diversityRequirement)
               || (!(bestItem instanceof IMinecoloniesFoodItem) && foodStats.quality() <= qualityRequirement)))
         {

@@ -173,12 +173,6 @@ public class EntityAIEatTask implements IStateAI
             return EAT;
         }
 
-        if (citizen.getCitizenData().getJob() instanceof JobCook jobCook && jobCook.getBuildingPos().equals(restaurantPos))
-        {
-            reset();
-            return DONE;
-        }
-
         return GO_TO_HUT;
     }
 
@@ -261,7 +255,7 @@ public class EntityAIEatTask implements IStateAI
         }
 
         final IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
-        final IBuilding cookBuilding = colony.getBuildingManager().getBuilding(restaurantPos);
+        final IBuilding cookBuilding = colony.getServerBuildingManager().getBuilding(restaurantPos);
         if (cookBuilding instanceof BuildingCook)
         {
             if (!EntityNavigationUtils.walkToBuilding(citizen, cookBuilding))
@@ -337,7 +331,7 @@ public class EntityAIEatTask implements IStateAI
     {
         if (restaurantPos != null)
         {
-            final IBuilding restaurant = citizen.getCitizenData().getColony().getBuildingManager().getBuilding(restaurantPos);
+            final IBuilding restaurant = citizen.getCitizenData().getColony().getServerBuildingManager().getBuilding(restaurantPos);
             if (restaurant instanceof BuildingCook)
             {
                 return ((BuildingCook) restaurant).getNextSittingPosition();
@@ -356,14 +350,14 @@ public class EntityAIEatTask implements IStateAI
     {
         final ICitizenData citizenData = citizen.getCitizenData();
         final IColony colony = citizenData.getColony();
-        restaurantPos = colony.getBuildingManager().getBestBuilding(citizen, BuildingCook.class);
+        restaurantPos = colony.getServerBuildingManager().getBestBuilding(citizen, BuildingCook.class);
 
         if (restaurantPos == null)
         {
             return SEARCH_RESTAURANT;
         }
 
-        restaurant = colony.getBuildingManager().getBuilding(restaurantPos);
+        restaurant = colony.getServerBuildingManager().getBuilding(restaurantPos);
         if (!restaurant.isInBuilding(citizen.blockPosition()))
         {
             return GO_TO_RESTAURANT;
@@ -403,23 +397,43 @@ public class EntityAIEatTask implements IStateAI
             return SEARCH_RESTAURANT;
         }
 
-        if (EntityNavigationUtils.walkToBuilding(citizen, buildingWorker))
+        restaurant = null;
+        if (!EntityNavigationUtils.walkToBuilding(citizen, buildingWorker))
         {
-            final int slot = FoodUtils.getBestFoodForCitizen(citizen.getInventoryCitizen(), citizen.getCitizenData(), null);
-            if (slot != -1)
-            {
-                final ItemStorage storageToGet = FoodUtils.checkForFoodInBuilding(citizen.getCitizenData(), null, buildingWorker);
-                if (storageToGet != null && InventoryUtils.transferItemStackIntoNextBestSlotInItemHandler(buildingWorker, storageToGet, citizen.getInventoryCitizen()))
-                {
-                    restaurant = null;
-                    return EAT;
-                }
-            }
-            return SEARCH_RESTAURANT;
+            return GO_TO_HUT;
         }
 
-        restaurant = null;
-        return GO_TO_HUT;
+        final int slot;
+        if (buildingWorker instanceof BuildingCook buildingCook)
+        {
+            restaurant = buildingCook;
+            slot = FoodUtils.getBestFoodForCitizen(citizen.getInventoryCitizen(), citizen.getCitizenData(), buildingCook.getModule(RESTAURANT_MENU).getMenu());
+        }
+        else
+        {
+            slot = FoodUtils.getBestFoodForCitizen(citizen.getInventoryCitizen(), citizen.getCitizenData(), null);
+        }
+
+        if (slot == -1)
+        {
+            final ItemStorage storageToGet = FoodUtils.checkForFoodInBuilding(citizen.getCitizenData(), null, buildingWorker);
+            if (storageToGet != null && InventoryUtils.transferItemStackIntoNextBestSlotInItemHandler(buildingWorker, storageToGet, citizen.getInventoryCitizen()))
+            {
+                return EAT;
+            }
+        }
+        else
+        {
+            return EAT;
+        }
+
+        if (citizen.getCitizenData().getJob() instanceof JobCook)
+        {
+            reset();
+            return DONE;
+        }
+
+        return SEARCH_RESTAURANT;
     }
 
     /**
@@ -437,7 +451,7 @@ public class EntityAIEatTask implements IStateAI
                 citizen.stopRiding();
             }
 
-            final IBuilding building = citizen.getCitizenColonyHandler().getColonyOrRegister().getBuildingManager().getBuilding(restaurantPos);
+            final IBuilding building = citizen.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBuilding(restaurantPos);
             if (building != null)
             {
                 if (building.isInBuilding(citizen.blockPosition()))
@@ -466,10 +480,10 @@ public class EntityAIEatTask implements IStateAI
             ? citizenData.getWorkBuilding().getPosition()
             : citizenData.getHomeBuilding() != null ? citizenData.getHomeBuilding().getPosition() : citizen.blockPosition();
 
-        restaurantPos = colony.getBuildingManager().getBestBuilding(searchFrom, BuildingCook.class, STAFFED_RESTAURANTS);
+        restaurantPos = colony.getServerBuildingManager().getBestBuilding(searchFrom, BuildingCook.class, STAFFED_RESTAURANTS);
         if (restaurantPos == null)
         {
-            restaurantPos = colony.getBuildingManager().getBestBuilding(searchFrom, BuildingCook.class);
+            restaurantPos = colony.getServerBuildingManager().getBestBuilding(searchFrom, BuildingCook.class);
         }
 
         final IJob<?> job = citizen.getCitizenJobHandler().getColonyJob();

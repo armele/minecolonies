@@ -62,8 +62,6 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
 
         animal.setManagedAnimalId(animalID);
 
-        Log.getLogger().info("During registration of AnimalColonyHandler with Colony. Colony id: {}, managed animal id: {}", colonyId, animalID);
-
         if (colonyId == 0 || animal.getManagedAnimalId() == 0)
         {
             Log.getLogger().warn(String.format("IManagedAnimal '%s' has an unassigned colony id (#%d) or animal id (#%d)", animal.getEntity().getUUID(), colonyId, animal.getManagedAnimalId()));

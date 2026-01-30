@@ -72,8 +72,6 @@ public class AnimalManager implements IAnimalManager
     {
         Entity animalEntity = animal.getEntity();
 
-        Log.getLogger().info("During animalManager.registerAnimal. Colony id: {}, managed animal id: {}", colony.getID(), animal.getManagedAnimalId());
-
         if (animal.getManagedAnimalId() == 0 || animalMap.get(animal.getManagedAnimalId()) == null)
         {
             if (!animalEntity.isAddedToWorld())
@@ -86,8 +84,6 @@ public class AnimalManager implements IAnimalManager
         }
 
         final IAnimalData data = animalMap.get(animal.getManagedAnimalId());
-
-        Log.getLogger().info("During animalManager.registerAnimal UUID check. data: {}, animalEntity.UUID: {}, data.UUID {}", data, animalEntity.getUUID(), data.getUUID());
 
         if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
         {
@@ -103,7 +99,6 @@ public class AnimalManager implements IAnimalManager
 
         if (!existingManagedAnimal.isPresent())
         {
-            Log.getLogger().info("During animalManager.registerAnimal: No existing managed animal.");
             data.setManagedAnimal(animal);
             animal.setAnimalData(data);
             return;
@@ -111,13 +106,11 @@ public class AnimalManager implements IAnimalManager
 
         if (existingManagedAnimal.get() == animal)
         {
-            Log.getLogger().info("During animalManager.registerAnimal: Reregistering same animal.");
             return;
         }
 
         if (animalEntity.isAlive())
         {
-            Log.getLogger().info("During animalManager.registerAnimal: Wiring up managed animal.");
             existingManagedAnimal.get().getEntity().remove(Entity.RemovalReason.DISCARDED);
             data.setManagedAnimal(animal);
             animal.setAnimalData(data);
@@ -244,8 +237,6 @@ public class AnimalManager implements IAnimalManager
         if (animalManagerNBT.contains(TAG_ANIMALS, Tag.TAG_LIST))
         {
             final ListTag animalList = animalManagerNBT.getList(TAG_ANIMALS, Tag.TAG_COMPOUND);
-
-            Log.getLogger().info("Restoring animal list with {} entries.", animalList.size());
 
             for (int i = 0; i < animalList.size(); i++)
             {
