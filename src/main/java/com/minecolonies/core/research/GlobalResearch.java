@@ -6,6 +6,7 @@ import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.research.*;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.InventoryUtils;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.core.util.BuildingUtils;
 
 import net.minecraft.client.Minecraft;
@@ -190,7 +191,7 @@ public class GlobalResearch implements IGlobalResearch
 
         final IItemHandler playerInventory = new InvWrapper(Minecraft.getInstance().player.getInventory());
 
-        ICommonBuilding buildingInv = BuildingUtils.buildingInventoryForSide(player.level(), universityPos);
+        ICommonBuilding buildingInv = BuildingUtils.commonBuildingFromPosition(player.level(), universityPos);
 
         for (final IResearchCost ingredient : costList)
         {

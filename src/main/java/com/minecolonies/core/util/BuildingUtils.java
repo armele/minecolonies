@@ -190,35 +190,24 @@ public final class BuildingUtils
         return -1;
     }
 
+
     /**
-     * Get the ICommonBuilding for a given BlockPos on a specific side (client or server).
-     * If the building doesn't exist, it returns null.
-     * @param level the level.
-     * @param pos the position of the building.
-     * @return the ICommonBuilding of the building, or null.
+     * Retrieves the ICommonBuilding at the given position in the given level.
+     * 
+     * @param level the level to search in.
+     * @param pos the position to search for.
+     * @return the ICommonBuilding at the given position, or null if none exists.
      */
-    public static ICommonBuilding buildingInventoryForSide(Level level, BlockPos pos)
+    public static ICommonBuilding commonBuildingFromPosition(Level level, BlockPos pos)
     {
         ICommonBuilding buildingInventory = null;
         
-
-        if (level.isClientSide)    
+        IColony colony = IColonyManager.getInstance().getIColony(level, pos);
+        if (colony != null)
         {
-            IColonyView colonyView = IColonyManager.getInstance().getColonyView(level, pos);
-            if (colonyView != null)
-            {
-                buildingInventory = colonyView.getClientBuildingManager().getBuilding(pos);
-            }
-            return buildingInventory;
+            buildingInventory = colony.getCommonBuildingManager().getBuilding(pos);
         }
-        else
-        {   
-            IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(level, pos);
-            if (colony != null)
-            {
-                buildingInventory = colony.getServerBuildingManager().getBuilding(pos);
-            }
-            return buildingInventory;
-        }
+
+        return buildingInventory;
     }
 }
