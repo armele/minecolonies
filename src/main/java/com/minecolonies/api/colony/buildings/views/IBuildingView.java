@@ -16,7 +16,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -39,13 +38,6 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
      * @return
      */
     BlockPos getParent();
-
-    /**
-     * Get the BlockPos of the Containers.
-     *
-     * @return containerList.
-     */
-    List<BlockPos> getContainerList();
 
     /**
      * Get the max level of the building.

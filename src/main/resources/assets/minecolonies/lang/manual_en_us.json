@@ -1794,6 +1794,7 @@
   "com.minecolonies.coremod.gui.warehouse.limitreached": "Limit Reached",
   "com.minecolonies.coremod.gui.warehouse.sorted": "Warehouse stock sorted!",
 
+  "com.minecolonies.coremod.university.researchfrominv": "You can fund research costs from the university inventory.",
   "com.minecolonies.coremod.university.researchconcluded.0": "Your researchers have made their conclusions about '%s'.",
   "com.minecolonies.coremod.university.researchconcluded.1": "Your researchers just unravelled the mystery of '%s'!",
   "com.minecolonies.coremod.university.researchconcluded.2": "Your researchers made a breakthrough! They now understand '%s'.",

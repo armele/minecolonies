@@ -2,8 +2,11 @@ package com.minecolonies.core.util;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.minecolonies.api.blocks.AbstractBlockHut;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.HiringMode;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.util.IItemHandlerCapProvider;
 import com.minecolonies.api.util.InventoryUtils;
@@ -103,5 +106,23 @@ public final class BuildingUtils
         return building.canAssignCitizens()
                 && (hiringMode == HiringMode.DEFAULT && !building.getColony().getSettings().getSetting(BuildingTownHall.AUTO_HIRING_MODE).getValue() || hiringMode == HiringMode.AUTO)
                 && (job == null || getAllowedJobs(building.getColony().getWorld(), building.getPosition()).test(job));
+    }
+
+    /**
+     * Retrieves the ICommonBuilding at the given position in the given level.
+     * 
+     * @param level the level to search in.
+     * @param pos the position to search for.
+     * @return the ICommonBuilding at the given position, or null if none exists.
+     */
+    public static ICommonBuilding commonBuildingFromPosition(@NotNull final Level level, @NotNull final BlockPos pos)
+    {
+        IColony colony = IColonyManager.getInstance().getIColony(level, pos);
+        if (colony != null)
+        {
+            return colony.getCommonBuildingManager().getBuilding(pos);
+        }
+
+        return null;
     }
 }

@@ -174,7 +174,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
         final BuildingResourcesModuleView resourcesModule = buildingView.getModuleViewByType(BuildingResourcesModuleView.class);
 
         final Map<String, Integer> items = new HashMap<>();
-        for (final BlockPos container : warehouse.getContainerList())
+        for (final BlockPos container : warehouse.getContainers())
         {
             final BlockEntity blockEntity = warehouse.getColony().getWorld().getBlockEntity(container);
             if (blockEntity instanceof TileEntityRack rack)
