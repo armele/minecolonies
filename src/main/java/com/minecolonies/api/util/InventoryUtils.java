@@ -2044,6 +2044,14 @@ public class InventoryUtils
         return transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandlerWithResult(sourceProvider, itemStackSelectionPredicate, amount, targetHandler) == 0;
     }
 
+    /**
+     * Transfer items over and return the leftover that couldn't be transfered (0 if full amount was transfered).
+     * @param sourceProvider
+     * @param itemStackSelectionPredicate
+     * @param amount
+     * @param targetHandler
+     * @return missing reminder compared to amount.
+     */
     public static int transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandlerWithResult(
       @NotNull final ICapabilityProvider sourceProvider,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,

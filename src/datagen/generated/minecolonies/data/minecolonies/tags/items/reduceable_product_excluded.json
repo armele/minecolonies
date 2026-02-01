@@ -5,11 +5,20 @@
     "minecolonies:cookie_dough",
     "minecolonies:raw_pumpkin_pie",
     "minecolonies:cake_batter",
+<<<<<<< HEAD:src/datagen/generated/minecolonies/data/minecolonies/tags/items/reduceable_product_excluded.json
     "#forge:stone",
     "#forge:cobblestone",
     "#forge:gravel",
     "#forge:sand",
     "#forge:ingots",
+=======
+    "minecraft:bookshelf",
+    "#c:stones",
+    "#c:cobblestones",
+    "#c:gravels",
+    "#c:sands",
+    "#c:ingots",
+>>>>>>> aedb250fe3 (Fixes (#11522)):src/datagen/generated/minecolonies/data/minecolonies/tags/item/reduceable_product_excluded.json
     "#minecolonies:storage_blocks"
   ]
 }
