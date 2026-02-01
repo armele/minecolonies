@@ -28,13 +28,16 @@ import com.minecolonies.core.tileentities.TileEntityWareHouse;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.minecolonies.api.colony.requestsystem.requestable.deliveryman.AbstractDeliverymanRequestable.getDefaultDeliveryPriority;
 import static com.minecolonies.api.util.constant.RSConstants.CONST_WAREHOUSE_RESOLVER_PRIORITY;
@@ -172,18 +175,42 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
         }
         final int totalRequested = request.getRequest().getCount();
         int totalAvailable = 0;
-        if (request.getRequest() instanceof INonExhaustiveDeliverable)
-        {
-            totalAvailable -= ((INonExhaustiveDeliverable) request.getRequest()).getLeftOver();
-        }
+        final Map<ItemStorage, Integer> storages = new HashMap<>();
+
+        final int toKeep = request.getRequest() instanceof INonExhaustiveDeliverable
+            ? ((INonExhaustiveDeliverable) request.getRequest()).getLeftOver()
+            : 0;
 
         final List<Tuple<ItemStack, BlockPos>> inv = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> request.getRequest().matches(itemStack));
         for (final Tuple<ItemStack, BlockPos> stack : inv)
         {
-            if (!stack.getA().isEmpty())
+            final ItemStack s = stack.getA();
+            if (s.isEmpty())
             {
-                totalAvailable += stack.getA().getCount();
+                continue;
             }
+
+            if (toKeep > 0)
+            {
+                final ItemStorage key = new ItemStorage(s);
+                int alreadyKept = storages.getOrDefault(key, 0);
+                if (alreadyKept < toKeep)
+                {
+                    final int stackCount = s.getCount();
+
+                    if (stackCount + alreadyKept <= toKeep)
+                    {
+                        storages.put(key, alreadyKept + stackCount);
+                        continue;
+                    }
+                    
+                    int toKeepThisStack = toKeep - alreadyKept;
+                    storages.put(key, alreadyKept + toKeepThisStack);
+                    totalAvailable += stackCount - toKeepThisStack;
+                    continue;
+                }
+            }
+            totalAvailable += s.getCount();
         }
 
         if (totalAvailable >= totalRequested || totalAvailable >= request.getRequest().getMinimumCount())
@@ -249,9 +276,9 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
                         storages.put(new ItemStorage(tuple.getA()), storages.getOrDefault(new ItemStorage(tuple.getA()), 0) + tuple.getA().getCount());
                         continue;
                     }
-                    int toKeep = (leftOver + kept) - keep;
-                    leftOver -= toKeep;
-                    storages.put(new ItemStorage(tuple.getA()), storages.getOrDefault(new ItemStorage(tuple.getA()), 0) + toKeep);
+                    int toKeepThisStack = keep - kept;
+                    leftOver -= toKeepThisStack;
+                    storages.put(new ItemStorage(tuple.getA()), storages.getOrDefault(new ItemStorage(tuple.getA()), 0) + toKeepThisStack);
                 }
             }
 
