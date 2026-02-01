@@ -11,7 +11,6 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.IResearchRequirement;
 import com.minecolonies.api.util.constant.Constants;
-import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.client.gui.WindowResearchTree;
 import com.minecolonies.core.colony.buildings.moduleviews.UniversityResearchModuleView;
@@ -196,6 +195,6 @@ public class UniversityModuleWindow extends AbstractModuleWindow<UniversityResea
      */
     private void inventoryClicked()
     {
-        Network.getNetwork().sendToServer(new OpenInventoryMessage(buildingView));
+        new OpenInventoryMessage(buildingView).sendToServer();
     }
 }
