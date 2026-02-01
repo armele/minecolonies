@@ -6,7 +6,7 @@
 		"0": "block/stripped_birch_log",
 		"1": "minecolonies:block/blockalchemist",
 		"2": "block/podzol_top",
-		"5": "entity/horse/horse_white.png",
+		"5": "entity/horse/horse_grey",
 		"6": "minecolonies:block/tables_herders",
 		"particle": "block/oak_log"
 	},
