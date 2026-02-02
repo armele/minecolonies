@@ -187,6 +187,19 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<BuildingCowboy.HerdingModule,IBuildingModuleView> COWHERDER_HERDING   =
       new BuildingEntry.ModuleProducer<>("cowherder_herding", BuildingCowboy.HerdingModule::new, null);
 
+    public static final BuildingEntry.ModuleProducer<WorkerBuildingModule,WorkerBuildingModuleView> STABLEMASTER_WORK      =
+      new BuildingEntry.ModuleProducer<>("stablemaster_work",
+        () -> new WorkerBuildingModule(ModJobs.stablemaster.get(), Skill.Athletics, Skill.Dexterity, false, (b) -> 1),
+        () -> WorkerBuildingModuleView::new);
+
+    public static final BuildingEntry.ModuleProducer<BuildingStable.HerdingModule,IBuildingModuleView> STABLEMASTER_HERDING   =
+      new BuildingEntry.ModuleProducer<>("stablemaster_herding", BuildingStable.HerdingModule::new, null);
+
+    public static final BuildingEntry.ModuleProducer<SettingsModule, SettingsModuleView> STABLEMASTER_SETTINGS =
+      new BuildingEntry.ModuleProducer<>("stablemaster_settings",
+        () -> new SettingsModule().with(AbstractBuilding.BREEDING, new BoolSetting(true)),
+        () -> SettingsModuleView::new);
+
     public static final BuildingEntry.ModuleProducer<WorkerBuildingModule,WorkerBuildingModuleView> FISHER_WORK         =
       new BuildingEntry.ModuleProducer<>("fisher_work",
         () -> new WorkerBuildingModule(ModJobs.fisherman.get(), Skill.Focus, Skill.Agility, false, (b) -> 1),
@@ -530,13 +543,18 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> DRUID_BARRACKS_WORK  = new BuildingEntry.ModuleProducer<>(
       "druid_barracks_work", () -> new GuardBuildingModule(ModGuardTypes.druid.get(), true, ICommonBuilding::getBuildingLevel),
       () -> CombinedHiringLimitModuleView::new);
-
+    public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CAVALRY_BARRACKS_WORK = new BuildingEntry.ModuleProducer<>(
+      "cavalry_barracks_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, ICommonBuilding::getBuildingLevel),
+      () -> CombinedHiringLimitModuleView::new);
+      
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> KNIGHT_TOWER_WORK =
       new BuildingEntry.ModuleProducer<>("knight_tower_work", () -> new GuardBuildingModule(ModGuardTypes.knight.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> RANGER_TOWER_WORK =
       new BuildingEntry.ModuleProducer<>("ranger_tower_work", () -> new GuardBuildingModule(ModGuardTypes.ranger.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> DRUID_TOWER_WORK  =
       new BuildingEntry.ModuleProducer<>("druid_tower_work", () -> new GuardBuildingModule(ModGuardTypes.druid.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
+    public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CAVALRY_TOWER_WORK =
+      new BuildingEntry.ModuleProducer<>("cavalry_tower_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> KNIGHT_GATE_WORK = new BuildingEntry.ModuleProducer<>(
         "knight_gate_work", () -> new GuardBuildingModule(ModGuardTypes.knight.get(), true, (b) -> 2),
