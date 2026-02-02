@@ -4,9 +4,17 @@
   "ingredients": [
     {
       "item": "minecolonies:soybean"
+    },
+    {
+      "item": "minecolonies:soybean"
     }
   ],
   "result": {
+<<<<<<< HEAD:src/datagen/generated/minecolonies/data/minecolonies/recipes/tofu.json
     "item": "minecolonies:tofu"
+=======
+    "count": 2,
+    "id": "minecolonies:tofu"
+>>>>>>> aedb250fe3 (Fixes (#11522)):src/datagen/generated/minecolonies/data/minecolonies/recipe/tofu.json
   }
 }
