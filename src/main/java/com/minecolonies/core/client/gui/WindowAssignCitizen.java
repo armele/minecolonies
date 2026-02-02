@@ -297,7 +297,7 @@ public class WindowAssignCitizen extends AbstractWindowSkeleton implements Butto
                 }
                 newLivingLabel.setTextWrap(true);
 
-                if (((colony.getSettings().getSetting(BuildingTownHall.AUTO_HOUSING_MODE).getValue() && building.getHiringMode() == HiringMode.DEFAULT) || (building.getHiringMode() == HiringMode.MANUAL)))
+                if (((!colony.getSettings().getSetting(BuildingTownHall.AUTO_HOUSING_MODE).getValue() && building.getHiringMode() == HiringMode.DEFAULT) || (building.getHiringMode() == HiringMode.MANUAL)))
                 {
                     if (building.getResidents().size() < building.getMax())
                     {
@@ -375,7 +375,7 @@ public class WindowAssignCitizen extends AbstractWindowSkeleton implements Butto
                     newLivingLabel.setText(Component.translatableEscape(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_CITIZEN_UNEMPLOYED));
                 }
 
-                if (((colony.getSettings().getSetting(BuildingTownHall.AUTO_HOUSING_MODE).getValue() && building.getHiringMode() == HiringMode.DEFAULT) || (building.getHiringMode() == HiringMode.MANUAL)))
+                if (((!colony.getSettings().getSetting(BuildingTownHall.AUTO_HOUSING_MODE).getValue() && building.getHiringMode() == HiringMode.DEFAULT) || (building.getHiringMode() == HiringMode.MANUAL)))
                 {
                     if (citizen.getColony().getTravellingManager().isTravelling(citizen.getId()))
                     {
