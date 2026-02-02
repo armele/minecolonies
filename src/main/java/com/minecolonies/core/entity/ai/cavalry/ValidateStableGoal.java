@@ -30,22 +30,42 @@ public class ValidateStableGoal extends Goal
     @Override
     public boolean canUse()
     {
-        if (cooldown-- > 0) return false;
-        if (horse.getAnimalData() == null) return true;
-        if (horse.getAnimalData().getHomeBuilding() == BlockPos.ZERO) return true;
+        if (horse.level().isClientSide)
+        { 
+            return false;
+        }
+
+        if (cooldown-- > 0) 
+        {
+            return false;
+        }
 
         cooldown = MAX_COOLDOWN;
-        boolean validStable = false;
+
+        if (horse.getAnimalData() == null)
+        { 
+            return false;
+        }
 
         // Verify that the position set as a stable is really still a stable.
         IBuilding stable = horse.getAnimalData().getHomeBuilding();
-    
-        if (stable != null && stable instanceof BuildingStable)
+
+        if (stable == null) 
         {
-            validStable = true;
+            return true;
         }
 
-        return !validStable;
+        if (BlockPos.ZERO.equals(stable.getPosition()))
+        {
+            return true;
+        }
+
+        if (stable instanceof BuildingStable)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -67,13 +87,30 @@ public class ValidateStableGoal extends Goal
     @Override
     public void start()
     {
-        IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(horse.level(), horse.getOnPos());
-        BlockPos stablePos = colony.getServerBuildingManager().getBestBuilding(horse.getOnPos(), BuildingStable.class);
+        if (horse.level().isClientSide) return;
+
+        IColony colony = IColonyManager.getInstance().getClosestColony(horse.level(), horse.blockPosition());
+
+        // No colony found - set the stable to null
+        if (colony == null) 
+        {
+            horse.getAnimalData().setHomeBuilding(null);
+            return;
+        }
+
+        BlockPos stablePos = colony.getServerBuildingManager().getBestBuilding(horse.blockPosition(), BuildingStable.class);
+
+        // No stable found - set the stable to null
+        if (stablePos == null) 
+        {
+            horse.getAnimalData().setHomeBuilding(null);
+            return;
+        }
+
+        // Set the stable as the horse's home
         IBuilding building = colony.getServerBuildingManager().getBuilding(stablePos);
 
         horse.getAnimalData().setHomeBuilding(building);
-
-        Log.getLogger().info("ValidateStableGoal - set stable position for horse {}: {}", horse.getUUID(), stablePos);
     }
     
 }

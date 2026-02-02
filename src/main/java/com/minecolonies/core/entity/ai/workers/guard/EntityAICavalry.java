@@ -29,6 +29,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -116,7 +118,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         return super.sleep();
     }
 
-
     /**
      * Find a stable that might have available horses within range.
      *
@@ -128,15 +129,13 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (stablePos == null)
         {
-            stablePos = colony.getServerBuildingManager().getBestBuilding(worker.getOnPos(), BuildingStable.class);
+            stablePos = colony.getServerBuildingManager().getBestBuilding(worker.blockPosition(), BuildingStable.class);
         }
 
         if (stablePos != null)
         {
             if (!EntityNavigationUtils.walkToPos(worker, stablePos, 2, true))
             {
-                Log.getLogger().info("{}: Walking to stable.", worker.getName());
-
                 return CombatAIStates.FIND_STABLE;
             } 
 
@@ -168,10 +167,11 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (targetMount == null)
         {
-            Log.getLogger().info("No cavalry horses found nearby - let's go to the stable.");
+            // No cavalry horses found nearby - let's go to the stable.
 
             if (stableChecked)
             {
+                // Already checked the stable - trigger an interaction indicating that the cavalry unit needs a horse.
                 worker.getCitizenData().triggerInteraction(new StandardInteraction(
                     Component.translatable(CAVALRY_NOHORSE),
                     ChatPriority.IMPORTANT));
@@ -195,7 +195,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         if (worker.isPassenger())
         {
             // Already riding something
-            Log.getLogger().info("Already mounted.");
             return CombatAIStates.NO_TARGET;
         }
 
@@ -203,14 +202,12 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (!EntityNavigationUtils.walkToPos(worker, targetMount.blockPosition(), 2, true))
         {
-            Log.getLogger().info("{} walking to horse at {}", worker.getName(), worker.blockPosition());
-
             return CombatAIStates.FIND_MOUNT;
         }
 
         if (!targetMount.isAlive())
         {
-            Log.getLogger().info("Horse died/despawned before mount.");
+            // Horse is dead... clear it out and try again.
             targetMount.clearFor(worker);
             targetMount = null;
             return CombatAIStates.FIND_MOUNT;
@@ -218,15 +215,13 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (!targetMount.getPassengers().isEmpty() && !targetMount.getPassengers().contains(worker))
         {
-            Log.getLogger().info("Horse got a different passenger {}; releasing reservation.", targetMount.getPassengers().toArray());
+            // Horse got a different passenger; releasing reservation
             targetMount.clearFor(worker);
             targetMount = null;
             return CombatAIStates.NO_TARGET;
         }
 
         boolean mounted = worker.startRiding(targetMount, true);
-
-        Log.getLogger().info("Mount attempt result={}", mounted);
 
         if (mounted)
         {
@@ -250,7 +245,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     {
         if (targetPos == null || BlockPos.ZERO.equals(targetPos))
         {
-            Log.getLogger().info("{} has a null patrol point: {}.", worker.getName(), targetPos);
             return null;
         }
 
@@ -259,7 +253,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         // The proposed patrol point was not a building location - just use it.
         if (targetBuilding == null)
         {
-            Log.getLogger().info("{} has non-building patrol point: {}.", worker.getName(), targetPos);
             return targetPos;
         }
 
@@ -269,14 +262,12 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (patrolPoints != null && !patrolPoints.isEmpty())
         {
-            Log.getLogger().info("{} has patrol point found in building schematic.", worker.getName());
             return patrolPoints.get(rand.nextInt(patrolPoints.size()));
         }
 
         // If our building has a parent building, use that
         if (targetBuilding.getParent() != null && !BlockPos.ZERO.equals(targetBuilding.getParent())) 
         {
-            Log.getLogger().info("{} needs a patrol point from the parent schematic.", worker.getName());
             return patrolPointForBuilding(targetBuilding.getParent());
         }
 
@@ -312,8 +303,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                 patrolCorner = new BlockPos(b.getX(), groundY, a.getZ());
         }
 
-        Log.getLogger().info("{} has patrol point derived from corners: {}", worker.getName(), patrolCorner);
-
         return patrolCorner;
     }
 
@@ -327,7 +316,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     {
         if (buildingGuards.requiresManualTarget())
         {
-            Log.getLogger().info("{} is on cavalry patrol - manual target.", worker.getName());
             if (currentPatrolPoint == null || EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, currentPatrolPoint, 3, true, 1.0))
             {
                 currentPatrolPoint = null;
@@ -350,8 +338,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
         else
         {
-            Log.getLogger().info("{} is on cavalry patrol - non-manual target.", worker.getName());
-
             BlockPos buildingPos = buildingGuards.getNextPatrolTarget(false);
 
             if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
@@ -423,7 +409,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      * If a horse is found that is reserved by the worker, it is prioritized over other available horses.
      * @return the nearest available horse, or null if none are found
      */
-    protected CavalryHorseEntity findNearestHorse()
+    @Nullable protected CavalryHorseEntity findNearestHorse()
     {
         final Level level = worker.level();
         if (level.isClientSide) return null;
@@ -433,9 +419,9 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         // Pull a pool, then sort by reservation priority and distance
         List<CavalryHorseEntity> pool = level.getEntitiesOfClass(CavalryHorseEntity.class, box, EntitySelector.NO_SPECTATORS);
+
         if (pool.isEmpty())
         {
-            Log.getLogger().info("No cavalry horses in search AABB.");
             return null;
         }
 
@@ -445,16 +431,12 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             .filter(h -> h.getPassengers().isEmpty() && !h.isBaby() && h.isAlive())
             .min(Comparator.comparingDouble(worker::distanceToSqr))
             .orElse(null);
+
         if (mine != null) return mine;
 
-        // 2) Otherwise pick the nearest truly available horse (unreserved, riderless, adult, tamed)
+        // 2) Otherwise pick the nearest available cavalry horse
         CavalryHorseEntity available =
             pool.stream().filter(EntityAICavalry::isAvailable).min(Comparator.comparingDouble(worker::distanceToSqr)).orElse(null);
-
-        if (available == null)
-        {            
-            Log.getLogger().info("{}: No available (unreserved, riderless, adult, tamed) cavalry horses found.", worker.getName());
-        }
 
         return available;
     }

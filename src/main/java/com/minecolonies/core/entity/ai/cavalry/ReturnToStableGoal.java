@@ -1,15 +1,12 @@
 package com.minecolonies.core.entity.ai.cavalry;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import javax.annotation.Nullable;
 
+import com.ldtteam.structurize.api.util.Log;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
-import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import java.util.EnumSet;
@@ -26,7 +23,6 @@ public class ReturnToStableGoal extends Goal
     private int stuckTimer = 0;
     private double lastDistToTarget = Double.MAX_VALUE;
     
-    @Nullable
     private BlockPos lastTarget = BlockPos.ZERO;
     private BlockPos targetStable = null;
     private BlockPos targetStall = null;
@@ -59,23 +55,27 @@ public class ReturnToStableGoal extends Goal
     @Override
     public boolean canUse()
     {
+        if (horse.level().isClientSide) return false;
+
         if (horse.getControllingPassenger() != null || horse.hasReservation() || horse.getAnimalData() == null)
         {
-            // Log.getLogger().info("ReturnToStable - Horse {} at {} has a rider or a reservation to be ridden and cannot run.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
 
-        // If a citizen has the horse leashed, let this goal run.
-        Entity holder = horse.getLeashHolder();
-        if (holder instanceof EntityCitizen) return true;
-
         if (horse.isInStable()) return false;
 
-        IBuilding building = horse.getAnimalData().getHomeBuilding();
-        if (building == null) return false;
+        IBuilding building = horse.getStableBuilding();
+        if  (!(building instanceof BuildingStable))
+        {
+            return false;
+        }
 
         double distSqr = horse.distanceToSqr(building.getPosition().getX() + 0.5, building.getPosition().getY() + 0.5, building.getPosition().getZ() + 0.5);
-        if (distSqr <= startDistanceSqr) return false;
+
+        if (distSqr <= startDistanceSqr)
+        {
+            return false;
+        }
 
         targetStable = building.getPosition().immutable();
         lastTarget = targetStable;
@@ -101,10 +101,10 @@ public class ReturnToStableGoal extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        
+        if (horse.level().isClientSide) return false;
+
         if (horse.getControllingPassenger() != null || horse.hasReservation())
         {
-            // Log.getLogger().info("ReturnToStable - Horse {} at {} has a rider or a reservation to be ridden and cannot continue.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
         
@@ -112,7 +112,6 @@ public class ReturnToStableGoal extends Goal
 
         if (targetPostion == null) 
         {
-            Log.getLogger().info("ReturnToStable - Horse {} at {} has no targetPostion.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
 
@@ -123,7 +122,6 @@ public class ReturnToStableGoal extends Goal
                 return true;
             }
 
-            Log.getLogger().info("ReturnToStable - Horse {} at {} is in the stable.", this.horse.getUUID(), this.horse.getOnPos());
             return false;
         }
 
@@ -139,9 +137,6 @@ public class ReturnToStableGoal extends Goal
     {
         foundStall = false;
         targetStall = null;
-        
-        EntityCitizen rider = (EntityCitizen) horse.getControllingPassenger();
-        Log.getLogger().info("ReturnToStable - rider {} Starting horse {} at {}", rider == null ? "null" : rider.getName(), this.horse.getUUID(), this.horse.getOnPos());
 
         stuckTimer = 0;
         lastDistToTarget = Double.MAX_VALUE;
@@ -155,9 +150,6 @@ public class ReturnToStableGoal extends Goal
     public void stop()
     {
         foundStall = false;
-        EntityCitizen rider = (EntityCitizen) horse.getControllingPassenger();
-        Log.getLogger().info("ReturnToStable - rider {} Stopping horse {} at {}", rider == null ? "null" : rider.getName(), this.horse.getUUID(), this.horse.getOnPos());
-
         nav.stop();
         targetStable = null;
         targetStall = null;
@@ -174,29 +166,23 @@ public class ReturnToStableGoal extends Goal
      */
     public BlockPos targetDestination()
     {
-        BuildingStable stable = (BuildingStable) horse.getStableBuilding();
+        IBuilding b = horse.getStableBuilding();
 
-        if (stable == null)
-        {
-            // Log.getLogger().info("ReturnToStable - No stable for horse {} at {}", this.horse.getUUID(), this.horse.getOnPos());
-            return null;
-        }
+        if (!(b instanceof BuildingStable stable)) return null;
 
-        targetStable = stable.getPosition();
+        targetStable = b.getPosition().immutable();
 
         if (horse.isInStable())
         {
             if (targetStall == null)
             {
                 targetStall = stable.getNextStallPosition();
-                // Log.getLogger().info("ReturnToStable - targetStall for horse {} is {}", this.horse.getUUID(), targetStall);
             }
 
             return targetStall;
         }
         else
         {
-            // Log.getLogger().info("ReturnToStable - horse {} not in stable, targetStable is {}", this.horse.getUUID(), targetStable);
             return targetStable;
         }
     }

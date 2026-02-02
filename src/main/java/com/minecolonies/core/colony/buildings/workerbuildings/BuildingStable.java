@@ -2,8 +2,6 @@ package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.ModBuildings;

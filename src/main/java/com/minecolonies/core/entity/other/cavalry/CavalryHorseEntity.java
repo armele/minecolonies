@@ -2,6 +2,10 @@ package com.minecolonies.core.entity.other.cavalry;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -15,7 +19,11 @@ import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import com.minecolonies.core.MineColonies;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
+import com.minecolonies.core.colony.jobs.JobCavalry;
+import com.minecolonies.core.entity.ai.cavalry.CavalryStrollGoal;
+import com.minecolonies.core.entity.ai.cavalry.ReturnToStableGoal;
+import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
 import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
@@ -23,7 +31,6 @@ import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathN
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -53,7 +60,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStandGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
@@ -65,12 +71,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 {
     public static final EntityDataAccessor<Integer>  DATA_COLONY_ID         = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer>  DATA_MANAGED_ANIMAL_ID = SynchedEntityData.defineId(CavalryHorseEntity.class, EntityDataSerializers.INT);
-
-    /**
-     * The key used to store whether the horse is reserved for cavalry.
-     */
-    private static final String RESERVE_KEY = "horse_reserved_for_cavalry";
-
 
     /** 
      * The base width and height of the horse entity. 
@@ -144,9 +144,9 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(3, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new BreedGoal(this, 1.0D));
-        // this.goalSelector.addGoal(5, new ValidateStableGoal(this));
-        // this.goalSelector.addGoal(6, new ReturnToStableGoal(this, 1.15, 20.0));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
+        this.goalSelector.addGoal(5, new ValidateStableGoal(this));
+        this.goalSelector.addGoal(6, new ReturnToStableGoal(this, 1.10, 20.0));
+        this.goalSelector.addGoal(7, new CavalryStrollGoal(this, 0.7D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 
@@ -186,7 +186,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
         if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide)
         {
-            IColony colony = IColonyManager.getInstance().getClosestColony(level, this.getOnPos());
+            IColony colony = IColonyManager.getInstance().getClosestColony(level, this.blockPosition());
 
             if (colony == null)
             {
@@ -300,13 +300,14 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         {
             return false;
         }
+
         Entity rider = this.getFirstPassenger();
-        if (!(rider instanceof EntityCitizen guard) || guard.getCitizenJobHandler() == null)
+
+        if (rider instanceof EntityCitizen guard && guard.getCitizenJobHandler().getColonyJob() instanceof JobCavalry)
         {
-            return false;
+            return true;
         }
 
-        /* Implementation will be finalized in Cavalry PR 4 of 4 */
         return false;
     }
 
@@ -758,6 +759,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public void prepareForCombat(float combatReadiness)
     {
+        if (animalData == null) return;
+
         animalData.setCombatCooldown(animalData.getCombatCooldown() - Math.abs(combatReadiness));
     }
 
@@ -772,6 +775,19 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         if (animalData == null) return false;
 
         return animalData.getCombatCooldown() <= (this.getMaxHealth() * COMBAT_READINESS_THRESHOLD);
+    }
+
+    /**
+     * Returns the current combat cooldown of the horse. This is the amount of time until the horse is ready for combat.
+     * A higher value means the horse is currently less ready for combat.
+     * 
+     * @return the current combat cooldown of the horse
+     */
+    public float getCombatCooldown()
+    {
+        if (animalData == null) return 0.0f;
+
+        return animalData.getCombatCooldown();
     }
 
     /**
@@ -805,11 +821,18 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      *
      * @param reserver the entity to reserve the horse for
      */
-    public void reserve(Entity reserver) 
+    public void reserve(@NotNull final Entity reserver) 
     { 
-        CompoundTag data = this.getPersistentData();
-        data.putUUID(RESERVE_KEY, reserver.getUUID());
-        reservationExpiration = 0;
+        if (animalData != null)
+        {
+            animalData.setOwner(reserver.getUUID());
+            reservationExpiration = 0;
+        }
+        else   
+        {
+            Log.getLogger().warn("Missing animalData on cavalry horse while attempting to make a reservation! ");
+        }
+
     }
 
     /**
@@ -818,7 +841,15 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public void clearReservation()
     {
-        this.getPersistentData().remove(RESERVE_KEY);
+        if (animalData != null)
+        {
+            animalData.setOwner(null);
+            reservationExpiration = 0;
+        }
+        else   
+        {
+            Log.getLogger().warn("Missing animalData on cavalry horse while attempting to clear a reservation! ");
+        }
     }
 
     /**
@@ -827,17 +858,15 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * @param reserver the entity to check against
      * @return true if the reservation was cleared, false otherwise
      */
-    public boolean clearFor(Entity reserver)
+    public boolean clearFor(@NotNull final Entity reserver)
     {
-        CompoundTag data = this.getPersistentData();
-        if (data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY))
+        if (animalData == null) return false;
+
+        UUID who = animalData.getOwner();
+        if (reserver.getUUID().equals(who))
         {
-            UUID who = data.getUUID(RESERVE_KEY);
-            if (reserver.getUUID().equals(who))
-            {
-                clearReservation();
-                return true;
-            }
+            clearReservation();
+            return true;
         }
 
         return false;
@@ -848,10 +877,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * @param horse the horse to query
      * @return the UUID of the reserver, or null if no one has reserved it
      */
-    public UUID reservedBy()
+    public @Nullable UUID reservedBy()
     {
-        CompoundTag data = this.getPersistentData();
-        return data.contains(RESERVE_KEY, Tag.TAG_INT_ARRAY) ? data.getUUID(RESERVE_KEY) : null;
+        if (animalData == null) return null;
+
+        return animalData.getOwner();
     }
 
     /**
@@ -892,9 +922,10 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     public boolean isInStable()
     {
         IBuilding stable = getStableBuilding();
-        if (stable == null) return false;
+        if (!(stable instanceof BuildingStable)) return false;
         
-        if (stable.isInBuilding(this.getOnPos())) {
+        if (stable.isInBuilding(this.blockPosition())) 
+        {
             return true;
         }
 

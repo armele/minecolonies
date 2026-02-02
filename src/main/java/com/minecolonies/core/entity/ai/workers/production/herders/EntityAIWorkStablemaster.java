@@ -15,7 +15,6 @@ import com.minecolonies.api.items.ModTags;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.StatsUtil;
-import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
@@ -65,17 +64,21 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         READYING
     }
 
-    public static final double TRAINING_CHANCE = .25;
-    public static final double READY_MOUNT_FOR_COMBAT_CHANCE = .40;
-    public static final double ROUND_UP_CHANCE = .15;
+    protected static final double TRAINING_CHANCE = .25;
+    protected static final double READY_MOUNT_FOR_COMBAT_CHANCE = .40;
+    protected static final double ROUND_UP_CHANCE = .15;
 
-    public static final float BASE_COMBAT_READINESS_RECOVERY = 4.0f;
+    protected static final float BASE_COMBAT_READINESS_RECOVERY = 4.0f;
     
-    public AbstractHorse horseToTrain = null;
-    public CavalryHorseEntity horseToGetReady = null;
-    public AbstractHorse horseToRetrieve = null;
+    protected static final int MAX_ROUNDUP_COOLDOWN = 100;
+    protected int roundupCooldown = MAX_ROUNDUP_COOLDOWN;
 
-    protected int RECOVERY_SKILL_PAR = 20;
+
+    protected AbstractHorse horseToTrain = null;
+    protected CavalryHorseEntity horseToGetReady = null;
+    protected AbstractHorse horseToRetrieve = null;
+
+    protected static final int RECOVERY_SKILL_PAR = 20;
 
     protected List<AbstractHorse> wanderingHorses = Collections.emptyList();
 
@@ -120,9 +123,11 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
         if (getState() != HERDER_GATHER_MOUNTS)
         {
-            if (horseToRetrieve != null) {
+            if (horseToRetrieve != null) 
+            {
                 Entity holder = horseToRetrieve.getLeashHolder();
-                if (holder != null && holder.equals(worker)) {
+                if (holder != null && holder.equals(worker)) 
+                {
                     horseToRetrieve.dropLeash(true, false);
                 }
             }
@@ -163,6 +168,11 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         return needTool;
     }
 
+    /**
+     * This method is called when the AI wants to breed animals. It sets the current status of the citizen to FIND_HORSE.
+     * <p>
+     * This status is used to display the horse icon above the citizens head.
+     */
     @Override
     protected IAIState breedAnimals()
     {
@@ -195,18 +205,20 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     {
         final IAIState result = super.decideWhatToDo();
 
-        if (ColonyConstants.rand.nextDouble() < TRAINING_CHANCE)
+        if (worker.getRandom().nextDouble() < TRAINING_CHANCE)
         {
             return HERDER_TRAIN;
         }
 
-        if (ColonyConstants.rand.nextDouble() < READY_MOUNT_FOR_COMBAT_CHANCE)
+        if (worker.getRandom().nextDouble() < READY_MOUNT_FOR_COMBAT_CHANCE)
         {
             return HERDER_READY_FOR_COMBAT;
         }
 
-        if (ColonyConstants.rand.nextDouble() < ROUND_UP_CHANCE)
+        // Searching for unstabled horses too frequently could be a performance hit.  Throttle it.
+        if (roundupCooldown-- <= 0 && worker.getRandom().nextDouble() < ROUND_UP_CHANCE)
         {
+            roundupCooldown = MAX_ROUNDUP_COOLDOWN;
             wanderingHorses = findNearbyUnstabledHorses();
 
             if (!wanderingHorses.isEmpty())
@@ -227,9 +239,8 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         final int limit = Math.max(0, building.getBuildingLevel() * 2);
 
         // If we're mid-training, walk to the horse...
-        if (horseToTrain != null && !walkToSafePos(horseToTrain.getOnPos()))
+        if (horseToTrain != null && !walkToSafePos(horseToTrain.blockPosition()))
         {
-            Log.getLogger().info("Moving to horse.");
             return HERDER_TRAIN;
         }
 
@@ -239,7 +250,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level, horseToTrain);
             if (cav == null)
             {
-                Log.getLogger().warn("Could not convert candidate to CavalryHorseEntity");
+                Log.getLogger().warn("Stablemaster in Colony {}: Could not train candidate horse to CavalryHorseEntity", building.getColony().getID());
             }
             else
             {
@@ -247,7 +258,6 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
                 StatsUtil.trackStat(building, HORSES_TRAINED, 1);
                 incrementActionsDoneAndDecSaturation();
-                Log.getLogger().info("Trained cavalry horse.");
             }
             horseToTrain = null;
             return DECIDE;
@@ -256,51 +266,42 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         int current = 0;
         AbstractHorse firstCandidate = null;
 
-        // Single-pass scan: count existing CavalryHorseEntity and pick first convertible AbstractHorse
-        for (final AnimalHerdingModule module : building.getModulesByType(AnimalHerdingModule.class))
+  
+        final AnimalHerdingModule module = building.getModule(AnimalHerdingModule.class);
+
+      // Single-pass scan: count existing CavalryHorseEntity and pick first convertible AbstractHorse
+        final List<? extends Animal> animals = searchForAnimals(module::isCompatible);
+        
+        for (final Animal a : animals)
         {
-            final List<? extends Animal> animals = searchForAnimals(module::isCompatible);
-            if (animals.isEmpty()) continue;
-
-            for (final Animal a : animals)
+            if (a instanceof CavalryHorseEntity)
             {
-                if (a instanceof CavalryHorseEntity)
+                current++;
+                if (current >= limit)
                 {
-                    current++;
-                    if (current >= limit)
-                    {
-                        Log.getLogger().info("Stable at capacity: {}/{} cavalry mounts.", current, limit);
-                        return DECIDE;
-                    }
-                    continue;
+                    // Stable at capacity
+                    return DECIDE;
                 }
+                continue;
+            }
 
-                Log.getLogger().info("Trained Horses: {}", current);
-
-                // Record first good vanilla horse candidate
-                if (firstCandidate == null && a instanceof AbstractHorse h)
+            // Record first good vanilla horse candidate
+            if (firstCandidate == null && a instanceof AbstractHorse h)
+            {
+                if (h.isAlive() && !h.isBaby() && h.getPassengers().isEmpty())
                 {
-                    if (h.isAlive() && !h.isBaby() && h.getPassengers().isEmpty())
-                    {
-                        firstCandidate = h;
-                    }
+                    firstCandidate = h;
                 }
             }
         }
 
         if (firstCandidate != null)
         {
-            if (current >= limit)
-            {
-                Log.getLogger().info("Skipping training at capacity of {}.", limit);
-                return DECIDE;
-            }
-
             horseToTrain = firstCandidate; 
             return HERDER_TRAIN;
         }
 
-        Log.getLogger().info("No suitable horses found to train.");
+        // No suitable horses found to train.
         return DECIDE;
     }
 
@@ -312,9 +313,14 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     protected IAIState readyMountForCombat()
     {
         // Walk to the horse if already selected.
-        if (horseToGetReady != null && !walkToSafePos(horseToGetReady.getOnPos()))
+        if (horseToGetReady != null && !walkToSafePos(horseToGetReady.blockPosition()))
         {
-            Log.getLogger().info("Moving to horse for combat readiness.");
+            // If the horse picked up a cavalry rider while we were walking to it, we're done.
+            if (horseToGetReady.hasCavalryRider())
+            {
+                return DECIDE;
+            }
+
             return HERDER_READY_FOR_COMBAT;
         }
 
@@ -328,7 +334,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 didWork = readyMount(MountMaintenance.FEEDING, horseToGetReady);
             }
 
-            if (!horseToGetReady.isReadyForCombat())
+            if (horseToGetReady.getCombatCooldown() > 0)
             {
                 didWork = didWork || readyMount(MountMaintenance.READYING, horseToGetReady);
             }
@@ -343,25 +349,29 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
         }
 
-        for (final AnimalHerdingModule module : building.getModulesByType(AnimalHerdingModule.class))
-        {
-            final List<? extends Animal> animals = searchForAnimals(module::isCompatible);
-            if (animals.isEmpty()) continue;
+        AnimalHerdingModule module = building.getModule(AnimalHerdingModule.class);
 
-            for (final Animal a : animals)
+        if (module == null)
+        {
+            Log.getLogger().warn("No herding module found for stable.");
+            return DECIDE;
+        }
+
+        final List<? extends Animal> animals = searchForAnimals(module::isCompatible);
+
+        for (final Animal a : animals)
+        {
+            if (a instanceof CavalryHorseEntity cav)
             {
-                if (a instanceof CavalryHorseEntity cav)
+                if (cav.getCombatCooldown() > 0 || cav.getHealth() < cav.getMaxHealth())
                 {
-                    if (!cav.isReadyForCombat() || cav.getHealth() < cav.getMaxHealth())
-                    {
-                        horseToGetReady = cav;
-                        return HERDER_READY_FOR_COMBAT;
-                    }
+                    horseToGetReady = cav;
+                    return HERDER_READY_FOR_COMBAT;
                 }
             }
         }
 
-        Log.getLogger().info("No mounts need to be readied.");
+        // No mounts need to be readied.
         return DECIDE;
     }
 
@@ -372,9 +382,8 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
      */
     public boolean readyMount(MountMaintenance task, CavalryHorseEntity horse)
     {
-        Log.getLogger().info("Checking mount readiness.");
+        final TagKey<Item> neededItem = task == MountMaintenance.FEEDING ? ModTags.feed : ModTags.leather;
 
-        TagKey<Item> neededItem = task == MountMaintenance.FEEDING ? ModTags.feed : ModTags.leather;
         Component component = task == MountMaintenance.FEEDING ? Component.translatable(TranslationConstants.STABLEMASTER_NEEDED_FEEDITEMS) : Component.translatable(TranslationConstants.STABLEMASTER_NEEDED_READYITEMS);
 
         boolean hasNeededItem = false;
@@ -389,17 +398,8 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 int buildingSlot = InventoryUtils.findFirstSlotInProviderNotEmptyWith(building, itemStack -> itemStack.is(neededItem));
                 if (buildingSlot >= 0)
                 {
-                    Log.getLogger().info("Taking needed item {} from building.", neededItem.toString());
                     this.takeItemStackFromProvider(building, buildingSlot);
                 }
-                else
-                {
-                    Log.getLogger().info("Building allegedly had enough, but we couldn't find the slot of needed item {}.", neededItem.toString());
-                }
-            }
-            else
-            {
-                Log.getLogger().info("Building doesn't have {}.", neededItem.toString());
             }
         }
         else
@@ -416,16 +416,13 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
             if (stackToUse.isEmpty())
             {
-                Log.getLogger().info("No mount readiness item available despite slot being identified.");
                 return false;
             } 
 
             if (task == MountMaintenance.FEEDING)
             {
-                Log.getLogger().info("Readying mount with food.");
-
                 feedHorse(horse);
-                StatsUtil.trackStatByStack(building, ITEM_USED, stackToUse, 1);
+                StatsUtil.trackStatByStack(building, ITEM_USED, stackToUse.copy(), 1);
                 stackToUse.shrink(1);
                 effectsAtHorse(horse);
             }
@@ -445,8 +442,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                     horse.prepareForCombat(recovery);
                 }
 
-                Log.getLogger().info("Readied mount with {} from {} to {}.", stackToUse.getHoverName(), combatCooldownBefore, horse.getAnimalData().getCombatCooldown());
-                StatsUtil.trackStatByStack(building, ITEM_USED, stackToUse, 1);
+                StatsUtil.trackStatByStack(building, ITEM_USED, stackToUse.copy(), 1);
 
                 stackToUse.shrink(1);
                 effectsAtHorse(horse);
@@ -483,8 +479,6 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             if (placeNewOrder)
             {
                 worker.getCitizenData().createRequestAsync(requestableItems);
-
-                Log.getLogger().info("Needed mount readiness item not available. Requesting delivery.");
             }
 
         }
@@ -537,6 +531,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 || (horseToRetrieve instanceof CavalryHorseEntity cav && cav.hasCavalryRider()) 
                 || (horseToRetrieve instanceof CavalryHorseEntity cav && cav.hasReservation()))
             {
+                detachHorse(horseToRetrieve);
                 horseToRetrieve = null;
                 return DECIDE;
             }
@@ -546,6 +541,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 // Verify that we still have the lead needed to gather this horse.
                 if (checkForToolOrWeapon(tool))
                 {
+                    detachHorse(horseToRetrieve);
                     horseToRetrieve = null;
                     return PREPARING;
                 }
@@ -564,7 +560,6 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
                 worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
                 incrementActionsDoneAndDecSaturation();
-                Log.getLogger().info("Fetched wandering horse.");
 
                 if (wanderingHorses.contains(horseToRetrieve))
                 {
@@ -633,7 +628,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
      * @param horse the horse to attach
      * @return true if the horse was successfully attached, false otherwise
      */
-    public boolean attachHorse(AbstractHorse horse)
+    protected boolean attachHorse(AbstractHorse horse)
     {
         if (worker == null || horse == null) return false;
 
@@ -659,7 +654,6 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         return true;
     }
 
-
     /**
      * Detaches the given horse from the worker, removing the leash and dropping
      * the lead item if held by the worker. If the worker is holding a lead
@@ -671,19 +665,17 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     {
         if (worker == null || horse == null || horse.level().isClientSide)
         {
-            Log.getLogger().info("Bailing early on detaching horse.");
             return;
         }
 
+        horse.clearRestriction();
+
         if (!horse.isLeashed())
         {
-            Log.getLogger().info("The horse to detach is not attached...");
             return;
         } 
 
-        Log.getLogger().info("Dropping leash...");
         horse.dropLeash(true, false);
-        horse.clearRestriction();
 
         if (worker.getOffhandItem().is(Items.LEAD))
         {
