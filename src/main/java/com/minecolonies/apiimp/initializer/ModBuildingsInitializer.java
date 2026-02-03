@@ -68,7 +68,8 @@ public final class ModBuildingsInitializer
           .setBuildingViewProducer(() -> BuildingBarracksTower.View::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.BARRACKS_TOWER_ID))
           .addBuildingModuleProducer(KNIGHT_BARRACKS_WORK)
-          .addBuildingModuleProducer(CAVALRY_BARRACKS_WORK)
+          //  TODO: Enable with Cavalry 4 of 4
+          // .addBuildingModuleProducer(CAVALRY_BARRACKS_WORK)
           .addBuildingModuleProducer(RANGER_BARRACKS_WORK)
           .addBuildingModuleProducer(DRUID_BARRACKS_WORK)
           .addBuildingModuleProducer(GUARD_TOOL)
