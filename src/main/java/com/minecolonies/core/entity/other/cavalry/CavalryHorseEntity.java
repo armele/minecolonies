@@ -240,7 +240,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             animalColonyHandler.registerWithColony(colonyId, getManagedAnimalId());
         }
     }
-    
 
     /**
      * Defines the synced data for this entity.
@@ -533,48 +532,49 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.tick();
 
-        if (!level().isClientSide)
+        if (level().isClientSide) return;
+
+        if (hasReservation())
         {
-
-            if (hasReservation())
+            if (reservationExpiration > RESERVATION_EXPIRATION_LIMIT) 
             {
-                if (reservationExpiration > RESERVATION_EXPIRATION_LIMIT) 
-                {
-                    clearReservation(); 
-                    reservationExpiration = 0;
-                } 
-                else
-                {
-                    reservationExpiration++;
-                }
+                clearReservation(); 
+                reservationExpiration = 0;
+            } 
+            else
+            {
+                reservationExpiration++;
             }
+        }
 
-            if (!isReadyForCombat())
+        if (!isReadyForCombat())
+        {
+            this.getPassengers().forEach(Entity::stopRiding);
+        }
+
+        Entity rider = this.getControllingPassenger();
+        if (rider instanceof EntityCitizen cavunit)
+        {
+            MinecoloniesAdvancedPathNavigate nav = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
+
+            Path path = nav.getPath();
+
+            if (path != null && !path.isDone())
             {
-                this.getPassengers().forEach(Entity::stopRiding);
-            }
-
-            Entity rider = this.getControllingPassenger();
-            if (rider instanceof EntityCitizen cavunit)
-            {
-                MinecoloniesAdvancedPathNavigate nav = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
-
-                Path path = nav.getPath();
-
-                // Try to keep our rider looking where the horse is heading...
-                if (path != null && !path.isDone())
+                BlockPos next = path.getNextNodePos();
+                if (next != null)
                 {
-                    BlockPos next = path.getNextNodePos();
+                    // Try to keep our rider looking where the horse is heading...
                     cavunit.getLookControl().setLookAt(next.getX() + 0.5, next.getY(), next.getZ() + 0.5, 30.0F, 30.0F);
-
-                    if (rider instanceof EntityCitizen citizen && upcomingPathRequiresClimbing(path))
-                    {
-                        citizen.stopRiding();
-                        nav.stop();
-                        return;
-                    }
                 }
 
+                // If our upcoming path includes a ladder, force a dismount
+                if (upcomingPathRequiresClimbing(path))
+                {
+                    cavunit.stopRiding();
+                    nav.stop();
+                    return;
+                }
             }
         }
     }
