@@ -4,6 +4,7 @@ import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.ldtteam.domumornamentum.block.decorative.ShingleBlock;
 import com.ldtteam.domumornamentum.block.decorative.ShingleSlabBlock;
+import com.minecolonies.api.blocks.decorative.AbstractBlockGate;
 import com.minecolonies.api.blocks.decorative.AbstractBlockMinecoloniesConstructionTape;
 import com.minecolonies.api.entity.pathfinding.IDynamicHeuristicNavigator;
 import com.minecolonies.api.entity.pathfinding.IPathJob;
@@ -1392,6 +1393,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 {
                     return (pathingOptions.canEnterDoors() && block.getBlock() instanceof DoorBlock)
                              || (pathingOptions.canEnterGates() && block.getBlock() instanceof FenceGateBlock)
+                             || (pathingOptions.canEnterGates() && block.getBlock() instanceof AbstractBlockGate)
                              || block.getBlock() instanceof AbstractBlockMinecoloniesConstructionTape
                              || block.getBlock() instanceof PressurePlateBlock
                              || block.getBlock() instanceof BlockDecorationController

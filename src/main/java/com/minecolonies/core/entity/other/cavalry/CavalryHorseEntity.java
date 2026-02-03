@@ -27,8 +27,11 @@ import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
 import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
+import com.minecolonies.core.entity.pathfinding.PathPointExtended;
+import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -50,6 +53,7 @@ import net.minecraft.world.entity.animal.horse.Variant;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -62,7 +66,8 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStandGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-
+import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.level.pathfinder.Node;
 /**
  * Cavalry Horse Entity class for Minecolonies.
  * Extends the vanilla Horse entity with custom behavior for cavalry units.
@@ -118,6 +123,21 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * The timepoint at which the entity last collided
      */
     private long lastHorizontalCollision = 0;
+
+    /**
+     * The timepoint at which a rider last dismounted.
+     */
+    private long lastDismountTime = -1;
+
+    /**
+     * The number of nodes to look ahead when checking for ladder climbing.
+     */
+    private static final int CLIMB_LOOKAHEAD_NODES = 8;
+
+    /**
+     * The pathing options for the rider (to be restored after dismount)
+     */
+    private PathingOptions cacheRiderPathingOptions = new PathingOptions();
 
     /**
      * Constructor for CavalryHorseEntity.
@@ -354,6 +374,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.addPassenger(passenger);
         dropLeash(true, false);
+        lastDismountTime = -1;
         
         if (passenger instanceof EntityCitizen guard) 
         {
@@ -361,9 +382,22 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
             if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) 
             {
+                cacheRiderPathingOptions.setEnterDoors(mcnav.getPathingOptions().canEnterDoors());
+                cacheRiderPathingOptions.setCanOpenDoors(mcnav.getPathingOptions().canOpenDoors());
+                cacheRiderPathingOptions.setCanClimbAdvanced(mcnav.getPathingOptions().canClimbAdvanced());
+                cacheRiderPathingOptions.setCanUseRails(mcnav.getPathingOptions().canUseRails());
+                cacheRiderPathingOptions.setEnterGates(mcnav.getPathingOptions().canEnterGates());
+
                 mcnav.getPathingOptions().setEnterDoors(false);
-                mcnav.getPathingOptions().setCanOpenDoors(false);
+                mcnav.getPathingOptions().setCanOpenDoors(true);
+                mcnav.getPathingOptions().setCanClimbAdvanced(false);
+                mcnav.getPathingOptions().setCanUseRails(false);
+                mcnav.getPathingOptions().setEnterGates(true);
             }
+
+            // Horses can enter gates when they have a cavalry rider
+            MinecoloniesAdvancedPathNavigate pathNavigation = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
+            pathNavigation.getPathingOptions().setEnterGates(true);
         }
     }
 
@@ -376,14 +410,24 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     protected void removePassenger(@Nonnull Entity passenger)
     {
         super.removePassenger(passenger);
+        lastDismountTime = this.level().getGameTime();
 
-        if (passenger instanceof EntityCitizen guard) {
+        if (passenger instanceof EntityCitizen guard) 
+        {
             AbstractAdvancedPathNavigate nav = guard.getNavigation();
 
-            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) {
-                mcnav.getPathingOptions().setEnterDoors(true);
-                mcnav.getPathingOptions().setCanOpenDoors(true);
+            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) 
+            {
+                mcnav.getPathingOptions().setEnterDoors(cacheRiderPathingOptions.canEnterDoors());
+                mcnav.getPathingOptions().setCanOpenDoors(cacheRiderPathingOptions.canOpenDoors());
+                mcnav.getPathingOptions().setCanClimbAdvanced(cacheRiderPathingOptions.canClimbAdvanced());
+                mcnav.getPathingOptions().setCanUseRails(cacheRiderPathingOptions.canUseRails());
+                mcnav.getPathingOptions().setEnterGates(cacheRiderPathingOptions.canEnterGates());
             }
+
+            // Riderless horses cannot enter gates.
+            MinecoloniesAdvancedPathNavigate pathNavigation = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
+            pathNavigation.getPathingOptions().setEnterGates(false);
         }
     }
 
@@ -428,6 +472,16 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     }
 
     /**
+     * Gets the last time this horse was dismounted from, in game ticks.
+     * 
+     * @return the last time this horse was dismounted from, in game ticks
+     */
+    public long getLastDismountTime()
+    {
+        return lastDismountTime;
+    }
+
+    /**
      * Creates a new PathNavigation for this horse entity, overriding the default vanilla horse navigation. This allows the horse to
      * navigate the world in a way that is more suitable for guards.
      * 
@@ -439,12 +493,13 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         MinecoloniesAdvancedPathNavigate pathNavigation = new MinecoloniesAdvancedPathNavigate(this, level);
         pathNavigation.getPathingOptions().setEnterDoors(false);
-        pathNavigation.getPathingOptions().setEnterGates(true);
+        pathNavigation.getPathingOptions().setEnterGates(false);
         pathNavigation.getPathingOptions().setCanOpenDoors(false);
         pathNavigation.getPathingOptions().withDropCost(1D);
         pathNavigation.getPathingOptions().withJumpCost(1D);
         pathNavigation.getPathingOptions().setPassDanger(false);
         pathNavigation.getPathingOptions().setCanSwim(true);
+        pathNavigation.getPathingOptions().setCanClimbAdvanced(false);
         pathNavigation.setCanFloat(true);
 
         return pathNavigation;
@@ -504,14 +559,56 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             {
                 MinecoloniesAdvancedPathNavigate nav = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
 
+                Path path = nav.getPath();
+
                 // Try to keep our rider looking where the horse is heading...
-                if (nav.getPath() != null && !nav.getPath().isDone())
+                if (path != null && !path.isDone())
                 {
-                    BlockPos next = nav.getPath().getNextNodePos();
+                    BlockPos next = path.getNextNodePos();
                     cavunit.getLookControl().setLookAt(next.getX() + 0.5, next.getY(), next.getZ() + 0.5, 30.0F, 30.0F);
+
+                    if (rider instanceof EntityCitizen citizen && upcomingPathRequiresClimbing(path))
+                    {
+                        citizen.stopRiding();
+                        nav.stop();
+                        return;
+                    }
                 }
+
             }
         }
+    }
+
+    /**
+     * Returns true if the upcoming path includes ladder climbing.
+     */
+    private boolean upcomingPathRequiresClimbing(@Nullable final Path path)
+    {
+        if (path == null || path.isDone())
+        {
+            return false;
+        }
+
+        final int start = path.getNextNodeIndex();
+        final int end = Math.min(path.getNodeCount() - 1, start + CLIMB_LOOKAHEAD_NODES);
+
+        for (int i = start; i <= end; i++)
+        {
+            final Node node = path.getNode(i);
+
+            if (node instanceof PathPointExtended extended && extended.isOnLadder())
+            {
+                return true;
+            }
+
+            // Fallback for non-extended nodes.
+            if (level().getBlockState(new BlockPos(node.x, node.y, node.z)).getBlock() instanceof LadderBlock)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -649,7 +746,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
     /**
      * Whether this entity should be saved to disk.
-     * <p>As CavelryHorse entities are always saved to disk, this method always returns true.
+     * <p>As CavalryHorse entities are always saved to disk, this method always returns true.
      */
     @Override
     public boolean shouldBeSaved()
@@ -711,7 +808,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, getManagedAnimalId());
         }
     }
-
 
     /**
      * Reads additional data from the given CompoundTag that is specific to this entity type.

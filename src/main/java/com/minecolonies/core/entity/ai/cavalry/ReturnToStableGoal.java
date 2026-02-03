@@ -2,9 +2,7 @@ package com.minecolonies.core.entity.ai.cavalry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
-import com.ldtteam.structurize.api.util.Log;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
@@ -14,16 +12,14 @@ import java.util.EnumSet;
 public class ReturnToStableGoal extends Goal
 {
     private final CavalryHorseEntity horse;
-    private final PathNavigation nav;
     private final double speed;
+
+    private final int LINGER_AFTER_DISMOUNT = 6000;
+
 
     // Begin returning if further than this.
     private final double startDistanceSqr;
 
-    private int stuckTimer = 0;
-    private double lastDistToTarget = Double.MAX_VALUE;
-    
-    private BlockPos lastTarget = BlockPos.ZERO;
     private BlockPos targetStable = null;
     private BlockPos targetStall = null;
     
@@ -32,7 +28,6 @@ public class ReturnToStableGoal extends Goal
     public ReturnToStableGoal(CavalryHorseEntity horse, double speed, double startDistance) 
     {
         this.horse = horse;
-        this.nav = horse.getNavigation();
         this.speed = speed;
         this.startDistanceSqr = startDistance * startDistance;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -57,6 +52,13 @@ public class ReturnToStableGoal extends Goal
     {
         if (horse.level().isClientSide) return false;
 
+        long lastDismountTime = horse.getLastDismountTime();
+
+        if (lastDismountTime > 0 && horse.level().getGameTime() - lastDismountTime < LINGER_AFTER_DISMOUNT)
+        {
+            return false;
+        }
+
         if (horse.getControllingPassenger() != null || horse.hasReservation() || horse.getAnimalData() == null)
         {
             return false;
@@ -78,7 +80,6 @@ public class ReturnToStableGoal extends Goal
         }
 
         targetStable = building.getPosition().immutable();
-        lastTarget = targetStable;
 
         return true;
     }
@@ -137,10 +138,6 @@ public class ReturnToStableGoal extends Goal
     {
         foundStall = false;
         targetStall = null;
-
-        stuckTimer = 0;
-        lastDistToTarget = Double.MAX_VALUE;
-        tryRepath();
     }
 
     /**
@@ -150,7 +147,6 @@ public class ReturnToStableGoal extends Goal
     public void stop()
     {
         foundStall = false;
-        nav.stop();
         targetStable = null;
         targetStall = null;
     }
@@ -188,60 +184,16 @@ public class ReturnToStableGoal extends Goal
     }
 
     /**
-     * Ticks the horse navigation goal. If the horse is being ridden by a guard with the JobCavalry, moves the horse to the target
-     * position of the rider and sets the horse's rotation to face the target position.
-     * 
-     * @see #canUse()
+     * Ticks the ReturnToStableGoal.
+     * <p>
+     * Retrieves the target destination block position using {@link #targetDestination()}.
+     * If the target destination is null, returns immediately.
+     * <p>
+     * Walks to the target destination using {@link EntityNavigationUtils#walkToPos(Entity, BlockPos, int, boolean, double)}.
+     * If the target destination is found and it is not equal to the target stable block position, sets foundStall to true.
      */
     @Override
     public void tick()
-    {
-        BlockPos targetDestination = targetDestination();
-        if (targetDestination == null) 
-        {
-            return;
-        }
-
-        // Repath if nav is reporting as done, or the target destination changes
-        // but we're not back to the stable yet (goal still active)
-        if (nav.isDone() || !lastTarget.equals(targetDestination))
-        {
-            lastTarget = targetDestination;
-            tryRepath();
-        }
-
-        // Face next node for stability
-        if (nav.getPath() != null && !nav.getPath().isDone())
-        {
-            BlockPos next = nav.getPath().getNextNodePos();
-            horse.getLookControl().setLookAt(next.getX() + 0.5, next.getY(), next.getZ() + 0.5, 30.0F, 30.0F);
-        }
-
-        // No-progress breaker: if we aren't getting closer for ~1s, recompute
-        double distNow = horse.distanceToSqr(targetDestination.getX() + 0.5, targetDestination.getY() + 0.5, targetDestination.getZ() + 0.5);
-
-        // +epsilon to avoid float jitter
-        if (distNow + 0.01 >= lastDistToTarget)
-        { 
-            if (++stuckTimer > 20)
-            {
-                nav.recomputePath();
-                stuckTimer = 0;
-            }
-        }
-        else
-        {
-            stuckTimer = 0;
-        }
-
-        lastDistToTarget = distNow;
-    }
-
-
-    /**
-     * Attempts to recompute the path to the target position. If the target position is null, does nothing.
-     */
-    private void tryRepath()
     {
         BlockPos targetDestination = targetDestination();
         if (targetDestination == null) 
@@ -255,6 +207,5 @@ public class ReturnToStableGoal extends Goal
         {
             foundStall = true;
         }
-
     }
 }

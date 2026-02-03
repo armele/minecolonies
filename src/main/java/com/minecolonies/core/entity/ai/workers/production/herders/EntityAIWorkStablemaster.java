@@ -2,6 +2,8 @@ package com.minecolonies.core.entity.ai.workers.production.herders;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
+import com.minecolonies.api.colony.IAnimalData;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requestable.Stack;
 import com.minecolonies.api.colony.requestsystem.requestable.StackList;
@@ -17,6 +19,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
+import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobStablemaster;
@@ -73,6 +76,8 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     protected static final int MAX_ROUNDUP_COOLDOWN = 100;
     protected int roundupCooldown = MAX_ROUNDUP_COOLDOWN;
 
+    protected static final int MAX_TRAINING_COOLDOWN = 50;
+    protected int trainingCooldown = MAX_TRAINING_COOLDOWN;
 
     protected AbstractHorse horseToTrain = null;
     protected CavalryHorseEntity horseToGetReady = null;
@@ -181,6 +186,33 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     }
 
     /**
+     * Whether or not the stable master should feed adults to breed children.
+     *
+     * @return true if so.
+     */
+    @Override
+    protected boolean canBreedChildren()
+    {
+        boolean breedSetting = super.canBreedChildren();
+
+        if (!breedSetting)
+        {
+            return false;
+        }
+
+        final int limit = Math.max(0, building.getBuildingLevel() * 2);
+        final int current = countCurrentMounts();
+
+        if (current >= limit)
+        {
+            // Stable at capacity with steeds. Don't breed new horses to train.
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Returns the chance to butcher an animal in the list of all animals in the building.
      * <p>
      * The chance is calculated based on the number of animals in the building and the max allowed.
@@ -204,9 +236,12 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     public IAIState decideWhatToDo()
     {
         final IAIState result = super.decideWhatToDo();
+        trainingCooldown--;
+        roundupCooldown--;
 
-        if (worker.getRandom().nextDouble() < TRAINING_CHANCE)
+        if (trainingCooldown <= 0 && worker.getRandom().nextDouble() < TRAINING_CHANCE)
         {
+            trainingCooldown = MAX_TRAINING_COOLDOWN;
             return HERDER_TRAIN;
         }
 
@@ -216,7 +251,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         }
 
         // Searching for unstabled horses too frequently could be a performance hit.  Throttle it.
-        if (roundupCooldown-- <= 0 && worker.getRandom().nextDouble() < ROUND_UP_CHANCE)
+        if (roundupCooldown <= 0 && worker.getRandom().nextDouble() < ROUND_UP_CHANCE)
         {
             roundupCooldown = MAX_ROUNDUP_COOLDOWN;
             wanderingHorses = findNearbyUnstabledHorses();
@@ -263,25 +298,27 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             return DECIDE;
         }
 
-        int current = 0;
+        int current = countCurrentMounts();
+
+        if (current >= limit)
+        {
+            // Stable at capacity. Don't train.
+            Log.getLogger().info("Stablemaster in Colony {}: Already at {} mounts out of a limit of {}. Not training.", building.getColony().getID(), current, limit);
+            return DECIDE;
+        }
+
         AbstractHorse firstCandidate = null;
 
   
         final AnimalHerdingModule module = building.getModule(AnimalHerdingModule.class);
 
-      // Single-pass scan: count existing CavalryHorseEntity and pick first convertible AbstractHorse
+        // Pick first convertible AbstractHorse
         final List<? extends Animal> animals = searchForAnimals(module::isCompatible);
         
         for (final Animal a : animals)
         {
             if (a instanceof CavalryHorseEntity)
             {
-                current++;
-                if (current >= limit)
-                {
-                    // Stable at capacity
-                    return DECIDE;
-                }
                 continue;
             }
 
@@ -515,6 +552,17 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             horse.level().playSound(null, horse, SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 0.8f, 1.0f);
         }
         return didSomething;
+    }
+
+    /**
+     * Counts cavalry mounts currently assigned to this stable.
+     *
+     * @return number of {@link CavalryHorseEntity} records registered to this building.
+     */
+    protected int countCurrentMounts() 
+    {
+        List<IAnimalData> currentSteeds = building.getColony().getAnimalManager().getAnimalsOfClassByHome(CavalryHorseEntity.class, building);
+        return currentSteeds.size();
     }
 
     /**
