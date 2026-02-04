@@ -191,7 +191,7 @@ public class GlobalResearch implements IGlobalResearch
             return true;
         }
 
-        final IItemHandler playerInventory = new InvWrapper(Minecraft.getInstance().player.getInventory());
+        final IItemHandler playerInventory = new InvWrapper(player.getInventory());
 
         ICommonBuilding buildingInv = BuildingUtils.commonBuildingFromPosition(player.level(), universityPos);
 
