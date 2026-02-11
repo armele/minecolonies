@@ -77,7 +77,6 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -796,13 +795,6 @@ public class EventHandler
         {
             IColonyManager.getInstance().onWorldUnload((Level) event.getLevel());
         }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLogout(@NotNull final ClientPlayerNetworkEvent.LoggingOut event)
-    {
-        IColonyManager.getInstance().resetColonyViews();
-        Log.getLogger().info("Removed all colony views");
     }
 
     /**
