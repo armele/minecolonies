@@ -21,6 +21,7 @@ import com.minecolonies.api.research.IGlobalResearch;
 import com.minecolonies.api.util.FoodUtils;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
+import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
@@ -106,6 +107,8 @@ public class ClientEventHandler
     {
         ColonyBorderRenderer.cleanup();
         WindowBuildingBrowser.clearCache();
+        IColonyManager.getInstance().resetColonyViews();
+        Log.getLogger().info("Removed all colony views");
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
