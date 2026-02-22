@@ -1,9 +1,11 @@
 package com.minecolonies.api.colony.buildings;
 
-import com.minecolonies.api.blocks.interfaces.IBlockMinecolonies;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
+import java.util.List;
+import com.minecolonies.api.colony.IColony;
+
 
 /**
  * Common building interface for both client & server.
@@ -41,4 +43,17 @@ public interface ICommonBuilding
     {
         return getBuildingLevel();
     }
+
+    /**
+     * Get the BlockPos of the Containers.
+     *
+     * @return containerList.
+     */
+    List<BlockPos> getContainers();
+
+    /**
+     * Get the colony from a building.
+     * @return the colony it belongs to.
+     */
+    IColony getColony();
 }
