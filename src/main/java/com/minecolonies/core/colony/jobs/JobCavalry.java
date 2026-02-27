@@ -6,6 +6,8 @@ import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.Skill;
+import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.core.entity.ai.workers.guard.EntityAICavalry;
 import com.minecolonies.core.util.AttributeModifierUtils;
@@ -20,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.CitizenConstants.GUARD_HEALTH_MOD_LEVEL_NAME;
-import static com.minecolonies.api.util.constant.GuardConstants.KNIGHT_HP_BONUS;
+import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_HP_BONUS;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BANNER_PATTERNS;
 
 /**
@@ -61,7 +63,7 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
             // +1 Heart every 2 level
             final AttributeModifier healthModLevel =
               new AttributeModifier(GUARD_HEALTH_MOD_LEVEL_NAME,
-                getCitizen().getCitizenSkillHandler().getLevel(Skill.Stamina) + KNIGHT_HP_BONUS,
+                getCitizen().getCitizenSkillHandler().getLevel(Skill.Stamina) + CAVALRY_HP_BONUS,
                 AttributeModifier.Operation.ADDITION);
             AttributeModifierUtils.addHealthModifier(citizen, healthModLevel);
         }
@@ -126,5 +128,15 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     public float getMountDamageSplit()
     {
         return MOUNT_DAMAGE_SPLIT;
-    }   
+    }
+
+    /**
+     * Gets the weapon type that the AI will look for when checking if it can attack.
+     *
+     * @return the weapon type.
+     */
+    public static EquipmentTypeEntry getWeaponType()
+    {
+        return ModEquipmentTypes.spear.get();
+    }
 }

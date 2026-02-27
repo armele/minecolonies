@@ -39,6 +39,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -133,6 +134,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * The number of nodes to look ahead when checking for ladder climbing.
      */
     private static final int CLIMB_LOOKAHEAD_NODES = 8;
+    private static final double LOOK_AT_HORIZONTAL_EPSILON = 0.04D;
+    private static final float RIDER_ALIGN_MAX_STEP_DEGREES = 12.0F;
 
     /**
      * The pathing options for the rider (to be restored after dismount)
@@ -555,6 +558,12 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         Entity rider = this.getControllingPassenger();
         if (rider instanceof EntityCitizen cavunit)
         {
+            final float horseYaw = this.getYRot();
+            final float alignedYaw = approachYaw(cavunit.getYRot(), horseYaw, RIDER_ALIGN_MAX_STEP_DEGREES);
+            cavunit.setYRot(alignedYaw);
+            cavunit.setYBodyRot(alignedYaw);
+            cavunit.setYHeadRot(alignedYaw);
+
             MinecoloniesAdvancedPathNavigate nav = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
 
             Path path = nav.getPath();
@@ -564,8 +573,17 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 BlockPos next = path.getNextNodePos();
                 if (next != null)
                 {
-                    // Try to keep our rider looking where the horse is heading...
-                    cavunit.getLookControl().setLookAt(next.getX() + 0.5, next.getY(), next.getZ() + 0.5, 30.0F, 30.0F);
+                    final double targetX = next.getX() + 0.5D;
+                    final double targetZ = next.getZ() + 0.5D;
+                    final double dx = targetX - cavunit.getX();
+                    final double dz = targetZ - cavunit.getZ();
+
+                    // Ignore near-vertical node transitions to avoid yaw jitter/spin while climbing/descending.
+                    if ((dx * dx + dz * dz) > LOOK_AT_HORIZONTAL_EPSILON)
+                    {
+                        // Keep rider gaze level so vertical path steps do not force erratic turning.
+                        cavunit.getLookControl().setLookAt(targetX, cavunit.getEyeY(), targetZ, 20.0F, 30.0F);
+                    }
                 }
 
                 // If our upcoming path includes a ladder, force a dismount
@@ -577,6 +595,15 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 }
             }
         }
+    }
+
+    /**
+     * Smoothly approaches a target yaw, clamping each update step.
+     */
+    private static float approachYaw(final float currentYaw, final float targetYaw, final float maxStep)
+    {
+        final float delta = Mth.wrapDegrees(targetYaw - currentYaw);
+        return currentYaw + Mth.clamp(delta, -maxStep, maxStep);
     }
 
     /**

@@ -9,8 +9,9 @@ import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
-import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGateHouse;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobCavalry;
@@ -38,6 +39,7 @@ import java.util.UUID;
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
+import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_PATROL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_BUILDING_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_GROUNDLEVEL;
@@ -67,7 +69,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             new AITarget(CombatAIStates.FIND_STABLE, this::findStable, GUARD_MOUNT_INTERVAL)
         );
 
-        toolsNeeded.add(ModEquipmentTypes.sword.get());
+        toolsNeeded.add(JobCavalry.getWeaponType());
 
         for (final List<GuardGear> list : itemsNeeded)
         {
@@ -79,7 +81,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
               SHIELD_BUILDING_LEVEL_RANGE));
         }
 
-        new KnightCombatAI((EntityCitizen) worker, getStateAI(), this);
+        new CavalryCombatAI((EntityCitizen) worker, getStateAI(), this);
     }
 
     /**
@@ -314,26 +316,46 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      */
     public IAIState patrol()
     {
+        BuildingStable stable = (BuildingStable) building;
+        if (stable.minutesSinceLastPatrol() < building.getSetting(BuildingStable.PATROL_INTERVAL).getValue())
+        {
+            // We've patrolled recently. Let's just wander around the stable a bit to keep things lively, and then check again later.
+            EntityNavigationUtils.walkToRandomPosAround(worker, building.getPosition(), 20, 0.6D);
+            return null;
+        }   
+
         if (buildingGuards.requiresManualTarget())
         {
-            if (currentPatrolPoint == null || EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, currentPatrolPoint, 3, true, 1.0))
+            if (currentPatrolPoint == null)
             {
-                currentPatrolPoint = null;
-                if (!EntityNavigationUtils.walkToRandomPos(worker, 20, 1.0))
+                if (worker.getRandom().nextInt(5) <= 1)
+                {
+                    // Cavalry only patrol nearby.
+                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> BlockPosUtil.dist(b.getPosition(), building.getPosition()) <= CAVALRY_PATROL_RANGE);
+
+                    if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
+                    {
+                        return null;
+                    }
+
+                    currentPatrolPoint = patrolPointForBuilding(buildingPos);
+                    
+                    if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
+                    {
+                        stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
+                        EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0);
+                    }
+                }
+            }
+            else
+            {
+                if (!EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, currentPatrolPoint, 3, true, 1.0))
                 {
                     return getState();
                 }
 
-                if (worker.getRandom().nextInt(5) <= 1)
-                {
-                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> true);
-                    currentPatrolPoint = patrolPointForBuilding(buildingPos);
-
-                    if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
-                    {
-                        EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0);
-                    }
-                }
+                currentPatrolPoint = null;
+                buildingGuards.arrivedAtPatrolPoint(worker);
             }
         }
         else
@@ -342,10 +364,12 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
             if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
             {
-                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> true);
+                // Cavalry only patrol nearby.
+                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> BlockPosUtil.dist(b.getPosition(), building.getPosition()) <= CAVALRY_PATROL_RANGE);
             }
 
             currentPatrolPoint = patrolPointForBuilding(buildingPos);
+            stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
 
             if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint) && (EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0)))
             {
@@ -456,4 +480,25 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
         return list;
     }
+
+    /**
+     * Check if we can help a citizen
+     *
+     * @param pos
+     * @return true if not fighting/helping already
+     */
+    public boolean canHelp(final BlockPos pos)
+    {
+        if (getState() != CombatAIStates.FIND_MOUNT && isWithinPersecutionDistance(pos, getPersecutionDistance()) && canBeInterrupted())
+        {
+            // Cancel patrolling as soon as someone needs help within range, to ensure the guard doesn't get stuck patrolling somewhere else while under attack.
+            currentPatrolPoint = null;
+
+            // Stop sleeping when someone called for help
+            stopSleeping();
+            return true;
+        }
+        return super.canHelp(pos);
+    }
+
 }

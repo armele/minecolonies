@@ -2,7 +2,6 @@ package com.minecolonies.core.colony.buildings.modules;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.ICommonBuilding;
-import com.minecolonies.api.colony.buildings.ISchematicProvider;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
@@ -195,11 +194,16 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<BuildingStable.HerdingModule,IBuildingModuleView> STABLEMASTER_HERDING   =
       new BuildingEntry.ModuleProducer<>("stablemaster_herding", BuildingStable.HerdingModule::new, null);
 
-    public static final BuildingEntry.ModuleProducer<SettingsModule, SettingsModuleView> STABLEMASTER_SETTINGS =
-      new BuildingEntry.ModuleProducer<>("stablemaster_settings",
-        () -> new SettingsModule().with(AbstractBuilding.BREEDING, new BoolSetting(true)),
-        () -> SettingsModuleView::new);
-
+    public static final BuildingEntry.ModuleProducer<SettingsModule, SettingsModuleView> STABLE_SETTINGS =
+      new BuildingEntry.ModuleProducer<>("stable_settings", () -> new SettingsModule()
+        .with(AbstractBuilding.BREEDING, new BoolSetting(true))  
+        .with(AbstractBuildingGuards.GUARD_TASK, new GuardTaskSetting(GuardTaskSetting.PATROL, GuardTaskSetting.GUARD, GuardTaskSetting.FOLLOW, GuardTaskSetting.PATROL_MINE))
+        .with(AbstractBuildingGuards.RETREAT, new BoolSetting(true))
+        .with(AbstractBuildingGuards.HIRE_TRAINEE, new BoolSetting(true))
+        .with(AbstractBuildingGuards.PATROL_MODE, new GuardPatrolModeSetting())
+        .with(BuildingStable.PATROL_INTERVAL, new IntSetting(6))
+        .with(AbstractBuildingGuards.FOLLOW_MODE, new GuardFollowModeSetting()), () -> SettingsModuleView::new);
+      
     public static final BuildingEntry.ModuleProducer<WorkerBuildingModule,WorkerBuildingModuleView> FISHER_WORK         =
       new BuildingEntry.ModuleProducer<>("fisher_work",
         () -> new WorkerBuildingModule(ModJobs.fisherman.get(), Skill.Focus, Skill.Agility, false, (b) -> 1),
@@ -553,8 +557,6 @@ public class BuildingModules
       new BuildingEntry.ModuleProducer<>("ranger_tower_work", () -> new GuardBuildingModule(ModGuardTypes.ranger.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> DRUID_TOWER_WORK  =
       new BuildingEntry.ModuleProducer<>("druid_tower_work", () -> new GuardBuildingModule(ModGuardTypes.druid.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
-    public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CAVALRY_TOWER_WORK =
-      new BuildingEntry.ModuleProducer<>("cavalry_tower_work", () -> new GuardBuildingModule(ModGuardTypes.cavalry.get(), true, (b) -> 1), () -> CombinedHiringLimitModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> KNIGHT_GATE_WORK = new BuildingEntry.ModuleProducer<>(
         "knight_gate_work", () -> new GuardBuildingModule(ModGuardTypes.knight.get(), true, (b) -> 2),

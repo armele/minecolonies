@@ -68,8 +68,6 @@ public final class ModBuildingsInitializer
           .setBuildingViewProducer(() -> BuildingBarracksTower.View::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.BARRACKS_TOWER_ID))
           .addBuildingModuleProducer(KNIGHT_BARRACKS_WORK)
-          //  TODO: Enable with Cavalry 4 of 4
-          // .addBuildingModuleProducer(CAVALRY_BARRACKS_WORK)
           .addBuildingModuleProducer(RANGER_BARRACKS_WORK)
           .addBuildingModuleProducer(DRUID_BARRACKS_WORK)
           .addBuildingModuleProducer(GUARD_TOOL)
@@ -169,9 +167,11 @@ public final class ModBuildingsInitializer
           .setBuildingProducer(BuildingStable::new)
           .setBuildingViewProducer(() -> EmptyView::new)
           .setRegistryName(new ResourceLocation(Constants.MOD_ID, ModBuildings.STABLE_ID))
+          .addBuildingModuleProducer(CAVALRY_BARRACKS_WORK)
           .addBuildingModuleProducer(STABLEMASTER_WORK)
           .addBuildingModuleProducer(STABLEMASTER_HERDING)
-          .addBuildingModuleProducer(STABLEMASTER_SETTINGS)
+          .addBuildingModuleProducer(GUARD_ENTITY_LIST)
+          .addBuildingModuleProducer(STABLE_SETTINGS)
           .addBuildingModuleProducer(MIN_STOCK)
           .addBuildingModuleProducer(STATS_MODULE)
           .createBuildingEntry());

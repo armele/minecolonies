@@ -899,6 +899,7 @@
   "com.minecolonies.coremod.tooltype.boots": "Boots",
   "com.minecolonies.coremod.tooltype.lighter": "Flint and Steel",
   "com.minecolonies.coremod.tooltype.lead": "Lead",
+  "com.minecolonies.coremod.tooltype.spear": "Spear",
 
   "com.minecolonies.coremod.armorlevel.0": "Leather",
   "com.minecolonies.coremod.armorlevel.1": "Gold",
@@ -2193,6 +2194,7 @@
   "com.minecolonies.coremod.setting.minecolonies:hiretrainee": "Hire Trainee:",
   "com.minecolonies.coremod.setting.tooltip.minecolonies:hiretrainee": "This setting only works when any of the jobs can be hired automatically.",
   "com.minecolonies.coremod.setting.minecolonies:patrolmode": "Patrol Mode:",
+  "com.minecolonies.coremod.setting.minecolonies:patrolinterval": "Patrol Interval:",
   "com.minecolonies.coremod.setting.minecolonies:followmode": "Follow Mode:",
   "com.minecolonies.coremod.setting.minecolonies:guardtask": "Task:",
   "com.minecolonies.coremod.setting.minecolonies:guardjob": "Job:",
@@ -2396,6 +2398,7 @@
   "minecolonies:chickenherder.job.desc": "Gathers eggs, feathers, and other chicken products.",
   "minecolonies:ranger.job.desc": "Distance fighter, deals high damage, but has low survival chance in close combat.",
   "minecolonies:knight.job.desc": "Close-quarter fighter. High resilience, low damage output.",
+  "minecolonies:cavalry.job.desc": "Mounted fighter. Fast and tough; vulnerable to ranged attacks.",
   "minecolonies:composter.job.desc": "Composts a lot of the colony waste products",
   "minecolonies:student.job.desc": "Reads books to increase their intelligence. High intelligence allows learning other skills faster.",
   "minecolonies:archertraining.job.desc": "Archer Trainee. Practices distance fighting.",

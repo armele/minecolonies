@@ -602,6 +602,15 @@ public class DefaultRecipeProvider extends RecipeProvider
                 .unlockedBy("has_iron", has(Items.IRON_INGOT))
                 .save(consumer, new ResourceLocation(MOD_ID, "chainmailboots"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.spear)
+                .pattern("  I")
+                .pattern(" S ")
+                .pattern("S  ")
+                .define('I', Items.IRON_INGOT)
+                .define('S', Items.STICK)
+                .unlockedBy("has_stick", has(Items.STICK))
+                .save(consumer, new ResourceLocation(MOD_ID, "spear"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.clipboard)
                 .pattern("XTX")
                 .pattern("XPX")

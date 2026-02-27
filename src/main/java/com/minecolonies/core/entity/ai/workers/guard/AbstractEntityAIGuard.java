@@ -336,7 +336,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
     /**
      * Stops the guard from sleeping
      */
-    private void stopSleeping()
+    protected void stopSleeping()
     {
         if (getState() == GUARD_SLEEP)
         {
@@ -753,7 +753,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      *
      * @return the block distance at which a guard should chase his target
      */
-    private int getPersecutionDistance()
+    protected int getPersecutionDistance()
     {
         if (buildingGuards.getRallyLocation() != null)
         {

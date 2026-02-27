@@ -1,18 +1,18 @@
 package com.minecolonies.core.entity.ai.workers.guard;
 
 import com.minecolonies.api.util.constant.Constants;
-
+import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRateStateMachine;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
-import net.minecraft.resources.ResourceLocation;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 
+import net.minecraft.resources.ResourceLocation;
+import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_DAMAGE_MULTIPLIER;
+import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_RANGE_MULTIPLIER;
 
 public class CavalryCombatAI extends KnightCombatAI
 {
-    protected static final double CAVALRY_DAMAGE_MULTIPLIER = 1.20;
-    protected static final double CAVALRY_RANGE_MULTIPLIER = 1.20;
-
     /**
      * Combat icon
      */
@@ -30,6 +30,17 @@ public class CavalryCombatAI extends KnightCombatAI
     {
         // TODO: Allow this to improve through research
         return super.getAttackDamage() * CAVALRY_DAMAGE_MULTIPLIER;
+    }
+
+    /**
+     * Gets the weapon type that the AI will look for when checking if it can attack.
+     *
+     * @return the weapon type.
+     */
+    @Override
+    public EquipmentTypeEntry getWeaponType()
+    {
+        return JobCavalry.getWeaponType();
     }
 
 

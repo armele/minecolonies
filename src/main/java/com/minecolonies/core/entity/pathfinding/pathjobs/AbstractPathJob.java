@@ -15,6 +15,7 @@ import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.blocks.BlockDecorationController;
+import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.*;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.entity.pathfinding.world.CachingBlockLookup;
@@ -46,7 +47,7 @@ import java.util.concurrent.Callable;
 
 import static com.minecolonies.api.util.constant.PathingConstants.*;
 import static com.minecolonies.core.entity.pathfinding.PathingOptions.MAX_COST;
-
+import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_CORNER_PENALTY;
 /**
  * Abstract class for Jobs that run in the multithreaded path finder.
  */
@@ -878,6 +879,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             }
 
             nextCost = computeCost(costFrom, dX, dY, dZ, isSwimming, onRoad, isDiving, onRails, railsExit, swimStart, ladder, state, belowState, nextX, nextY, nextZ);
+            nextCost += computeTurnPenalty(costFrom, nextX, nextZ);
             nextCost = modifyCost(nextCost, costFrom, swimStart, isSwimming, nextX, nextY, nextZ, state, belowState);
 
             if (nextCost > maxCost)
@@ -1694,6 +1696,61 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         return PathfindingUtils.isWater(cachedBlockLookup, null, below, null)
                  || PathfindingUtils.isWater(cachedBlockLookup, null, state, null)
                  || PathfindingUtils.isWater(cachedBlockLookup, null, above, null);
+    }
+
+    /**
+     * Compute the turn penalty for a mounted/cavalry entity.
+     * The penalty is computed based on the angle of the turn.
+     * @param from the node from which we are turning.
+     * @param toX the x-coordinate of the node to which we are turning.
+     * @param toZ the z-coordinate of the node to which we are turning.
+     * @return the turn penalty.
+     */
+    private double computeTurnPenalty(@NotNull final MNode from, final int toX, final int toZ)
+    {
+        // Only apply to cavalry entities or riders riding them.
+        if (entity == null || (!(entity instanceof CavalryHorseEntity || entity.getRootVehicle() instanceof CavalryHorseEntity)))
+        {
+            return 0.0;
+        }
+
+        final MNode prev = from.parent;
+        if (prev == null)
+        {
+            return 0.0;
+        }
+
+        // Determine directional vectors of movement.
+        int dxPrev = Integer.signum(from.x - prev.x);
+        int dzPrev = Integer.signum(from.z - prev.z);
+
+        int dxNow = Integer.signum(toX - from.x);
+        int dzNow = Integer.signum(toZ - from.z);
+
+        // ignore 'no horizontal move' cases
+        if ((dxPrev == 0 && dzPrev == 0) || (dxNow == 0 && dzNow == 0))
+        {
+            return 0.0;
+        }
+
+        if (dxPrev == dxNow && dzPrev == dzNow)
+        {
+            return 0.0; // straight
+        }
+
+        final int dot = dxPrev * dxNow + dzPrev * dzNow; // -2..2
+
+        // TODO: Introduce research to mitigate this.
+        final double P = CAVALRY_CORNER_PENALTY;
+
+        // slight (diag<->cardinal)
+        if (dot == 1) return P * 0.5;
+
+        // 90 degrees
+        if (dot == 0) return P;        
+
+        // harsh / U-turn
+        return P * 2.0;                
     }
 
     /**
