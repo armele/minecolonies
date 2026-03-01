@@ -229,8 +229,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
         final WorkerLoadOnlyStructureHandler<J, B> structure = new WorkerLoadOnlyStructureHandler<>(world,
           structurePlacer.getB().getCenterPos(),
           structurePlacer.getB().getBluePrint(),
-          new PlacementSettings(),
-          true,
+          structurePlacer.getB().getSettings(),
           this);
 
         if (building.getWorkOrder().getIteratorType().isEmpty())
