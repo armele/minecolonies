@@ -9,7 +9,6 @@ import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
-import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGateHouse;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
@@ -35,11 +34,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
-import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_PATROL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_BUILDING_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_GROUNDLEVEL;
@@ -331,7 +330,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                 if (worker.getRandom().nextInt(5) <= 1)
                 {
                     // Cavalry only patrol nearby.
-                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> BlockPosUtil.dist(b.getPosition(), building.getPosition()) <= CAVALRY_PATROL_RANGE);
+                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
 
                     if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
                     {
@@ -365,7 +364,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
             {
                 // Cavalry only patrol nearby.
-                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> BlockPosUtil.dist(b.getPosition(), building.getPosition()) <= CAVALRY_PATROL_RANGE);
+                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
             }
 
             currentPatrolPoint = patrolPointForBuilding(buildingPos);
@@ -381,6 +380,13 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         return null;
     }
 
+    /*
+     * Filter for buildings that cavalry patrols.
+     */
+    protected Predicate<IBuilding> cavalryPatrolFilter()
+    {
+        return b -> b instanceof BuildingStable || b instanceof BuildingGateHouse;
+    }
 
     /** Validates a horse target for mounting.
      * 
