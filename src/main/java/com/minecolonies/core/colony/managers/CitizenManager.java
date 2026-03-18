@@ -621,7 +621,7 @@ public class CitizenManager implements ICitizenManager
                     newCitizen.setGenderAndGenerateName(false);
                 }
 
-                spawnOrCreateCivilian(newCitizen, colony.getWorld(), null, true);
+                spawnOrCreateCivilian(newCitizen, colony.getWorld(), List.of(colony.getServerBuildingManager().getTownHall().getPosition()), true);
 
                 IMinecoloniesAPI.getInstance().getEventBus().post(new CitizenAddedModEvent(newCitizen, CitizenAddedModEvent.CitizenAddedSource.INITIAL));
                 colony.getEventDescriptionManager().addEventDescription(new CitizenSpawnedEvent(colony.getServerBuildingManager().getTownHall().getPosition(),
