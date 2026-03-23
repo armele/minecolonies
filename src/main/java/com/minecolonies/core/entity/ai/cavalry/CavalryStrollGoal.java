@@ -21,7 +21,6 @@ public class CavalryStrollGoal extends WaterAvoidingRandomStrollGoal
         super(horse, speed);
     }
 
-
     /**
      * Returns whether the goal can be used.
      * <p>

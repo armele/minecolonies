@@ -106,7 +106,6 @@ public class ItemSpear extends TridentItem
         return ToolActions.DEFAULT_SWORD_ACTIONS.contains(toolAction);
     }
 
-
     /** Gets the base damage of the spear.
      *
      * @return the base damage of the spear.

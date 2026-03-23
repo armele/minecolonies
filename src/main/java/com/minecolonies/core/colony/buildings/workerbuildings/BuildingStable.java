@@ -23,20 +23,54 @@ import net.minecraft.world.item.Items;
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 
+/**
+ * Building of the stable.
+ * Supports cavalry military units and the Stablemaster job.
+ */
 public class BuildingStable extends AbstractBuildingGuards
 {
+    /**
+     * Tag for the structurize tags designating stall positions.
+     */
     private final static String STALL_STRUCTURE_TAG = "stall";
+
+    /**
+     * NBT tag for the last time the guards patrolled from this stable.
+     */
     private static final String NBT_LAST_PATROL_TAG    = "lastPatrolTime";
 
+    /**
+     * Setting key for the patrol interval.
+     */
     public static final ISettingKey<IntSetting> PATROL_INTERVAL =
       new SettingKey<>(IntSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "patrolinterval"));
 
+    /**
+     * The last time the guards patrolled from this stable.
+     */
     private long lastPatrolTime = 0;
 
-    private List<BlockPos> stablePositions;
+    /**
+     * The positions of the stalls.
+     */
+    private List<BlockPos> stallPositions;
+
+    /**
+     * The last stable position used.
+     */
     private int lastStable = -1;
+
+    /**
+     * Flag to indicate if the stable positions have been initialized.
+     */
     private boolean initStables = false;
     
+    /**
+     * Constructor.
+     * 
+     * @param colony the colony.
+     * @param pos the position of the building.
+     */
     public BuildingStable(@NotNull IColony colony, BlockPos pos)
     {
         super(colony, pos);
@@ -53,6 +87,9 @@ public class BuildingStable extends AbstractBuildingGuards
         return ModBuildings.STABLE_ID;
     }
 
+    /**
+     * The herding module for the stable.
+     */
     public static class HerdingModule extends AnimalHerdingModule
     {
 
@@ -87,9 +124,9 @@ public class BuildingStable extends AbstractBuildingGuards
             return;
         }
 
-        stablePositions = getLocationsFromTag(STALL_STRUCTURE_TAG);
+        stallPositions = getLocationsFromTag(STALL_STRUCTURE_TAG);
         
-        if (stablePositions.isEmpty())
+        if (stallPositions.isEmpty())
         {
             Log.getLogger().warn("No stall positions found for stable at {}. Use the '" + STALL_STRUCTURE_TAG + "' tag to add some.", getPosition());
         }
@@ -107,19 +144,19 @@ public class BuildingStable extends AbstractBuildingGuards
     {
         initTagPositions();
 
-        if (stablePositions.isEmpty())
+        if (stallPositions.isEmpty())
         {
             return null;
         }
 
         lastStable++;
 
-        if (lastStable >= stablePositions.size())
+        if (lastStable >= stallPositions.size())
         {
             lastStable = 0;
         }
 
-        return stablePositions.get(lastStable);
+        return stallPositions.get(lastStable);
     }
 
     /**
@@ -132,7 +169,6 @@ public class BuildingStable extends AbstractBuildingGuards
         super.deserializeNBT(compound);
         this.lastPatrolTime = compound.getLong(NBT_LAST_PATROL_TAG);
     }
-
 
     /**
      * Serializes the data of this building to NBT.

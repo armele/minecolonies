@@ -9,22 +9,53 @@ import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import java.util.EnumSet;
 
+/**
+ * Goal for a cavalry horse to return to its stable.
+ */
 public class ReturnToStableGoal extends Goal
 {
+    /**
+     * The cavalry horse entity.
+     */
     private final CavalryHorseEntity horse;
+
+    /**
+     * The speed at which the cavalry horse moves.
+     */
     private final double speed;
 
+    /**
+     * The number of ticks to wait after dismounting before returning to the stable.
+     */
     private final int LINGER_AFTER_DISMOUNT = 6000;
 
-
-    // Begin returning if further than this.
+    /** 
+     * Begin returning if further than this.
+     */
     private final double startDistanceSqr;
 
+    /**
+     * The stable block position.
+     */
     private BlockPos targetStable = null;
+
+    /**
+     * The stall block position.
+     */
     private BlockPos targetStall = null;
     
+    /**
+     * Whether a stall has been found.
+     */
     private boolean foundStall = false;
 
+    /**
+     * Creates a new ReturnToStableGoal.
+     *
+     * @param horse The cavalry horse entity.
+     * @param speed The speed at which the cavalry horse moves.
+     * @param startDistance The distance at which the cavalry horse starts returning to the stable.
+     */
     public ReturnToStableGoal(CavalryHorseEntity horse, double speed, double startDistance) 
     {
         this.horse = horse;

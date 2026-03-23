@@ -604,10 +604,11 @@ public class DefaultRecipeProvider extends RecipeProvider
 
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.spear)
                 .pattern("  I")
-                .pattern(" S ")
+                .pattern(" B ")
                 .pattern("S  ")
                 .define('I', Items.IRON_INGOT)
                 .define('S', Items.STICK)
+                .define('B', buildTool.get())
                 .unlockedBy("has_stick", has(Items.STICK))
                 .save(consumer, new ResourceLocation(MOD_ID, "spear"));
 

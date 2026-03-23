@@ -197,7 +197,7 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<SettingsModule, SettingsModuleView> STABLE_SETTINGS =
       new BuildingEntry.ModuleProducer<>("stable_settings", () -> new SettingsModule()
         .with(AbstractBuilding.BREEDING, new BoolSetting(true))  
-        .with(AbstractBuildingGuards.GUARD_TASK, new GuardTaskSetting(GuardTaskSetting.PATROL, GuardTaskSetting.GUARD, GuardTaskSetting.FOLLOW, GuardTaskSetting.PATROL_MINE))
+        .with(AbstractBuildingGuards.GUARD_TASK, new GuardTaskSetting(GuardTaskSetting.PATROL, GuardTaskSetting.GUARD, GuardTaskSetting.FOLLOW))
         .with(AbstractBuildingGuards.RETREAT, new BoolSetting(true))
         .with(AbstractBuildingGuards.HIRE_TRAINEE, new BoolSetting(true))
         .with(AbstractBuildingGuards.PATROL_MODE, new GuardPatrolModeSetting())
