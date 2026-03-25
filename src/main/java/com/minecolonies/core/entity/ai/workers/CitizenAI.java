@@ -113,7 +113,7 @@ public class CitizenAI implements IStateAI
     {
         lastState = citizen.getCitizenAI().getState();
         IState next = calculateNextState();
-        if (next == null || next == lastState)
+        if (next == null || next == lastState || (lastState == CitizenAIState.WORKING && next == CitizenAIState.WORK))
         {
             if (citizen.getCitizenAI().getState() == CitizenAIState.IDLE && next != CitizenAIState.IDLE)
             {
