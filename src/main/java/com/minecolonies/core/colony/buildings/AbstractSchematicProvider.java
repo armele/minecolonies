@@ -104,6 +104,11 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     private String            blueprintFuturePack = "";
     private String            blueprintFutureName = "";
 
+    /**
+     * If prestige should be recalculated.
+     */
+    private boolean recalcPrestige;
+
     public AbstractSchematicProvider(final BlockPos pos, final IColony colony)
     {
         if (pos.equals(BlockPos.ZERO))
@@ -390,6 +395,11 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
 
                         getTileEntity().readSchematicDataFromNBT(teCompound);
                     }
+
+                    if (recalcPrestige)
+                    {
+                        calculatePrestige(blueprint);
+                    }
                 }
             }
             catch (Exception e)
@@ -397,6 +407,17 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
                 Log.getLogger().info("Failed to load blueprintfuture for: pack:" + blueprintFuturePack + " name:" + blueprintFutureName, e);
                 blueprintFuture = null;
             }
+        }
+    }
+
+    @Override
+    public void asyncPrestigeRecalc()
+    {
+        if (!recalcPrestige)
+        {
+            recalcPrestige = true;
+            blueprintFuture = StructurePacks.getBlueprintFuture(this.getStructurePack(), this.getBlueprintPath());
+
         }
     }
 
@@ -538,7 +559,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
                 }
 
                 setBuildingLevel(level);
-                onUpgradeComplete(level);
+                onUpgradeComplete(null, level);
                 isDeconstructed = false;
             }
         }
