@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 public class ItemSpear extends TridentItem
 {
-    protected static final int SPEAR_BASE_DAMAGE = 6;
+    protected static final int SPEAR_BASE_DAMAGE = 3;
 
     public ItemSpear(final Properties properties)
     {

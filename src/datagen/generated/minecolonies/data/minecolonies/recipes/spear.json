@@ -2,6 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
+    "B": {
+      "item": "structurize:sceptergold"
+    },
     "I": {
       "item": "minecraft:iron_ingot"
     },
@@ -11,7 +14,7 @@
   },
   "pattern": [
     "  I",
-    " S ",
+    " B ",
     "S  "
   ],
   "result": {
