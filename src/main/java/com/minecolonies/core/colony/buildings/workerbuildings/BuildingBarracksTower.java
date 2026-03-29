@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.WARNING_UPGRADE_BARRACKS;
 
@@ -96,9 +98,9 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     }
 
     @Override
-    public void onUpgradeComplete(final int newLevel)
+    public void onUpgradeComplete(@Nullable final Blueprint blueprint, final int newLevel)
     {
-        super.onUpgradeComplete(newLevel);
+        super.onUpgradeComplete(blueprint, newLevel);
         final IBuilding barrack = colony.getServerBuildingManager().getBuilding(barracks);
         if (barrack == null)
         {

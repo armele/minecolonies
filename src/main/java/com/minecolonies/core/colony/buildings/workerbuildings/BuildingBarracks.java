@@ -1,6 +1,7 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,9 +107,9 @@ public class BuildingBarracks extends AbstractBuilding
     }
 
     @Override
-    public void onUpgradeComplete(final int newLevel)
+    public void onUpgradeComplete(@Nullable final Blueprint blueprint, final int newLevel)
     {
-        super.onUpgradeComplete(newLevel);
+        super.onUpgradeComplete(blueprint, newLevel);
         colony.getServerBuildingManager().guardBuildingChangedAt(this, newLevel);
     }
 
