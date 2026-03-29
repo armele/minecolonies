@@ -111,9 +111,8 @@ public class CitizenAI implements IStateAI
      */
     private IState decideAiTask()
     {
-        lastState = citizen.getCitizenAI().getState();
         IState next = calculateNextState();
-        if (next == null || next == lastState || (lastState == CitizenAIState.WORKING && next == CitizenAIState.WORK))
+        if (next == null || next == lastState)
         {
             if (citizen.getCitizenAI().getState() == CitizenAIState.IDLE && next != CitizenAIState.IDLE)
             {
@@ -123,7 +122,8 @@ public class CitizenAI implements IStateAI
         }
 
         citizen.getCitizenData().setVisibleStatus(null);
-        return next;
+        lastState = next;
+        return lastState;
     }
 
     /**

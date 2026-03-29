@@ -156,6 +156,11 @@ public abstract class AbstractBuildingView implements IBuildingView
     private BuildingEntry buildingType;
 
     /**
+     * Prestige value of this building.
+     */
+    private int prestige;
+
+    /**
      * Creates a building view.
      *
      * @param c ColonyView the building is in.
@@ -401,6 +406,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         path = buf.readUtf(32767);
         parent = buf.readBlockPos();
         customName = buf.readUtf(32767);
+        prestige = buf.readInt();
 
         rotation = buf.readInt();
         isBuildingMirrored = buf.readBoolean();
@@ -447,6 +453,12 @@ public abstract class AbstractBuildingView implements IBuildingView
 
             moduleView.deserialize(buf);
         }
+    }
+
+    @Override
+    public int getPrestige()
+    {
+        return prestige;
     }
 
     private void loadRequestSystemFromNBT(final CompoundTag compound)
