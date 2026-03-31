@@ -987,13 +987,16 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     @Override
     public void calculatePrestige(final Blueprint blueprint)
     {
-        final int new_prestige = SchemAnalyzerUtil.analyzeSchematic(blueprint).costScore;
-        if (new_prestige != prestige)
+        if (getBuildingLevel() > 0)
         {
-            prestige = new_prestige;
-            colony.getServerBuildingManager().clearPendingPrestigeCalc(this);
-            markDirty();
+            final int new_prestige = SchemAnalyzerUtil.analyzeSchematic(blueprint).costScore;
+            if (new_prestige != prestige)
+            {
+                prestige = new_prestige;
+                markDirty();
+            }
         }
+        colony.getServerBuildingManager().clearPendingPrestigeCalc(this);
     }
 
     @Override
