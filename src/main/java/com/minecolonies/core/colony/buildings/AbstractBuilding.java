@@ -993,7 +993,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         if (getBuildingLevel() > 0)
         {
-            final int new_prestige = SchemAnalyzerUtil.analyzeSchematic(blueprint).costScore;
+            final int new_prestige = SchemAnalyzerUtil.analyzeSchematic(blueprint, colony.getWorld().registryAccess()).costScore;
             if (new_prestige != prestige)
             {
                 prestige = new_prestige;
