@@ -2479,6 +2479,7 @@
   "minecolonies:alchemist.skills.desc": "Affects recipe improvement chance and working speed.",
   "minecolonies:cavalry.skills.desc": "Affects health, resilience, and attack speed.",
   "minecolonies:stablemaster.skills.desc": "Affects effectiveness of combat readiness preparations.",
+  "minecolonies:chef.skills.desc": "Affects recipe improvement chance and working speed.",
 
   "com.minecolonies.coremod.grave.lava": "Could not spawn a grave because all remains already burned.",
   "com.minecolonies.coremod.grave.water": "The citizen drowned too deep or too far away from the shore to recover their remains.",
