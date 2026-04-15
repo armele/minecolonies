@@ -25,16 +25,20 @@ import static com.minecolonies.api.util.constant.CitizenConstants.GUARD_HEALTH_M
 import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_HP_BONUS;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BANNER_PATTERNS;
 
+import java.util.UUID;
+
 /**
- * The Knight's job class
- *
- * @author Asherslab
+ * The Cavalry job class.
  */
 public class JobCavalry extends AbstractJobGuard<JobCavalry>
 {
     public static final float MOUNT_DAMAGE_SPLIT = .20f;
+    public static final int DININGHALL_HORSE_PARKING_RANGE = 40;
 
-    protected boolean missingMount = false;
+    /**
+     * The UUID of the mount.
+     */
+    protected UUID myMount = null;
 
     /**
      * Initialize citizen data.
@@ -75,10 +79,19 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
         return ModModelTypes.KNIGHT_GUARD_ID;
     }
 
+    /**
+     * Whether the citizen will ignore damage from the given source.
+     * Units will ignore explosion and projectile damage if they have a shield in their offhand and the SHIELD_USAGE research is enabled.
+     *
+     * @param damageSource the source of the damage
+     * @return true if the citizen will ignore the damage, false otherwise
+     */
     @Override
     public boolean ignoresDamage(@NotNull final DamageSource damageSource)
     {
-        if(damageSource.is(DamageTypeTags.IS_EXPLOSION) && this.getColony().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0
+        boolean applicableDamageSource = damageSource.is(DamageTypeTags.IS_EXPLOSION) || damageSource.is(DamageTypeTags.IS_PROJECTILE);
+
+        if(applicableDamageSource && this.getColony().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0
                 && InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD) != -1)
         {
             if (!this.getCitizen().getEntity().isPresent())
@@ -101,23 +114,23 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     }
 
     /**
-     * If the knight is missing a mount.
+     * If the cavalry unity is missing a mount.
      *
      * @return true if so.
      */
     public boolean isMissingMount()
     {
-        return missingMount;
+        return myMount == null;
     }
 
     /**
-     * Set whether the knight is missing a mount.
+     * Sets the mount UUID.
      *
-     * @param missingMount whether the cavalry unit is missing a mount.
+     * @param mountUUID the mount UUID.
      */
-    public void setMissingMount(final boolean missingMount)
+    public void setMount(final UUID mountUUID)
     {
-        this.missingMount = missingMount;
+        this.myMount = mountUUID;
     }
 
     /**

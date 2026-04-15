@@ -17,19 +17,17 @@ import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.LookHandler;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.ai.cavalry.CavalryStrollGoal;
 import com.minecolonies.core.entity.ai.cavalry.ReturnToStableGoal;
-import com.minecolonies.core.entity.ai.cavalry.ValidateStableGoal;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.mobs.AnimalColonyHandler;
 import com.minecolonies.core.entity.mobs.IAnimalColonyHandler;
 import com.minecolonies.core.entity.pathfinding.PathPointExtended;
-import com.minecolonies.core.entity.pathfinding.PathingOptions;
-import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 
 import net.minecraft.core.BlockPos;
@@ -138,11 +136,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     private static final float RIDER_ALIGN_MAX_STEP_DEGREES = 12.0F;
 
     /**
-     * The pathing options for the rider (to be restored after dismount)
-     */
-    private PathingOptions cacheRiderPathingOptions = new PathingOptions();
-
-    /**
      * Constructor for CavalryHorseEntity.
      *
      * @param type  The entity type
@@ -167,8 +160,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(3, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(4, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(5, new ValidateStableGoal(this));
-        this.goalSelector.addGoal(6, new ReturnToStableGoal(this, 1.10, 20.0));
+        this.goalSelector.addGoal(6, new ReturnToStableGoal(this, .80D, 20.0));
         this.goalSelector.addGoal(7, new CavalryStrollGoal(this, 0.7D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
@@ -366,8 +358,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     }
     
     /**
-     * Adds a passenger to the horse, dropping the leash and setting the navigation options of any citizen passenger
-     * to not enter or open doors.
+     * Adds a passenger to the horse, dropping the leash and clearing the recent dismount cooldown.
      *
      * @param passenger the passenger to add
      */
@@ -377,35 +368,11 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         super.addPassenger(passenger);
         dropLeash(true, false);
         lastDismountTime = -1;
-        
-        if (passenger instanceof EntityCitizen guard) 
-        {
-            AbstractAdvancedPathNavigate nav = guard.getNavigation();
-
-            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) 
-            {
-                cacheRiderPathingOptions.setEnterDoors(mcnav.getPathingOptions().canEnterDoors());
-                cacheRiderPathingOptions.setCanOpenDoors(mcnav.getPathingOptions().canOpenDoors());
-                cacheRiderPathingOptions.setCanClimbAdvanced(mcnav.getPathingOptions().canClimbAdvanced());
-                cacheRiderPathingOptions.setCanUseRails(mcnav.getPathingOptions().canUseRails());
-                cacheRiderPathingOptions.setEnterGates(mcnav.getPathingOptions().canEnterGates());
-
-                mcnav.getPathingOptions().setEnterDoors(false);
-                mcnav.getPathingOptions().setCanOpenDoors(true);
-                mcnav.getPathingOptions().setCanClimbAdvanced(false);
-                mcnav.getPathingOptions().setCanUseRails(false);
-                mcnav.getPathingOptions().setEnterGates(true);
-            }
-
-            // Horses can enter gates when they have a cavalry rider
-            MinecoloniesAdvancedPathNavigate pathNavigation = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
-            pathNavigation.getPathingOptions().setEnterGates(true);
-        }
     }
 
     /**
      * Called when a passenger is removed from this horse.
-     * 
+     *
      * @param passenger the passenger being removed
      */
     @Override
@@ -413,24 +380,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.removePassenger(passenger);
         lastDismountTime = this.level().getGameTime();
-
-        if (passenger instanceof EntityCitizen guard) 
-        {
-            AbstractAdvancedPathNavigate nav = guard.getNavigation();
-
-            if (nav instanceof MinecoloniesAdvancedPathNavigate mcnav) 
-            {
-                mcnav.getPathingOptions().setEnterDoors(cacheRiderPathingOptions.canEnterDoors());
-                mcnav.getPathingOptions().setCanOpenDoors(cacheRiderPathingOptions.canOpenDoors());
-                mcnav.getPathingOptions().setCanClimbAdvanced(cacheRiderPathingOptions.canClimbAdvanced());
-                mcnav.getPathingOptions().setCanUseRails(cacheRiderPathingOptions.canUseRails());
-                mcnav.getPathingOptions().setEnterGates(cacheRiderPathingOptions.canEnterGates());
-            }
-
-            // Riderless horses cannot enter gates.
-            MinecoloniesAdvancedPathNavigate pathNavigation = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
-            pathNavigation.getPathingOptions().setEnterGates(false);
-        }
     }
 
     /**
@@ -562,7 +511,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             final float alignedYaw = approachYaw(cavunit.getYRot(), horseYaw, RIDER_ALIGN_MAX_STEP_DEGREES);
             cavunit.setYRot(alignedYaw);
             cavunit.setYBodyRot(alignedYaw);
-            cavunit.setYHeadRot(alignedYaw);
 
             MinecoloniesAdvancedPathNavigate nav = (MinecoloniesAdvancedPathNavigate) this.getNavigation();
 
@@ -581,8 +529,10 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                     // Ignore near-vertical node transitions to avoid yaw jitter/spin while climbing/descending.
                     if ((dx * dx + dz * dz) > LOOK_AT_HORIZONTAL_EPSILON)
                     {
-                        // Keep rider gaze level so vertical path steps do not force erratic turning.
-                        cavunit.getLookControl().setLookAt(targetX, cavunit.getEyeY(), targetZ, 20.0F, 30.0F);
+                        final BlockPos lookAt = next.above();
+                        final LookHandler lookHandler = (LookHandler) cavunit.getLookControl();
+                        lookHandler.setLookAt(lookAt.getX(), lookAt.getY(), lookAt.getZ());
+                        lookHandler.setLookAtCooldown(40);
                     }
                 }
 

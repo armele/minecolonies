@@ -13,7 +13,7 @@ import static com.minecolonies.api.util.constant.StatisticsConstants.ITEM_OBTAIN
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
 
 /**
- * The Cowboy job
+ * The Stablemaster job
  */
 public class JobStablemaster extends AbstractJob<EntityAIWorkStablemaster, JobStablemaster>
 {

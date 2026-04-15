@@ -528,14 +528,15 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     {
         if (horse == null || horse.level().isClientSide()) return false;
 
-        final float heal = 2.0F;
+        final float healPercentage = .20F;
         final int temper = 3;
+        final float maxHealth = horse.getMaxHealth();
 
         boolean didSomething = false;
 
-        if (horse.getHealth() < horse.getMaxHealth())
+        if (horse.getHealth() < maxHealth)
         {
-            horse.heal(heal);
+            horse.heal(maxHealth * healPercentage);
             didSomething = true;
         }
 

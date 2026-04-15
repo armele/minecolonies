@@ -10,13 +10,13 @@ import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.ai.workers.util.GuardGear;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
-import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGateHouse;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
+import com.minecolonies.api.util.Log;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -34,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
-
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_MAXIMUM;
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
@@ -178,7 +176,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                     ChatPriority.IMPORTANT));
 
                 JobCavalry cav = (JobCavalry) worker.getCitizenData().getJob();
-                cav.setMissingMount(true);
+                cav.setMount(null);
                 stableChecked = false;
 
                 EntityNavigationUtils.walkToRandomPos(worker, 15, 0.6D);
@@ -191,7 +189,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
         
         JobCavalry cav = (JobCavalry) worker.getCitizenData().getJob();
-        cav.setMissingMount(false);
+        cav.setMount(targetMount.getUUID());
 
         if (worker.isPassenger())
         {
@@ -258,7 +256,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
 
         // Prefer explicit patrol points
-        final List<BlockPos> patrolPoints = building.getLocationsFromTag(TAG_PATROL_POINT);
+        final List<BlockPos> patrolPoints = targetBuilding.getLocationsFromTag(TAG_PATROL_POINT);
         final RandomSource rand = worker.getRandom();
 
         if (patrolPoints != null && !patrolPoints.isEmpty())
@@ -296,12 +294,16 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         {
             case 0:
                 patrolCorner = new BlockPos(a.getX(), groundY, a.getZ());
+                break;
             case 1:
                 patrolCorner = new BlockPos(a.getX(), groundY, b.getZ());
+                break;
             case 2:
                 patrolCorner = new BlockPos(b.getX(), groundY, b.getZ());
+                break;
             default:
                 patrolCorner = new BlockPos(b.getX(), groundY, a.getZ());
+                break;
         }
 
         return patrolCorner;
@@ -313,13 +315,20 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      *
      * @return the next patrol point to go to.
      */
+    @Override
     public IAIState patrol()
     {
         BuildingStable stable = (BuildingStable) building;
         if (stable.minutesSinceLastPatrol() < building.getSetting(BuildingStable.PATROL_INTERVAL).getValue())
         {
-            // We've patrolled recently. Let's just wander around the stable a bit to keep things lively, and then check again later.
-            EntityNavigationUtils.walkToRandomPosAround(worker, building.getPosition(), 20, 0.6D);
+            if (currentPatrolPoint == null || walkToSafePos(currentPatrolPoint))
+            {
+                currentPatrolPoint = null;
+
+                // We've patrolled recently, are not currently on patrol, and not ready to start a new patrol. Let's just wander around the stable a bit to keep things lively, and then check again later.
+                EntityNavigationUtils.walkToRandomPosAround(worker, building.getPosition(), 20, 0.6D);
+            }
+
             return null;
         }   
 
@@ -329,8 +338,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             {
                 if (worker.getRandom().nextInt(5) <= 1)
                 {
-                    // Cavalry only patrol nearby.
-                    BlockPos buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
+                    BlockPos buildingPos = buildingGuards.getNextPatrolTarget(true);
 
                     if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
                     {
@@ -338,7 +346,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
                     }
 
                     currentPatrolPoint = patrolPointForBuilding(buildingPos);
-                    
+
                     if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
                     {
                         stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
@@ -359,33 +367,30 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
         }
         else
         {
-            BlockPos buildingPos = buildingGuards.getNextPatrolTarget(false);
+            BlockPos buildingPos = buildingGuards.getNextPatrolTarget(true);
 
             if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
             {
                 // Cavalry only patrol nearby.
-                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
+                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(BuildingStable.cavalryPatrolFilter());
             }
 
             currentPatrolPoint = patrolPointForBuilding(buildingPos);
             stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
 
+            Log.getLogger().error("Walking to patrol point {}", currentPatrolPoint.toShortString());
+
             if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint) && (EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0)))
             {
+                Log.getLogger().error("Arrived at patrol point {}", currentPatrolPoint.toShortString());
+
                 setCurrentDelay(10);
+                currentPatrolPoint = null;
                 buildingGuards.arrivedAtPatrolPoint(worker);
             }
         }
 
         return null;
-    }
-
-    /*
-     * Filter for buildings that cavalry patrols.
-     */
-    protected Predicate<IBuilding> cavalryPatrolFilter()
-    {
-        return b -> b instanceof BuildingStable || b instanceof BuildingGateHouse;
     }
 
     /** Validates a horse target for mounting.

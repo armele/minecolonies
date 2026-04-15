@@ -146,7 +146,7 @@ public final class GuardConstants
      * Cornering penalty for mounted cavalry units.
      * Encourages "straight-first" pathing.
      */
-    public static final double CAVALRY_CORNER_PENALTY = 0.3;
+    public static final float CAVALRY_CORNER_PENALTY = 0.3f;
 
     /**
      * Patrol range for cavalry units.

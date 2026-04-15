@@ -450,7 +450,7 @@ public class EntityAIEatTask implements IStateAI
         if (restaurantPos != null)
         {
             // Prevent riding the horse into the restaurant.
-            if (citizen.getCitizenData().getJob() instanceof JobCavalry && citizen.getVehicle() != null)
+            if (citizen.getCitizenData().getJob() instanceof JobCavalry && citizen.getVehicle() != null && BlockPosUtil.distManhattan(restaurantPos, citizen.blockPosition()) < JobCavalry.DININGHALL_HORSE_PARKING_RANGE)
             {   
                 citizen.stopRiding();
             }

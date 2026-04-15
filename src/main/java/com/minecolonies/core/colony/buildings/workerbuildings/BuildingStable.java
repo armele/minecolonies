@@ -1,9 +1,11 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.jobs.ModJobs;
@@ -29,6 +31,9 @@ import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
  */
 public class BuildingStable extends AbstractBuildingGuards
 {
+
+    public static final float CAVALRY_PATROL_RANGE_BOOST = 1.5f;
+
     /**
      * Tag for the structurize tags designating stall positions.
      */
@@ -51,19 +56,9 @@ public class BuildingStable extends AbstractBuildingGuards
     private long lastPatrolTime = 0;
 
     /**
-     * The positions of the stalls.
-     */
-    private List<BlockPos> stallPositions;
-
-    /**
      * The last stable position used.
      */
     private int lastStable = -1;
-
-    /**
-     * Flag to indicate if the stable positions have been initialized.
-     */
-    private boolean initStables = false;
     
     /**
      * Constructor.
@@ -99,39 +94,20 @@ public class BuildingStable extends AbstractBuildingGuards
         }
     }
 
-
-    /**
-     * Called when the building has finished upgrading. Resets the flag to re-check for stable positions.
-     * <p>
-     * This is necessary because the when the building is upgraded, we need to re-read the
-     * positions to ensure that the new stable positions are known.
-     */
-    @Override
-    public void onUpgradeComplete(final int newlevel)
-    {
-        initStables = false;
-        super.onUpgradeComplete(newlevel);
-    }
-
-
     /**
      * Reads the tag positions
      */
-    public void initTagPositions()
+    public List<BlockPos> stallPositions()
     {
-        if (initStables)
-        {
-            return;
-        }
-
-        stallPositions = getLocationsFromTag(STALL_STRUCTURE_TAG);
+        List<BlockPos> stallPositions = getLocationsFromTag(STALL_STRUCTURE_TAG);
         
         if (stallPositions.isEmpty())
         {
-            Log.getLogger().warn("No stall positions found for stable at {}. Use the '" + STALL_STRUCTURE_TAG + "' tag to add some.", getPosition());
+            Log.getLogger().warn("Colony {} has a stable with no stall positions (blueprint {}) at {}. Use the '" + STALL_STRUCTURE_TAG + "' tag to add some.", 
+                getColony().getID(), getBlueprintPath(), getPosition());
         }
 
-        initStables = true;
+        return stallPositions;
     }
 
     /**
@@ -142,7 +118,7 @@ public class BuildingStable extends AbstractBuildingGuards
      */
     public BlockPos getNextStallPosition()
     {
-        initTagPositions();
+        List<BlockPos> stallPositions = stallPositions();
 
         if (stallPositions.isEmpty())
         {
@@ -215,14 +191,50 @@ public class BuildingStable extends AbstractBuildingGuards
     }
 
     /**
-     * Returns the time in milliseconds since the last patrol from this stable.
+     * Returns the time in minutes since the last patrol from this stable.
      * This is based on the game time of the world.
-     * @return the time in milliseconds since the last patrol.
+     * @return the time in minutes since the last patrol.
      */
     public int minutesSinceLastPatrol()
     {
         long ticks = this.getColony().getWorld().getGameTime() - lastPatrolTime;
         int minutes = (int) ticks / TICKS_SECOND / 60;
         return minutes;
+    }
+
+    /**
+     * Gets the patrol distance for cavalry guards assigned to this stable.
+     * This range is based on the base patrol distance of guards, and is multiplied by a constant to
+     * give cavalry guards a wider patrol range.
+     * @return the patrol distance for cavalry guards assigned to this stable.
+     */
+    @Override
+    public int getPatrolDistance()
+    {
+        int patrolDistance = super.getPatrolDistance();
+
+        return (int) (patrolDistance * CAVALRY_PATROL_RANGE_BOOST);
+    }
+
+
+    /**
+     * Gets the next patrol target for cavalry guards assigned to this stable.
+     *
+     * @return the next patrol target for cavalry guards assigned to this stable
+     */
+    @Override
+    public BlockPos getNextPatrolTarget(final boolean newTarget)
+    {                    
+        BlockPos buildingPos = getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
+
+        return buildingPos;
+    }
+
+    /*
+     * Filter for buildings that cavalry patrols.
+     */
+    public static Predicate<IBuilding> cavalryPatrolFilter()
+    {
+        return b -> b instanceof BuildingStable || b instanceof BuildingGateHouse;
     }
 }

@@ -15,7 +15,6 @@ import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.blocks.BlockDecorationController;
-import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.*;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.entity.pathfinding.world.CachingBlockLookup;
@@ -47,7 +46,6 @@ import java.util.concurrent.Callable;
 
 import static com.minecolonies.api.util.constant.PathingConstants.*;
 import static com.minecolonies.core.entity.pathfinding.PathingOptions.MAX_COST;
-import static com.minecolonies.api.util.constant.GuardConstants.CAVALRY_CORNER_PENALTY;
 /**
  * Abstract class for Jobs that run in the multithreaded path finder.
  */
@@ -879,7 +877,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             }
 
             nextCost = computeCost(costFrom, dX, dY, dZ, isSwimming, onRoad, isDiving, onRails, railsExit, swimStart, ladder, state, belowState, nextX, nextY, nextZ);
-            nextCost += computeTurnPenalty(costFrom, nextX, nextZ);
+            nextCost += computeTurnPenalty(costFrom, nextX, nextZ, pathingOptions.getTurnPenalty());
             nextCost = modifyCost(nextCost, costFrom, swimStart, isSwimming, nextX, nextY, nextZ, state, belowState);
 
             if (nextCost > maxCost)
@@ -1692,17 +1690,21 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
     }
 
     /**
-     * Compute the turn penalty for a mounted/cavalry entity.
-     * The penalty is computed based on the angle of the turn.
-     * @param from the node from which we are turning.
-     * @param toX the x-coordinate of the node to which we are turning.
-     * @param toZ the z-coordinate of the node to which we are turning.
-     * @return the turn penalty.
+     * Calculate the turn penalty for the given move.
+     *
+     * @param from the node we are moving from.
+     * @param toX the x coordinate of the node we are moving to.
+     * @param toZ the z coordinate of the node we are moving to.
+     * @param turnPenalty the base turn penalty to use.
+     *
+     * This function calculates the turn penalty for a move from one node to another. The penalty is based on the angle of the turn, 
+     * with smaller angles having smaller penalties. The base turn penalty is also used to scale the penalty.
+     *
+     * @return the calculated turn penalty.
      */
-    private double computeTurnPenalty(@NotNull final MNode from, final int toX, final int toZ)
+    private double computeTurnPenalty(@NotNull final MNode from, final int toX, final int toZ, float turnPenalty)
     {
-        // Only apply to cavalry entities or riders riding them.
-        if (entity == null || (!(entity instanceof CavalryHorseEntity || entity.getRootVehicle() instanceof CavalryHorseEntity)))
+        if (entity == null || turnPenalty == 0.0f)
         {
             return 0.0;
         }
@@ -1726,15 +1728,15 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             return 0.0;
         }
 
+        // Straight
         if (dxPrev == dxNow && dzPrev == dzNow)
         {
-            return 0.0; // straight
+            return 0.0;
         }
 
         final int dot = dxPrev * dxNow + dzPrev * dzNow; // -2..2
 
-        // TODO: Introduce research to mitigate this.
-        final double P = CAVALRY_CORNER_PENALTY;
+        final double P = turnPenalty;
 
         // slight (diag<->cardinal)
         if (dot == 1) return P * 0.5;

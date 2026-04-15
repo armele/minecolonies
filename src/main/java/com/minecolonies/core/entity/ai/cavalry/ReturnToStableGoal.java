@@ -3,6 +3,8 @@ package com.minecolonies.core.entity.ai.cavalry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
@@ -97,6 +99,8 @@ public class ReturnToStableGoal extends Goal
 
         if (horse.isInStable()) return false;
 
+        validateHomeStable();
+
         IBuilding building = horse.getStableBuilding();
         if  (!(building instanceof BuildingStable))
         {
@@ -113,6 +117,50 @@ public class ReturnToStableGoal extends Goal
         targetStable = building.getPosition().immutable();
 
         return true;
+    }
+
+    /**
+     * Validates the home stable of the horse.
+     * <p>
+     * If the horse is on the client side, does nothing.
+     * If no colony is found at the horse's position, sets the horse's home building to null.
+     * If no stable is found at the horse's position, sets the horse's home building to null.
+     * Otherwise, sets the horse's home building to the found stable.
+     */
+    protected void validateHomeStable()
+    {
+        if (horse.level().isClientSide) return;
+
+        IBuilding building = horse.getAnimalData().getHomeBuilding();
+
+        // If the horse's stable is already built, do nothing
+        if (building != null && building instanceof BuildingStable && building.isBuilt())
+        {
+            return;
+        }
+
+        IColony colony = IColonyManager.getInstance().getClosestColony(horse.level(), horse.blockPosition());
+
+        // No colony found - set the stable to null
+        if (colony == null) 
+        {
+            horse.getAnimalData().setHomeBuilding(null);
+            return;
+        }
+
+        BlockPos stablePos = colony.getServerBuildingManager().getBestBuilding(horse.blockPosition(), BuildingStable.class);
+
+        // No stable found - set the stable to null
+        if (stablePos == null) 
+        {
+            horse.getAnimalData().setHomeBuilding(null);
+            return;
+        }
+
+        // Set the stable as the horse's home
+        building = colony.getServerBuildingManager().getBuilding(stablePos);
+
+        horse.getAnimalData().setHomeBuilding(building);
     }
 
     /**
