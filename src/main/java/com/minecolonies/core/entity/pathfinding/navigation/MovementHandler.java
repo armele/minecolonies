@@ -2,18 +2,18 @@ package com.minecolonies.core.entity.pathfinding.navigation;
 
 import com.minecolonies.api.util.ShapeUtil;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.level.pathfinder.NodeEvaluator;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -152,7 +152,10 @@ public class MovementHandler extends MoveControl
     public void setWantedPosition(double x, double y, double z, double speedIn)
     {
         super.setWantedPosition(x, y, z, speedIn);
-        this.operation = MoveControl.Operation.MOVE_TO;
+        if (this.operation != MoveControl.Operation.JUMPING || (wantedX != x || wantedY != y || wantedZ != z))
+        {
+            this.operation = MoveControl.Operation.MOVE_TO;
+        }
     }
 
     private boolean isWalkable(float p_24997_, float p_24998_)
