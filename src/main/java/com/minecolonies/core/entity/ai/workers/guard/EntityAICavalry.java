@@ -1,7 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.guard;
 
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
@@ -16,17 +15,16 @@ import com.minecolonies.core.colony.jobs.JobCavalry;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
-import com.minecolonies.api.util.Log;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.Tuple;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,8 +37,6 @@ import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LE
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_BUILDING_LEVEL_RANGE;
 import static com.minecolonies.api.util.constant.GuardConstants.SHIELD_LEVEL_RANGE;
-import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_GROUNDLEVEL;
-import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_PATROL_POINT;
 import static com.minecolonies.api.util.constant.TranslationConstants.CAVALRY_NOHORSE;
 
 /**
@@ -50,8 +46,25 @@ import static com.minecolonies.api.util.constant.TranslationConstants.CAVALRY_NO
 public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractBuildingGuards>
 {
 
-    public final static int GUARD_MOUNT_INTERVAL = 50;
-    public final static int HORSE_SEARCH_RADIUS = 50;
+    /**
+     * Tick interval for mount lookup and stable lookup AI targets.
+     */
+    private static final int GUARD_MOUNT_INTERVAL = 50;
+
+    /**
+     * Horizontal search radius used when looking for an available cavalry horse.
+     */
+    private static final int HORSE_SEARCH_RADIUS = 50;
+
+    /**
+     * Radius around the stable used to assign each cavalry unit a personal rest center.
+     */
+    private static final int STABLE_REST_DISPERSION_RADIUS = 10;
+
+    /**
+     * Random wander range around each cavalry unit's personal rest center.
+     */
+    private static final int STABLE_REST_WANDER_RANGE = 5;
 
     protected CavalryHorseEntity targetMount = null;
     protected BlockPos stablePos = null;
@@ -107,11 +120,9 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      */
     protected IAIState sleep()
     {
-        if ((targetMount !=  null) && targetMount.getPassengers().contains(worker))
+        if (worker.isPassenger())
         {
             worker.stopRiding();
-            targetMount.clearFor(worker);
-            targetMount = null;
         }
 
         return super.sleep();
@@ -160,7 +171,25 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
 
         if (!validateMountTarget(targetMount))
         {
-            horse = findNearestHorse();
+            // Prefer the mount we had before, if valid.
+            UUID mount = job.getMount();
+            Level level = building.getColony().getWorld();
+
+            if (mount != null && level instanceof ServerLevel serverLevel)
+            {
+                final Entity entity = serverLevel.getEntity(mount);
+                if (entity instanceof CavalryHorseEntity myHorse && isAvailableFor(myHorse, worker.getUUID()))
+                {
+                    horse = myHorse;
+                }
+            }
+
+            // Either we didn't have a horse before, or it is no longer available for some reason. Find a nearby horse.
+            if (horse == null)
+            {
+                horse = findNearestHorse();
+            }
+
             targetMount = horse;
         }
 
@@ -234,83 +263,6 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     }
 
     /**
-     * If the building structure includes potential patrol points, pick one and use it.
-     * Otherwise, use the hut (or tagged ground-level) Y and nominate one of the exterior corners.
-     *
-     * @param buildingPos The building position (hut block position) to patrol.
-     * @return A patrol point designated by a tag, or a corner of the building.
-     */
-    protected BlockPos patrolPointForBuilding(final BlockPos targetPos)
-    {
-        if (targetPos == null || BlockPos.ZERO.equals(targetPos))
-        {
-            return null;
-        }
-
-        IBuilding targetBuilding = buildingGuards.getColony().getServerBuildingManager().getBuilding(targetPos);
-
-        // The proposed patrol point was not a building location - just use it.
-        if (targetBuilding == null)
-        {
-            return targetPos;
-        }
-
-        // Prefer explicit patrol points
-        final List<BlockPos> patrolPoints = targetBuilding.getLocationsFromTag(TAG_PATROL_POINT);
-        final RandomSource rand = worker.getRandom();
-
-        if (patrolPoints != null && !patrolPoints.isEmpty())
-        {
-            return patrolPoints.get(rand.nextInt(patrolPoints.size()));
-        }
-
-        // If our building has a parent building, use that
-        if (targetBuilding.getParent() != null && !BlockPos.ZERO.equals(targetBuilding.getParent())) 
-        {
-            return patrolPointForBuilding(targetBuilding.getParent());
-        }
-
-        // Determine ground Y: from TAG_GROUNDLEVEL if present, else hut Y - 1
-        final List<BlockPos> groundLevel = targetBuilding.getLocationsFromTag(TAG_GROUNDLEVEL);
-        final int groundY =
-            (groundLevel != null && !groundLevel.isEmpty()) ? groundLevel.get(0).getY() : targetBuilding.getPosition().below().getY();
-
-        // Corners fallback
-        final Tuple<BlockPos, BlockPos> corners = targetBuilding.getCorners();
-        if (corners == null)
-        {
-            // Last resort: hut position (at computed ground Y)
-            final BlockPos hut = targetBuilding.getPosition();
-            return new BlockPos(hut.getX(), groundY, hut.getZ());
-        }
-
-        final BlockPos a = corners.getA();
-        final BlockPos b = corners.getB();
-
-        BlockPos patrolCorner = null;
-
-        // Pick one of the four outside corners
-        switch (rand.nextInt(4))
-        {
-            case 0:
-                patrolCorner = new BlockPos(a.getX(), groundY, a.getZ());
-                break;
-            case 1:
-                patrolCorner = new BlockPos(a.getX(), groundY, b.getZ());
-                break;
-            case 2:
-                patrolCorner = new BlockPos(b.getX(), groundY, b.getZ());
-                break;
-            default:
-                patrolCorner = new BlockPos(b.getX(), groundY, a.getZ());
-                break;
-        }
-
-        return patrolCorner;
-    }
-
-
-    /**
      * Patrol between a list of patrol points.
      *
      * @return the next patrol point to go to.
@@ -318,85 +270,37 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
     @Override
     public IAIState patrol()
     {
-        BuildingStable stable = (BuildingStable) building;
-        if (stable.minutesSinceLastPatrol() < building.getSetting(BuildingStable.PATROL_INTERVAL).getValue())
+        if (building instanceof BuildingStable stable && stable.minutesSinceLastPatrol() < building.getSetting(BuildingStable.PATROL_INTERVAL).getValue())
         {
-            if (currentPatrolPoint == null || walkToSafePos(currentPatrolPoint))
-            {
-                currentPatrolPoint = null;
-
-                // We've patrolled recently, are not currently on patrol, and not ready to start a new patrol. Let's just wander around the stable a bit to keep things lively, and then check again later.
-                EntityNavigationUtils.walkToRandomPosAround(worker, building.getPosition(), 20, 0.6D);
-            }
+            currentPatrolPoint = null;
+            EntityNavigationUtils.walkToRandomPosAround(worker, getStableRestCenter(), STABLE_REST_WANDER_RANGE, 0.6D);
 
             return null;
-        }   
-
-        if (buildingGuards.requiresManualTarget())
-        {
-            if (currentPatrolPoint == null)
-            {
-                if (worker.getRandom().nextInt(5) <= 1)
-                {
-                    BlockPos buildingPos = buildingGuards.getNextPatrolTarget(true);
-
-                    if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
-                    {
-                        return null;
-                    }
-
-                    currentPatrolPoint = patrolPointForBuilding(buildingPos);
-
-                    if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint))
-                    {
-                        stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
-                        EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0);
-                    }
-                }
-            }
-            else
-            {
-                if (!EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, currentPatrolPoint, 3, true, 1.0))
-                {
-                    return getState();
-                }
-
-                currentPatrolPoint = null;
-                buildingGuards.arrivedAtPatrolPoint(worker);
-            }
-        }
-        else
-        {
-            BlockPos buildingPos = buildingGuards.getNextPatrolTarget(true);
-
-            if (buildingPos == null || BlockPos.ZERO.equals(buildingPos))
-            {
-                // Cavalry only patrol nearby.
-                buildingPos = buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(BuildingStable.cavalryPatrolFilter());
-            }
-
-            currentPatrolPoint = patrolPointForBuilding(buildingPos);
-            stable.setLastPatrolTime(building.getColony().getWorld().getGameTime());
-
-            Log.getLogger().error("Walking to patrol point {}", currentPatrolPoint.toShortString());
-
-            if (currentPatrolPoint != null && !BlockPos.ZERO.equals(currentPatrolPoint) && (EntityNavigationUtils.walkCloseToXNearY(worker, currentPatrolPoint, buildingPos, 3, true, 1.0)))
-            {
-                Log.getLogger().error("Arrived at patrol point {}", currentPatrolPoint.toShortString());
-
-                setCurrentDelay(10);
-                currentPatrolPoint = null;
-                buildingGuards.arrivedAtPatrolPoint(worker);
-            }
         }
 
-        return null;
+        return super.patrol();
+    }
+
+    /**
+     * Gets a stable-local rest center unique to this cavalry unit.
+     *
+     * @return the center to wander around while between patrols.
+     */
+    private BlockPos getStableRestCenter()
+    {
+        final int hash = worker.getUUID().hashCode();
+        final double angle = Math.toRadians(Math.floorMod(hash, 360));
+        final int radius = STABLE_REST_DISPERSION_RADIUS / 2 + Math.floorMod(hash / 31, STABLE_REST_DISPERSION_RADIUS / 2 + 1);
+        final int x = (int) Math.round(Math.cos(angle) * radius);
+        final int z = (int) Math.round(Math.sin(angle) * radius);
+
+        return building.getPosition().offset(x, 0, z);
     }
 
     /** Validates a horse target for mounting.
      * 
-     * The horse is a valid mount if it is not null, passes the horse filter, 
-     * is on the same level as the worker, and is not reserved by anyone else.
+     * The horse is a valid mount if it is not null, passes the horse filter,
+     * is on the same level as the worker, and is unreserved or reserved by this worker.
      * 
      * @param horse the horse to validate
      * @return true if the horse is a valid target, false otherwise
@@ -408,18 +312,7 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return false;
         }
 
-        boolean baseOk = isAvailable(horse);
-
-        if (!baseOk) 
-        {
-            return false;
-        }
-        
-        UUID me = worker.getUUID();
-        UUID who = horse.reservedBy();
-
-        // valid if unreserved OR reserved by me
-        return who == null || who.equals(me);
+        return isAvailableFor(horse, worker.getUUID());
     }
 
     /** 
@@ -429,11 +322,22 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
      */
     private static boolean isAvailable(CavalryHorseEntity h)
     {
+        return isAvailableFor(h, null);
+    }
+
+    /**
+     * Checks whether the horse can be mounted by the given reserver.
+     *
+     * @param h the horse to check
+     * @param reserver the reserver allowed to use this horse, or null to require an unreserved horse
+     */
+    private static boolean isAvailableFor(CavalryHorseEntity h, @Nullable final UUID reserver)
+    {
         return h.isAlive() 
             && h.getPassengers().isEmpty() 
             && h instanceof CavalryHorseEntity
             && !h.isBaby() 
-            && !h.hasReservation() 
+            && (h.reservedBy() == null || h.reservedBy().equals(reserver))
             && h.isReadyForCombat()
             && EntitySelector.NO_SPECTATORS.test(h);
     }
@@ -460,10 +364,10 @@ public class EntityAICavalry extends AbstractEntityAIGuard<JobCavalry, AbstractB
             return null;
         }
 
-        // 1) Prefer a horse reserved by me (if any and still riderless/adult/tamed)
+        // 1) Prefer a horse reserved by me, if it is still mountable.
         CavalryHorseEntity mine = pool.stream()
             .filter(h -> h.reservedBy() != null && h.reservedBy().equals(me))
-            .filter(h -> h.getPassengers().isEmpty() && !h.isBaby() && h.isAlive())
+            .filter(h -> isAvailableFor(h, me))
             .min(Comparator.comparingDouble(worker::distanceToSqr))
             .orElse(null);
 

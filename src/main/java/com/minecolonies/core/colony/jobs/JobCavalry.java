@@ -34,6 +34,7 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
 {
     public static final float MOUNT_DAMAGE_SPLIT = .20f;
     public static final int DININGHALL_HORSE_PARKING_RANGE = 40;
+    private static final String TAG_MOUNT = "mount";
 
     /**
      * The UUID of the mount.
@@ -56,10 +57,13 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
         return new EntityAICavalry(this);
     }
 
+    /**
+     * Fired when level increases.
+     */
     @Override
     public void onLevelUp()
     {
-        // Bonus Health for knights(gets reset upon Firing)
+        // Bonus Health for cavalry matches knights (gets reset upon Firing)
         if (getCitizen().getEntity().isPresent())
         {
             final AbstractEntityCitizen citizen = getCitizen().getEntity().get();
@@ -77,6 +81,26 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     public ResourceLocation getModel()
     {
         return ModModelTypes.KNIGHT_GUARD_ID;
+    }
+
+    @Override
+    public CompoundTag serializeNBT()
+    {
+        final CompoundTag compound = super.serializeNBT();
+
+        if (myMount != null)
+        {
+            compound.putUUID(TAG_MOUNT, myMount);
+        }
+
+        return compound;
+    }
+
+    @Override
+    public void deserializeNBT(final CompoundTag compound)
+    {
+        super.deserializeNBT(compound);
+        myMount = compound.contains(TAG_MOUNT) ? compound.getUUID(TAG_MOUNT) : null;
     }
 
     /**
@@ -131,6 +155,16 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     public void setMount(final UUID mountUUID)
     {
         this.myMount = mountUUID;
+    }
+
+    /**
+     * Return the current mount for the cavalry job.
+     *
+     * @return
+     */
+    public UUID getMount()
+    {
+        return this.myMount;
     }
 
     /**

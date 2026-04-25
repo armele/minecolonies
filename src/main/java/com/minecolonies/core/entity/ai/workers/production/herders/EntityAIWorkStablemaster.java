@@ -19,6 +19,7 @@ import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
+import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingStable;
 import com.minecolonies.core.colony.jobs.JobStablemaster;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
@@ -77,7 +78,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     protected static final int MAX_TRAINING_COOLDOWN = 50;
     protected int trainingCooldown = MAX_TRAINING_COOLDOWN;
 
-    protected AbstractHorse horseToTrain = null;
+    protected AbstractHorse horseToConvert = null;
     protected CavalryHorseEntity horseToGetReady = null;
     protected AbstractHorse horseToRetrieve = null;
 
@@ -101,7 +102,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     {
         super(job);
         super.registerTargets(
-          new AITarget(HERDER_TRAIN, this::trainMount, 10),
+          new AITarget(HERDER_TRAIN, this::convertMount, 10),
           new AITarget(HERDER_READY_FOR_COMBAT, this::readyMountForCombat, 10),
           new AITarget(HERDER_GATHER_MOUNTS, this::gatherMounts, 10)
         );
@@ -264,23 +265,23 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
     }
 
     /**
-     * Trains a mount to become a cavalry horse. 
+     * Converts a normal horse into a cavalry horse. 
      * Capacity: at most (2 × building level) CavalryHorseEntity in the herded animals.
      */
-    protected IAIState trainMount()
+    protected IAIState convertMount()
     {
         final int limit = Math.max(0, building.getBuildingLevel() * 2);
 
-        // If we're mid-training, walk to the horse...
-        if (horseToTrain != null && !walkToSafePos(horseToTrain.blockPosition()))
+        // If we're mid-conversion, walk to the horse...
+        if (horseToConvert != null && !walkToSafePos(horseToConvert.blockPosition()))
         {
             return HERDER_TRAIN;
         }
 
-        // ... and then train it!
-        if (horseToTrain != null)
+        // ... and then convert it!
+        if (horseToConvert != null)
         {
-            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level, horseToTrain);
+            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level, horseToConvert);
             if (cav == null)
             {
                 Log.getLogger().warn("Stablemaster in Colony {}: Could not train candidate horse to CavalryHorseEntity", building.getColony().getID());
@@ -292,7 +293,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 StatsUtil.trackStat(building, HORSES_TRAINED, 1);
                 incrementActionsDoneAndDecSaturation();
             }
-            horseToTrain = null;
+            horseToConvert = null;
             return DECIDE;
         }
 
@@ -332,7 +333,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
         if (firstCandidate != null)
         {
-            horseToTrain = firstCandidate; 
+            horseToConvert = firstCandidate; 
             return HERDER_TRAIN;
         }
 
@@ -384,7 +385,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
         }
 
-        AnimalHerdingModule module = building.getModule(AnimalHerdingModule.class);
+        AnimalHerdingModule module = building.getModule(BuildingModules.STABLEMASTER_HERDING);
 
         if (module == null)
         {
@@ -493,29 +494,11 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         }
         else
         {
-            final ImmutableList<IRequest<? extends Stack>> openRequestList = building.getOpenRequestsOfType(worker.getCitizenData().getId(), TypeToken.of(Stack.class));
-
-            StackList requestableItems = new StackList(neededItem, (ServerLevel) worker.getCitizenData().getColony().getWorld(), component.getString(), 8, 4, 0);
-            boolean placeNewOrder = true;
-
-            // If the openRequestList includes anything that is also in the StackList, do not create another request.
-            for (IRequest<? extends Stack> request : openRequestList)
+            if (!building.hasWorkerOpenRequestsOfType(worker.getCitizenData().getId(), TypeToken.of(StackList.class)))
             {
-                for (ItemStack newRequest : requestableItems.getStacks()) 
-                {
-                    if (request.getRequest().getStack().getItem() == newRequest.getItem())
-                    {
-                        placeNewOrder = false;
-                        break;
-                    }
-                }
-            }
-
-            if (placeNewOrder)
-            {
+                StackList requestableItems = new StackList(neededItem, (ServerLevel) worker.getCitizenData().getColony().getWorld(), component.getString(), 8, 4, 0);
                 worker.getCitizenData().createRequestAsync(requestableItems);
             }
-
         }
 
         return didWork;

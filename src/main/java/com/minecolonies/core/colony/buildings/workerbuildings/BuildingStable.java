@@ -10,6 +10,7 @@ import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;
+import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
@@ -20,10 +21,14 @@ import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.Items;
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
+import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_GROUNDLEVEL;
+import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_PATROL_POINT;
 
 /**
  * Building of the stable.
@@ -216,18 +221,92 @@ public class BuildingStable extends AbstractBuildingGuards
         return (int) (patrolDistance * CAVALRY_PATROL_RANGE_BOOST);
     }
 
-
     /**
-     * Gets the next patrol target for cavalry guards assigned to this stable.
-     *
-     * @return the next patrol target for cavalry guards assigned to this stable
+     * Initiate the next patrol.
      */
     @Override
-    public BlockPos getNextPatrolTarget(final boolean newTarget)
-    {                    
+    public void startPatrolNext()
+    {
+        if (minutesSinceLastPatrol() < getSetting(PATROL_INTERVAL).getValue())
+        {
+            setPatrolTimer(TICKS_SECOND * 60);
+            return;
+        }
+
+        setLastPatrolTime(getColony().getWorld().getGameTime());
+        super.startPatrolNext();
+    }
+
+    /**
+     * Get a patrol target.
+     */
+    @Override
+    protected BlockPos getRandomPatrolTarget()
+    {
         BlockPos buildingPos = getColony().getServerBuildingManager().getRandomBuilding(cavalryPatrolFilter());
 
-        return buildingPos;
+        return patrolPointForBuilding(buildingPos);
+    }
+
+    /**
+     * If the building structure includes potential patrol points, pick one and use it.
+     * Otherwise, use the hut (or tagged ground-level) Y and nominate one of the exterior corners.
+     *
+     * @param targetPos the building position to patrol.
+     * @return a patrol point designated by a tag, a building corner, or the target position.
+     */
+    public BlockPos patrolPointForBuilding(final BlockPos targetPos)
+    {
+        if (targetPos == null || BlockPos.ZERO.equals(targetPos))
+        {
+            return null;
+        }
+
+        IBuilding targetBuilding = getColony().getServerBuildingManager().getBuilding(targetPos);
+
+        if (targetBuilding == null)
+        {
+            return targetPos;
+        }
+
+        final List<BlockPos> patrolPoints = targetBuilding.getLocationsFromTag(TAG_PATROL_POINT);
+        final RandomSource rand = getColony().getWorld().random;
+
+        if (patrolPoints != null && !patrolPoints.isEmpty())
+        {
+            return patrolPoints.get(rand.nextInt(patrolPoints.size()));
+        }
+
+        if (targetBuilding.getParent() != null && !BlockPos.ZERO.equals(targetBuilding.getParent()))
+        {
+            return patrolPointForBuilding(targetBuilding.getParent());
+        }
+
+        final List<BlockPos> groundLevel = targetBuilding.getLocationsFromTag(TAG_GROUNDLEVEL);
+        final int groundY =
+            (groundLevel != null && !groundLevel.isEmpty()) ? groundLevel.get(0).getY() : targetBuilding.getPosition().below().getY();
+
+        final Tuple<BlockPos, BlockPos> corners = targetBuilding.getCorners();
+        if (corners == null)
+        {
+            final BlockPos hut = targetBuilding.getPosition();
+            return new BlockPos(hut.getX(), groundY, hut.getZ());
+        }
+
+        final BlockPos a = corners.getA();
+        final BlockPos b = corners.getB();
+
+        switch (rand.nextInt(4))
+        {
+            case 0:
+                return new BlockPos(a.getX(), groundY, a.getZ());
+            case 1:
+                return new BlockPos(a.getX(), groundY, b.getZ());
+            case 2:
+                return new BlockPos(b.getX(), groundY, b.getZ());
+            default:
+                return new BlockPos(b.getX(), groundY, a.getZ());
+        }
     }
 
     /*
