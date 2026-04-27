@@ -316,7 +316,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      */
     protected IAIState sleep()
     {
-        if (worker.getLastHurtByMob() != null || (sleepTimer -= getTickRate()) < 0)
+        if (job.getCitizen().getCitizenDiseaseHandler().isSick() || worker.getLastHurtByMob() != null || (sleepTimer -= getTickRate()) < 0)
         {
             stopSleeping();
             ((EntityCitizen) worker).getThreatTable().removeCurrentTarget();
@@ -339,7 +339,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      */
     private void stopSleeping()
     {
-        if (getState() == GUARD_SLEEP)
+        if (getState() == GUARD_SLEEP || worker.getVehicle() instanceof SittingEntity)
         {
             worker.stopRiding();
             worker.setPos(worker.getX(), worker.getY() + 1, worker.getZ());
@@ -778,8 +778,14 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
     @Override
     public boolean canBeInterrupted()
     {
-        if (fighttimer > 0 || getState() == CombatAIStates.ATTACKING || worker.getLastAttacker() != null || buildingGuards.getRallyLocation() != null || buildingGuards.getTask()
-                                                                                                                                                           .equals(GuardTaskSetting.FOLLOW))
+        final boolean isSick = job.getCitizen().getCitizenDiseaseHandler().isSick();
+
+        if (fighttimer > 0 || getState() == CombatAIStates.ATTACKING || worker.getLastAttacker() != null)
+        {
+            return false;
+        }
+
+        if (!isSick && (buildingGuards.getRallyLocation() != null || buildingGuards.getTask().equals(GuardTaskSetting.FOLLOW)))
         {
             return false;
         }

@@ -378,7 +378,18 @@ public class EntityAISickTask implements IStateAI
             return SEARCH_HOSPITAL;
         }
 
-        if (citizen.getCitizenSleepHandler().isAsleep() || EntityNavigationUtils.walkToBuilding(citizen, buildingWorker))
+        if (citizen.getCitizenSleepHandler().isAsleep())
+        {
+            if (isSleepingInHospitalBed())
+            {
+                return SEARCH_HOSPITAL;
+            }
+
+            citizen.getCitizenSleepHandler().onWakeUp();
+            return GO_TO_HUT;
+        }
+
+        if (EntityNavigationUtils.walkToBuilding(citizen, buildingWorker))
         {
             return SEARCH_HOSPITAL;
         }
@@ -398,11 +409,41 @@ public class EntityAISickTask implements IStateAI
             return SEARCH_HOSPITAL;
         }
 
-        if (citizen.getCitizenSleepHandler().isAsleep() || EntityNavigationUtils.walkToPos(citizen, bestHospital, MIN_DIST_TO_HOSPITAL, true))
+        if (citizen.getCitizenSleepHandler().isAsleep())
+        {
+            if (isSleepingInHospitalBed())
+            {
+                return WAIT_FOR_CURE;
+            }
+
+            citizen.getCitizenSleepHandler().onWakeUp();
+            return GO_TO_HOSPITAL;
+        }
+
+        if (EntityNavigationUtils.walkToPos(citizen, bestHospital, MIN_DIST_TO_HOSPITAL, true))
         {
             return WAIT_FOR_CURE;
         }
         return SEARCH_HOSPITAL;
+    }
+
+    /**
+     * Check if the citizen is asleep in a hospital bed.
+     *
+     * @return true if the current sleeping location belongs to the hospital.
+     */
+    private boolean isSleepingInHospitalBed()
+    {
+        final IColony colony = citizenData.getColony();
+        final BlockPos hospitalPos = colony.getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
+        if (hospitalPos == null)
+        {
+            return false;
+        }
+
+        final IBuilding building = colony.getServerBuildingManager().getBuilding(hospitalPos);
+
+        return building instanceof BuildingHospital hospital && hospital.getBedList().contains(citizen.getCitizenSleepHandler().getBedLocation());
     }
 
     /**

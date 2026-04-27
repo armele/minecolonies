@@ -135,16 +135,16 @@ public class CitizenAI implements IStateAI
     {
         if (citizen.getCitizenJobHandler().getColonyJob() instanceof AbstractJobGuard guardJob)
         {
-            if (shouldEat())
-            {
-                return CitizenAIState.EATING;
-            }
-
             // Sick
             if (citizen.getCitizenData().getCitizenDiseaseHandler().isSick() && guardJob.canAIBeInterrupted())
             {
                 citizen.getCitizenData().setVisibleStatus(VisibleCitizenStatus.SICK);
                 return CitizenAIState.SICK;
+            }
+
+            if (shouldEat())
+            {
+                return CitizenAIState.EATING;
             }
 
             return CitizenAIState.WORK;
