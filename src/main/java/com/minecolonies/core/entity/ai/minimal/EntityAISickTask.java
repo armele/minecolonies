@@ -502,7 +502,7 @@ public class EntityAISickTask implements IStateAI
             {
                 if (citizen.getCitizenData().getCitizenDiseaseHandler().isSick())
                 {
-                    return GO_TO_HUT;
+                    return SEARCH_HOSPITAL;
                 }
 
                 reset();
