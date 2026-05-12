@@ -352,7 +352,6 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
             if (riddenMob instanceof CavalryHorseEntity)
             {
                 mountedOptions.setEnterGates(true);
-                mountedOptions.setCanOpenDoors(true);
                 mountedOptions.setEnterDoors(false);
                 mountedOptions.setTurnPenalty(GuardConstants.CAVALRY_CORNER_PENALTY);
             }
