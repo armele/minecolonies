@@ -3,6 +3,7 @@ package com.minecolonies.api.equipment;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.compatibility.Compatibility;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
+import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.translation.ToolTranslationConstants;
@@ -43,6 +44,7 @@ public class ModEquipmentTypes
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> boots;
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> flint_and_steel;
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> lead;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> spear;
 
     static
     {
@@ -159,6 +161,13 @@ public class ModEquipmentTypes
                        .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof LeadItem)
                        .setEquipmentLevel((itemStack, equipmentType) -> -1)
                   .build());
+
+        spear = register("spear",
+          builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_SPEAR))
+                      .setIsEquipment((itemStack, equipmentType) -> itemStack.is(ModItems.spear))
+                      .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, ModItems.spear.getMaxDamage()))
+                  .build());
+
     }
 
     /**

@@ -902,6 +902,7 @@
   "com.minecolonies.coremod.tooltype.boots": "Boots",
   "com.minecolonies.coremod.tooltype.lighter": "Flint and Steel",
   "com.minecolonies.coremod.tooltype.lead": "Lead",
+  "com.minecolonies.coremod.tooltype.spear": "Spear",
 
   "com.minecolonies.coremod.armorlevel.0": "Leather",
   "com.minecolonies.coremod.armorlevel.1": "Gold",
@@ -2199,6 +2200,7 @@
   "com.minecolonies.coremod.setting.minecolonies:hiretrainee": "Hire Trainee:",
   "com.minecolonies.coremod.setting.tooltip.minecolonies:hiretrainee": "This setting only works when any of the jobs can be hired automatically.",
   "com.minecolonies.coremod.setting.minecolonies:patrolmode": "Patrol Mode:",
+  "com.minecolonies.coremod.setting.minecolonies:patrolinterval": "Patrol Interval (minutes):",
   "com.minecolonies.coremod.setting.minecolonies:followmode": "Follow Mode:",
   "com.minecolonies.coremod.setting.minecolonies:guardtask": "Task:",
   "com.minecolonies.coremod.setting.minecolonies:guardjob": "Job:",
@@ -2402,6 +2404,7 @@
   "minecolonies:chickenherder.job.desc": "Gathers eggs, feathers, and other chicken products.",
   "minecolonies:ranger.job.desc": "Distance fighter, deals high damage, but has low survival chance in close combat.",
   "minecolonies:knight.job.desc": "Close-quarter fighter. High resilience, low damage output.",
+  "minecolonies:cavalry.job.desc": "Mounted fighter. Fast and tough; vulnerable to ranged attacks.",
   "minecolonies:composter.job.desc": "Composts a lot of the colony waste products",
   "minecolonies:student.job.desc": "Reads books to increase their intelligence. High intelligence allows learning other skills faster.",
   "minecolonies:archertraining.job.desc": "Archer Trainee. Practices distance fighting.",
@@ -2430,6 +2433,7 @@
   "minecolonies:druid.job.desc": "Support type unit. Buffs friendlies and nerfs enemies.",
   "minecolonies:netherworker.job.desc": "Wanders into the Nether to gather a wide range of materials. A very dangerous job!.",
   "minecolonies:alchemist.job.desc": "Brews Potions, plants Netherwart and harvests Mistletoes",
+  "minecolonies:stablemaster.job.desc": "Raises horses and trains and prepares them for combat use.",
 
   "minecolonies:builder.skills.desc": "Affects placement and breaking speed.",
   "minecolonies:deliveryman.skills.desc": "Affects walking speed and concurrent request fulfillment capacity.",
@@ -2476,6 +2480,8 @@
   "minecolonies:druid.skills.desc": "Affects accuracy and potion quality.",
   "minecolonies:netherworker.skills.desc": "Affects the survival chances and loot.",
   "minecolonies:alchemist.skills.desc": "Affects recipe improvement chance and working speed.",
+  "minecolonies:cavalry.skills.desc": "Affects health, resilience, and attack speed.",
+  "minecolonies:stablemaster.skills.desc": "Affects effectiveness of combat readiness preparations.",
   "minecolonies:chef.skills.desc": "Affects recipe improvement chance and working speed.",
 
   "com.minecolonies.coremod.grave.lava": "Could not spawn a grave because all remains already burned.",
@@ -2608,6 +2614,7 @@
   "com.minecolonies.coremod.gui.townhall.stats.research_completed": "Research Completed: %d",  
   "com.minecolonies.coremod.gui.townhall.stats.horses_trained": "Horses Trained: %d",  
   "com.minecolonies.coremod.gui.townhall.stats.mounts_readied": "Mounts Readied: %d", 
+  "com.minecolonies.coremod.gui.townhall.stats.patrols_started": "Patrol Stops: %d", 
   "com.minecolonies.coremod.gui.townhall.stats.roundups_completed": "Roundups Completed: %d",  
   "com.minecolonies.coremod.gui.interval.yesterday": "Since Yesterday",
   "com.minecolonies.coremod.gui.interval.lastweek": "Last Week",
