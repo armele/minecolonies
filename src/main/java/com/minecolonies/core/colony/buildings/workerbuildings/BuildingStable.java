@@ -19,6 +19,7 @@ import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -145,9 +146,9 @@ public class BuildingStable extends AbstractBuildingGuards
      * @param compound the compound tag to read from.
      */
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final HolderLookup.Provider provider, final CompoundTag compound)
     {
-        super.deserializeNBT(compound);
+        super.deserializeNBT(provider, compound);
         this.lastPatrolTime = compound.getLong(NBT_LAST_PATROL_TAG);
     }
 
@@ -156,9 +157,9 @@ public class BuildingStable extends AbstractBuildingGuards
      * @return the serialized compound tag.
      */
     @Override
-    public CompoundTag serializeNBT()
+    public CompoundTag serializeNBT(final HolderLookup.Provider provider)
     {        
-        final CompoundTag compound = super.serializeNBT();
+        final CompoundTag compound = super.serializeNBT(provider);
         compound.putLong(NBT_LAST_PATROL_TAG, lastPatrolTime);
         return compound;
     }

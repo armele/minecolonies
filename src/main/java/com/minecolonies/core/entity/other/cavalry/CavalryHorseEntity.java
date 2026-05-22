@@ -87,7 +87,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     /**
      * The offset used to adjust the position of the rider on the horse.
      */
-    private static final float SEATING_OFFSET = 0.40F;
+    private static final float SEATING_OFFSET = 0.75F;
 
     /**
      * The cooldown for logging when debugging.
@@ -422,7 +422,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         // Vanilla attachment point
         Vec3 base = super.getPassengerAttachmentPoint(passenger, dims, partialTick);
 
-        // Lower rider to line up with your saddle visuals
+        // Lower rider to line up with saddle visuals
         return base.add(0.0D, -SEATING_OFFSET, 0.0D);
     }
 

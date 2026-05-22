@@ -165,7 +165,7 @@ public class ModEquipmentTypes
         spear = register("spear",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_SPEAR))
                       .setIsEquipment((itemStack, equipmentType) -> itemStack.is(ModItems.spear))
-                      .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, ModItems.spear.getMaxDamage()))
+                      .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, ModItems.spear.getMaxDamage(itemStack)))
                   .build());
 
     }

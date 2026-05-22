@@ -281,7 +281,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         // ... and then convert it!
         if (horseToConvert != null)
         {
-            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level, horseToConvert);
+            final CavalryHorseEntity cav = CavalryHorseEntity.createFromVanilla(building.getColony(), worker.level(), horseToConvert);
             if (cav == null)
             {
                 Log.getLogger().warn("Stablemaster in Colony {}: Could not train candidate horse to CavalryHorseEntity", building.getColony().getID());
@@ -465,9 +465,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
 
             if (task == MountMaintenance.READYING)
             {   
-                float combatCooldownBefore = horse.getAnimalData().getCombatCooldown();
-
-                // TODO: Reasearch to influence readiness recovery rate?
+                // TODO: Research to influence readiness recovery rate?
                 if (stackToUse.getItem() == Items.SADDLE)
                 {
                     horse.getAnimalData().setCombatCooldown(0);
@@ -577,7 +575,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 }
             }
 
-            if (horseToRetrieve.isLeashed())
+            if (worker.equals(horseToRetrieve.getLeashHolder()))
             {
                 if (!walkToSafePos(building.getNextStallPosition())) 
                 {
@@ -738,11 +736,11 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
            .getEntitiesOfClass(AbstractHorse.class,
                searchBox,
                horse -> !horse.isRemoved() &&
-                   horse.isAlive() &&
-                   !(horse instanceof CavalryHorseEntity cav && cav.hasCavalryRider()) &&
-                   !(horse instanceof CavalryHorseEntity cav && cav.isInStable()) &&
-                   !(horseToRetrieve instanceof CavalryHorseEntity cav && cav.hasReservation()) &&
-                   horse.distanceToSqr(cx, cy, cz) <= r2);
+                    horse.isAlive() &&
+                    !(horse instanceof CavalryHorseEntity cav && cav.hasCavalryRider()) &&
+                    !(horse instanceof CavalryHorseEntity cav && cav.isInStable()) &&
+                    !(horse instanceof CavalryHorseEntity cav && cav.hasReservation()) &&
+                    horse.distanceToSqr(cx, cy, cz) <= r2);
    }
 
 }

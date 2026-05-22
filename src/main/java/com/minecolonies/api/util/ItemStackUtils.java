@@ -15,7 +15,6 @@ import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.items.ModTags;
-import com.minecolonies.core.items.ItemBowlFood;
 import com.minecolonies.core.items.ItemSpear;
 import com.minecolonies.core.util.AdvancementUtils;
 import com.mojang.datafixers.util.Pair;

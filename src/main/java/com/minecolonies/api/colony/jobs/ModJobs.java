@@ -108,6 +108,7 @@ public final class ModJobs
     public static DeferredHolder<JobEntry, JobEntry> druid;
     public static DeferredHolder<JobEntry, JobEntry> alchemist;
     public static DeferredHolder<JobEntry, JobEntry> chef;
+    public static DeferredHolder<JobEntry, JobEntry> stablemaster;
 
     @Deprecated
     public static DeferredHolder<JobEntry, JobEntry> cookassistant;
