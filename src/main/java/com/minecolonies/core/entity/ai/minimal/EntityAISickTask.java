@@ -13,6 +13,7 @@ import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.SoundUtils;
+import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
@@ -378,15 +379,31 @@ public class EntityAISickTask implements IStateAI
             return SEARCH_HOSPITAL;
         }
 
+        final IColony colony = citizenData.getColony();
+        BlockPos hosPos = colony.getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
+
+        if (hosPos != null)
+        {
+            // If we're already closer to the hospital than we are to work, just go to the hospital.
+            if (BlockPosUtil.getDistance(citizenData.getLastPosition(), hosPos) < BlockPosUtil.getDistance(citizenData.getLastPosition(), buildingWorker.getPosition()))
+            {
+                return SEARCH_HOSPITAL;
+            }
+        }
+
         if (citizen.getCitizenSleepHandler().isAsleep())
         {
             if (isSleepingInHospitalBed())
             {
-                return SEARCH_HOSPITAL;
+                return WAIT_FOR_CURE;
             }
 
-            citizen.getCitizenSleepHandler().onWakeUp();
-            return GO_TO_HUT;
+            // Leave them asleep where they are until daytime.
+            if (WorldUtil.isDayTime(citizen.level()))
+            {
+                citizen.getCitizenSleepHandler().onWakeUp();
+                return SEARCH_HOSPITAL;
+            }
         }
 
         if (EntityNavigationUtils.walkToBuilding(citizen, buildingWorker))

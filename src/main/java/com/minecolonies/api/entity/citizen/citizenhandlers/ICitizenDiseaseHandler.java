@@ -78,4 +78,16 @@ public interface ICitizenDiseaseHandler
      * @return true if they actually became sick.
      */
     boolean setDisease(Disease disease);
+
+    /**
+     * Set the number of ticks of immunity to diseases.
+     * @param ticks
+     */
+    void setImmunityTicks(int ticks);
+
+    /**
+     * Get the number of ticks of immunity to diseases.
+     * @return
+     */
+    int getImmunityTicks();
 }

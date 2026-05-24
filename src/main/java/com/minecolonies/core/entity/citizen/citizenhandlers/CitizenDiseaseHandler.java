@@ -108,9 +108,9 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
             }
         }
 
-        if (immunityTicks > 0)
+        if (getImmunityTicks() > 0)
         {
-            immunityTicks -= tickRate;
+            setImmunityTicks(getImmunityTicks() - tickRate);
         }
     }
 
@@ -136,7 +136,7 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
             && citizenData.getEntity().isPresent()
             && citizenData.getColony().isActive()
             && !(citizenData.getJob() instanceof JobHealer)
-                 && immunityTicks <= 0
+                 && getImmunityTicks() <= 0
             && citizenData.getColony().getCitizenManager().getCurrentCitizenCount() > initialCitizenCount;
     }
 
@@ -220,17 +220,17 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
 
             if (citizenData.getColony().getResearchManager().getResearchEffects().getEffectStrength(VACCINES) > 0)
             {
-                immunityTicks = IMMUNITY_TIME * VACCINE_MODIFIER;
+                setImmunityTicks(IMMUNITY_TIME * VACCINE_MODIFIER);
             }
             else
             {
-                immunityTicks = IMMUNITY_TIME;
+                setImmunityTicks(IMMUNITY_TIME);
             }
         }
         else
         {
             // Less immunity time if not cored in bed, but still have immunity time.
-            immunityTicks = IMMUNITY_TIME / 2;
+            setImmunityTicks(IMMUNITY_TIME / 2);
         }
 
         citizenData.getColony().getStatisticsManager().increment(CITIZENS_HEALED, citizenData.getColony().getDay());
@@ -248,4 +248,27 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
     {
         sleepsAtHospital = isAtHospital;
     }
+
+    /**
+     * Set the number of ticks of immunity to diseases.
+     * The caller is responsible for setting the citizen data to dirty, if appropriate.
+     * @param ticks
+     */
+    @Override
+    public void setImmunityTicks(int ticks)
+    {
+        immunityTicks = ticks;
+    }
+
+    /**
+     * Get the number of ticks of immunity to diseases.
+     * @return
+     */
+    @Override
+    public int getImmunityTicks()
+    {
+        return immunityTicks;
+    }
+
+    
 }
