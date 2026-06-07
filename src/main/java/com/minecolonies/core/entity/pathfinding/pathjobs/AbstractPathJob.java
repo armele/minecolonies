@@ -43,8 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-import static com.minecolonies.api.util.constant.PathingConstants.HALF_A_BLOCK;
-import static com.minecolonies.api.util.constant.PathingConstants.MAX_JUMP_HEIGHT;
+import static com.minecolonies.api.util.constant.PathingConstants.*;
 import static com.minecolonies.core.entity.pathfinding.PathingOptions.MAX_COST;
 
 /**
