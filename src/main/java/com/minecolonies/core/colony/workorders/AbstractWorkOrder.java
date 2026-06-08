@@ -421,7 +421,14 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     @Override
     public void loadBlueprint(final Level world, final Consumer<Blueprint> afterLoad)
     {
-        loadBlueprintFuture(world).thenAccept(afterLoad);
+        if (blueprint != null)
+        {
+            afterLoad.accept(blueprint);
+        }
+        else
+        {
+            loadBlueprintFuture(world).thenAcceptAsync(afterLoad, WorldUtil.getMainThread(world));
+        }
     }
 
     @Override
