@@ -357,7 +357,7 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<BuildingSmeltery.OreBreakingModule,CraftingModuleView> SMELTER_OREBREAK      =
       new BuildingEntry.ModuleProducer<>("smelter_orebreak", () -> new BuildingSmeltery.OreBreakingModule(ModJobs.smelter.get()), () -> CraftingModuleView::new);
     public static final BuildingEntry.ModuleProducer<SettingsModule,SettingsModuleView> SMELTER_SETTINGS              =
-      new BuildingEntry.ModuleProducer<>("smelter_settings", () -> new SettingsModule().with(BuildingSmeltery.MIN, new IntSetting(16)), () -> SettingsModuleView::new);
+      new BuildingEntry.ModuleProducer<>("smelter_settings", () -> new SettingsModule().with(BuildingSmeltery.MIN, new IntSetting(0)), () -> SettingsModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<CraftingWorkerBuildingModule,WorkerBuildingModuleView> STONEMASON_WORK       =
       new BuildingEntry.ModuleProducer<>("stonemason_work", () -> new CraftingWorkerBuildingModule(ModJobs.stoneMason.get(), Skill.Creativity, Skill.Dexterity, false, (b) -> 1),
