@@ -15,10 +15,8 @@
       "id": "minecolonies:raw_noodle"
     },
     {
+      "count": 2,
       "id": "minecolonies:soysauce"
-    },
-    {
-      "id": "minecraft:bowl"
     }
   ],
   "intermediate": "minecraft:air",

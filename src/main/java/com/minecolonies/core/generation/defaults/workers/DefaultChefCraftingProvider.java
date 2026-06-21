@@ -45,7 +45,7 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(ModItems.manchet_bread)),
             new ItemStorage(new ItemStack(ModBlocks.blockTomato)),
             new ItemStorage(new ItemStack(ModBlocks.blockCabbage)),
-            new ItemStorage(new ItemStack(ModBlocks.blockOnion))))
+            new ItemStorage(new ItemStack(ModBlocks.blockOnion, 2))))
           .result(new ItemStack(ModItems.stew_trencher))
           .showTooltip(true)
           .minBuildingLevel(4)
@@ -109,14 +109,14 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
             new ItemStorage(new ItemStack(Items.DRIED_KELP)),
             new ItemStorage(new ItemStack(ModBlocks.blockOnion))))
-          .result(new ItemStack(ModItems.sushi_roll, 2))
+          .result(new ItemStack(ModItems.sushi_roll, 1))
           .showTooltip(true)
           .minBuildingLevel(4)
           .build(consumer);
 
         recipe(CHEF, MODULE_CRAFTING, "hand_pie")
           .inputs(List.of(
-            new ItemStorage(new ItemStack(ModBlocks.blockDurum)),
+            new ItemStorage(new ItemStack(ModBlocks.blockDurum,2)),
             new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
             new ItemStorage(new ItemStack(Items.BROWN_MUSHROOM)),
             new ItemStorage(new ItemStack(ModBlocks.blockOnion)),
@@ -136,8 +136,7 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(Items.POTATO)),
             new ItemStorage(new ItemStack(Items.BROWN_MUSHROOM)),
             new ItemStorage(new ItemStack(ModBlocks.blockCabbage)),
-            new ItemStorage(new ItemStack(Items.MUTTON)),
-            new ItemStorage(new ItemStack(Items.BOWL))))
+            new ItemStorage(new ItemStack(Items.MUTTON,2))))
           .result(new ItemStack(ModItems.lamb_stew))
           .showTooltip(true)
           .minBuildingLevel(4)
@@ -153,16 +152,16 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(Items.BEETROOT)),
             new ItemStorage(new ItemStack(Items.BOWL))
           ))
-          .result(new ItemStack(ModItems.borscht, 2))
+          .result(new ItemStack(ModItems.borscht, 1))
           .showTooltip(true)
           .minBuildingLevel(4)
           .build(consumer);
 
         recipe(CHEF, MODULE_CRAFTING, "fish_dinner")
           .inputs(List.of(
-            new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
-            new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
-            new ItemStorage(new ItemStack(ModBlocks.blockCabbage)),
+            new ItemStorage(new ItemStack(ModBlocks.blockGarlic, 2)),
+            new ItemStorage(new ItemStack(ModBlocks.blockCabbage, 2)),
+            new ItemStorage(new ItemStack(ModBlocks.blockOnion)),
             new ItemStorage(new ItemStack(Items.COD)),
             new ItemStorage(new ItemStack(Items.BROWN_MUSHROOM))
           ))
@@ -177,8 +176,7 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
             new ItemStorage(new ItemStack(ModBlocks.blockOnion)),
             new ItemStorage(new ItemStack(ModItems.raw_noodle)),
-            new ItemStorage(new ItemStack(ModItems.soysauce)),
-            new ItemStorage(new ItemStack(Items.BOWL))
+            new ItemStorage(new ItemStack(ModItems.soysauce, 2))
           ))
           .result(new ItemStack(ModItems.ramen, 1))
           .showTooltip(true)
@@ -204,6 +202,7 @@ public class DefaultChefCraftingProvider extends CustomRecipeProvider
             new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
             new ItemStorage(new ItemStack(ModBlocks.blockGarlic)),
             new ItemStorage(new ItemStack(ModBlocks.blockOnion)),
+            new ItemStorage(new ItemStack(ModItems.manchet_bread)),
             new ItemStorage(new ItemStack(Items.BEEF)),
             new ItemStorage(new ItemStack(Items.POTATO)),
             new ItemStorage(new ItemStack(Items.POTATO))

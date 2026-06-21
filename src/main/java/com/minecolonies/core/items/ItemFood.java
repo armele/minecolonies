@@ -1,16 +1,26 @@
 package com.minecolonies.core.items;
 
+import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.containers.WindowCitizenInventory;
+import com.minecolonies.core.client.gui.modules.building.RestaurantMenuModuleWindow;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.inventory.tooltip.BundleTooltip;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.BundleContents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A custom item class for food items.
@@ -41,6 +51,24 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
         {
             tooltip.add(Component.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
         }
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack)
+    {
+        NonNullList<ItemStack> nonnulllist = NonNullList.create();
+        for (final ItemStorage ingredient : RestaurantMenuModuleWindow.getRecipeFromStack(new ItemStorage(stack), Minecraft.getInstance().level))
+        {
+            nonnulllist.add(ingredient.getItemStack());
+        }
+
+        return Optional.of(new BundleTooltip(new BundleContents(nonnulllist)));
+    }
+
+    @Override
+    public int getUseDuration(final ItemStack stack, final LivingEntity entity)
+    {
+        return super.getUseDuration(stack, entity) * (tier + 1);
     }
 
     @Override

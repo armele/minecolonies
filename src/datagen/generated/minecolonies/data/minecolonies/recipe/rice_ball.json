@@ -9,11 +9,14 @@
       "item": "minecolonies:cooked_rice"
     },
     {
+      "item": "minecolonies:cooked_rice"
+    },
+    {
       "item": "minecraft:dried_kelp"
     }
   ],
   "result": {
-    "count": 2,
+    "count": 1,
     "id": "minecolonies:rice_ball"
   }
 }

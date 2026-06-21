@@ -98,8 +98,8 @@ public class FoodUtils
             return 0;
         }
 
-        final double saturationNerf = foodStack.getItem() instanceof IMinecoloniesFoodItem ? 1.0 : 0.25;
-        return itemFood.nutrition() * saturationNerf / 1.2 * (1.0 + researchBonus);
+        final double saturationBonus = foodStack.getItem() instanceof IMinecoloniesFoodItem ? 2.0 : 1.0;
+        return itemFood.nutrition() * saturationBonus * (1.0 + researchBonus);
     }
 
     /**
@@ -116,25 +116,25 @@ public class FoodUtils
     }
 
     /**
-     * Calculate the food tier from the food value
+     * Calculate the food tier from the food item.
      *
-     * @param foodValue
-     * @return
+     * @param food the food item.
+     * @return the tier.
      */
-    public static int getFoodTier(final double foodValue)
+    public static int getFoodTier(final ItemStack food)
     {
-        if (foodValue <= 4)
+        if (food.getItem() instanceof IMinecoloniesFoodItem foodItem)
         {
-            return 1;
+            return foodItem.getTier();
         }
-        else if (foodValue <= 6)
+
+        final FoodProperties foodValue = food.getFoodProperties(null);
+        if (foodValue == null || foodValue.nutrition() < 12 || foodValue.saturation() < 0.8)
         {
-            return 2;
+            return 0;
         }
-        else
-        {
-            return 3;
-        }
+
+        return 1;
     }
 
     /**
@@ -228,6 +228,7 @@ public class FoodUtils
                         {
                             final boolean isMinecolfood = storage.getItem() instanceof IMinecoloniesFoodItem;
                             final int localScore = foodHandler.checkLastEaten(storage.getItem()) * (isMinecolfood ? 1 : 2);
+                            final int tier = FoodUtils.getFoodTier(storage.getItemStack());
 
                             // If this is great food and we're at critical levels, go with it!
                             if ((localScore < 0 && isMinecolfood) && (criticalDiversity || criticalQuality))
@@ -240,7 +241,7 @@ public class FoodUtils
                                 continue;
                             }
 
-                            if (isMinecolfood && !criticalQuality && MathUtils.RANDOM.nextInt(Math.max(1, ((IMinecoloniesFoodItem) storage.getItem()).getTier() + 2 - homeBuildingLevel)) <= 0)
+                            if (isMinecolfood && !criticalQuality && MathUtils.RANDOM.nextInt(Math.max(1, tier + 2 - homeBuildingLevel)) <= 0)
                             {
                                 bestScore = localScore;
                                 bestStorage = storage;
@@ -321,6 +322,7 @@ public class FoodUtils
                         {
                             final boolean isMinecolfood = storage.getItem() instanceof IMinecoloniesFoodItem;
                             final int localScore = foodHandler.checkLastEaten(storage.getItem())  * (isMinecolfood ? 1 : 2);
+                            final int tier = FoodUtils.getFoodTier(storage.getItemStack());
 
                             // If this is great food and we're at critical levels, go with it!
                             if ((localScore < 0 && isMinecolfood) && (criticalDiversity || criticalQuality))
@@ -333,7 +335,7 @@ public class FoodUtils
                                 continue;
                             }
 
-                            if (isMinecolfood && !criticalQuality && MathUtils.RANDOM.nextInt(Math.max(1, ((IMinecoloniesFoodItem) storage.getItem()).getTier() + 2 - homeBuildingLevel)) <= 0)
+                            if (isMinecolfood && !criticalQuality && MathUtils.RANDOM.nextInt(Math.max(1, tier + 2 - homeBuildingLevel)) <= 0)
                             {
                                 bestScore = localScore;
                                 bestStorage = storage;
@@ -413,5 +415,23 @@ public class FoodUtils
         }
 
         return ItemStack.EMPTY;
+    }
+
+    /**
+     * Compute the saturation consumption factor.
+     * @param buildingLevel the housing level it's based on.
+     * @return the value.
+     */
+    public static double computeSaturationConsumptionFactor(final int buildingLevel)
+    {
+        return switch (buildingLevel)
+        {
+            case 1 -> 0.6;
+            case 2 -> 0.725;
+            case 3 -> 1.0;
+            case 4 -> 1.2;
+            case 5 -> 1.5;
+            default -> 0.3;
+        };
     }
 }

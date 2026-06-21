@@ -27,10 +27,8 @@
       "id": "minecolonies:cabbage"
     },
     {
+      "count": 2,
       "id": "minecraft:mutton"
-    },
-    {
-      "id": "minecraft:bowl"
     }
   ],
   "intermediate": "minecraft:air",
