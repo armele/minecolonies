@@ -5,8 +5,6 @@ import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.containers.WindowCitizenInventory;
 import com.minecolonies.core.client.gui.modules.building.RestaurantMenuModuleWindow;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
@@ -57,7 +55,7 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack)
     {
         NonNullList<ItemStack> nonnulllist = NonNullList.create();
-        for (final ItemStorage ingredient : RestaurantMenuModuleWindow.getRecipeFromStack(new ItemStorage(stack), Minecraft.getInstance().level))
+        for (final ItemStorage ingredient : RestaurantMenuModuleWindow.getRecipeFromStack(new ItemStorage(stack)))
         {
             nonnulllist.add(ingredient.getItemStack());
         }

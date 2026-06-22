@@ -309,7 +309,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
         for (final ItemStorage dish : menu)
         {
             final ItemStorage input = new ItemStorage(dish.getItemStack());
-            final List<ItemStorage> map = getRecipeFromStack(input, mc.level);
+            final List<ItemStorage> map = getRecipeFromStack(input);
             for (final ItemStorage ingredient : map)
             {
                 ingredients.merge(ingredient, (double) ingredient.getAmount() / input.getAmount(), Double::sum);
@@ -357,7 +357,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
         });
     }
 
-    public static List<ItemStorage> getRecipeFromStack(final ItemStorage storage, final Level level)
+    public static List<ItemStorage> getRecipeFromStack(final ItemStorage storage)
     {
         if (recipeMapping.containsKey(storage))
         {
@@ -366,7 +366,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
         else
         {
             final List<ItemStorage> set = new ArrayList<>();
-            processRecipe(storage, set, 0, level);
+            processRecipe(storage, set, 0, Minecraft.getInstance().level);
             recipeMapping.put(storage, set);
             return set;
         }
