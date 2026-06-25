@@ -1,8 +1,9 @@
 package com.minecolonies.api.util.constant;
 
 import net.minecraft.resources.ResourceLocation;
-
 import java.util.UUID;
+
+import static com.minecolonies.api.colony.ICitizenData.MAX_SATURATION;
 
 /**
  * Constants regarding citizens.
@@ -52,7 +53,7 @@ public final class CitizenConstants
     /**
      * Full saturation amount.
      */
-    public static final double FULL_SATURATION = 20;
+    public static final double FULL_SATURATION = MAX_SATURATION;
 
     /**
      * Number of ticks to heal the citizens.
