@@ -848,8 +848,6 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
             }
             this.ourEntity.getMoveControl().setWantedPosition(vec3.x, vec3.y, vec3.z, newSpeed);
             wantedPosition.set(vec3.x, vec3.y, vec3.z);
-
-            Log.getLogger().warn("Entity pos:" + ourEntity.position() + " wanted:" + wantedPosition);
             return true;
         }
         else
