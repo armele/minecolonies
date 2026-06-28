@@ -8,6 +8,7 @@ import net.minecraft.data.PackOutput.Target;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
@@ -36,6 +37,8 @@ public class DefaultDamageTypeProvider extends JsonCodecProvider<DamageType> {
         unconditional(DamageSourceKeys.STUCK_DAMAGE.location(), damage("entity.minecolonies.stuckdamage"));
         unconditional(DamageSourceKeys.TRAINING.location(), damage("entity.minecolonies.training"));
         unconditional(DamageSourceKeys.WAKEY.location(), damage("entity.minecolonies.wakeywakey"));
+        unconditional(DamageSourceKeys.PIERCE.location(), damage("entity.minecolonies.pierce"));
+
         unconditional(DamageSourceKeys.AMAZON.location(), entityDamage(ModEntities.AMAZON));
         unconditional(DamageSourceKeys.AMAZONCHIEF.location(), entityDamage(ModEntities.AMAZONCHIEF));
         unconditional(DamageSourceKeys.AMAZONSPEARMAN.location(), entityDamage(ModEntities.AMAZONSPEARMAN));

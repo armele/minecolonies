@@ -47,6 +47,7 @@ public class ModEquipmentTypes
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> flint_and_steel;
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> lead;
     public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> spear;
+    public static final DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> crossbow;
 
     static
     {
@@ -99,6 +100,12 @@ public class ModEquipmentTypes
                        .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof BowItem)
                        .setEquipmentLevel((itemStack, equipmentType) -> Compatibility.getItemLevel(itemStack))
                   .build());
+
+        crossbow = register("crossbow",
+            builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_CROSSBOW))
+                .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof CrossbowItem)
+                .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, Items.CROSSBOW.getMaxDamage(itemStack)))
+                .build());
 
         fishing_rod = register("rod",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_FISHING_ROD))

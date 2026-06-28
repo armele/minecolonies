@@ -2,7 +2,7 @@ package com.minecolonies.core.entity.other;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import com.minecolonies.core.colony.jobs.JobDruid;
+import com.minecolonies.core.colony.jobs.guard.JobDruid;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;

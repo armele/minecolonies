@@ -1,11 +1,13 @@
 package com.minecolonies.core.entity.ai.workers.guard;
 
+import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRateStateMachine;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
+import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.Constants;
@@ -13,6 +15,7 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.settings.GuardTaskSetting;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
+import com.minecolonies.core.colony.jobs.guard.JobRanger;
 import com.minecolonies.core.entity.ai.combat.AttackMoveAI;
 import com.minecolonies.core.entity.ai.combat.CombatUtils;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
@@ -52,7 +55,7 @@ import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 /**
  * Knight combat AI
  */
-public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
+public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
 {
     /**
      * Visible combat icon
@@ -89,7 +92,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
 
     private final PathingOptions combatPathingOptions;
 
-    public RangerCombatAI(
+    public RangeCombatAI(
       final EntityCitizen owner,
       final ITickRateStateMachine stateMachine,
       final AbstractEntityAIGuard parentAI)
@@ -114,7 +117,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     public boolean canAttack()
     {
         final int weaponSlot =
-          InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(user.getInventoryCitizen(), ModEquipmentTypes.bow.get(), 0, user.getCitizenData().getWorkBuilding().getMaxEquipmentLevel());
+          InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(user.getInventoryCitizen(), getWeaponType(), 0, user.getCitizenData().getWorkBuilding().getMaxEquipmentLevel());
 
         if (weaponSlot != -1)
         {
@@ -127,6 +130,22 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         }
 
         return false;
+    }
+
+    /**
+     * Gets the weapon type that the AI will look for when checking if it can attack.
+     *
+     * @return the weapon type.
+     */
+    public EquipmentTypeEntry getWeaponType()
+    {
+        if (parentAI.getJob() instanceof JobRanger jobRanger)
+        {
+            return jobRanger.getEquipmentType();
+        }
+
+        // Default to bow.
+        return ModEquipmentTypes.bow.get();
     }
 
     @Override
@@ -189,6 +208,10 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
             }
 
             double damage = calculateDamage(arrow);
+            if (isMarksman())
+            {
+                arrow.shotFromCrossbow();
+            }
             arrow.setBaseDamage(damage);
 
             final float chance = HIT_CHANCE_DIVIDER / (user.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Adaptability) + 1);
@@ -234,7 +257,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     @Override
     protected int getAttackDelay()
     {
-        return RANGED_ATTACK_DELAY_BASE;
+        return (int) (RANGED_ATTACK_DELAY_BASE * (isMarksman() ? 0.67 : 1));
     }
 
     /**
@@ -270,6 +293,12 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
                                 user.getInventoryCitizen().extractItem(arrowSlot, 1, false);
                             }
 
+                            if (isMarksman())
+                            {
+                                // Calculate true damage from reduced arrow damage.
+                                entityRayTraceResult.getEntity().hurt(target.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) arrow.getBaseDamage() * (float) marksManTrueDamageShare() * 10);
+                            }
+
                             return true;
                         });
                     }
@@ -287,7 +316,21 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
             damage *= 1.5;
         }
 
-        return (RANGER_BASE_DMG + damage) * MineColonies.getConfig().getServer().guardDamageMultiplier.get();
+        return (RANGER_BASE_DMG + damage) * MineColonies.getConfig().getServer().guardDamageMultiplier.get() * (1-(isMarksman() ? marksManTrueDamageShare() : 1));
+    }
+
+    /**
+     * Check if is a marksman instance.
+     * @return true if so.
+     */
+    public boolean isMarksman()
+    {
+        return parentAI.getJob().getJobRegistryEntry() == ModJobs.marksman.get();
+    }
+
+    public double marksManTrueDamageShare()
+    {
+        return (50 + user.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Adaptability) / 2.0) / 100.0;
     }
 
     @Override
