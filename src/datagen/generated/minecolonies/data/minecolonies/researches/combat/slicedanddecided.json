@@ -2,9 +2,8 @@
   "branch": "minecolonies:combat",
   "costs": [
     {
-      "type": "minecolonies:item_simple",
-      "item": "minecraft:diamond_axe",
-      "quantity": 1
+      "count": 1,
+      "item": "minecraft:diamond_axe"
     }
   ],
   "effects": [

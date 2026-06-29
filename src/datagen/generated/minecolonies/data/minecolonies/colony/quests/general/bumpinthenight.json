@@ -1,0 +1,203 @@
+{
+  "max-occurrences": 1,
+  "name": "minecolonies.quests.general.bumpinthenight",
+  "objectives": [
+    {
+      "type": "minecolonies:dialogue",
+      "options": [
+        {
+          "answer": "minecolonies.quests.general.bumpinthenight.obj0.answer0",
+          "result": {
+            "type": "minecolonies:dialogue",
+            "options": [
+              {
+                "answer": "minecolonies.quests.general.bumpinthenight.obj0.answer0.reply.answer0",
+                "result": {
+                  "type": "minecolonies:advanceobjective",
+                  "go-to": 1
+                }
+              }
+            ],
+            "text": "minecolonies.quests.general.bumpinthenight.obj0.answer0.reply"
+          }
+        },
+        {
+          "answer": "minecolonies.quests.general.bumpinthenight.obj0.answer1",
+          "result": {
+            "type": "minecolonies:cancel"
+          }
+        }
+      ],
+      "target": 0,
+      "text": "minecolonies.quests.general.bumpinthenight.obj0"
+    },
+    {
+      "type": "minecolonies:delivery",
+      "details": {
+        "item": {
+          "count": 1,
+          "id": "minecolonies:scroll_tp"
+        },
+        "next-objective": 2,
+        "target": 0
+      }
+    },
+    {
+      "type": "minecolonies:delivery",
+      "details": {
+        "item": {
+          "count": 5,
+          "id": "minecraft:lapis_lazuli"
+        },
+        "next-objective": 3,
+        "target": 0
+      }
+    },
+    {
+      "type": "minecolonies:delivery",
+      "details": {
+        "item": {
+          "count": 1,
+          "id": "minecraft:ender_pearl"
+        },
+        "next-objective": 4,
+        "target": 0
+      }
+    },
+    {
+      "type": "minecolonies:delivery",
+      "details": {
+        "item": {
+          "count": 1,
+          "id": "minecraft:paper"
+        },
+        "next-objective": 5,
+        "target": 0
+      }
+    },
+    {
+      "type": "minecolonies:dialogue",
+      "options": [
+        {
+          "answer": "minecolonies.quests.general.bumpinthenight.obj5.answer0",
+          "result": {
+            "type": "minecolonies:advanceobjective",
+            "go-to": 6
+          }
+        }
+      ],
+      "target": 0,
+      "text": "minecolonies.quests.general.bumpinthenight.obj5"
+    },
+    {
+      "type": "minecolonies:dialogue",
+      "options": [
+        {
+          "answer": "minecolonies.quests.general.bumpinthenight.obj6.answer0",
+          "result": {
+            "type": "minecolonies:advanceobjective",
+            "go-to": 7
+          }
+        },
+        {
+          "answer": "minecolonies.quests.general.bumpinthenight.obj6.answer1",
+          "result": {
+            "type": "minecolonies:dialogue",
+            "options": [
+              {
+                "answer": "minecolonies.quests.general.bumpinthenight.obj6.answer1.reply.answer0",
+                "result": {
+                  "type": "minecolonies:advanceobjective",
+                  "go-to": 7
+                }
+              }
+            ],
+            "text": "minecolonies.quests.general.bumpinthenight.obj6.answer1.reply"
+          }
+        }
+      ],
+      "target": 0,
+      "text": "minecolonies.quests.general.bumpinthenight.obj6",
+      "unlocks-rewards": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "parents": [],
+  "rewards": [
+    {
+      "type": "minecolonies:item",
+      "details": {
+        "item": {
+          "count": 3,
+          "id": "minecolonies:scroll_guard_help"
+        }
+      }
+    },
+    {
+      "type": "minecolonies:item",
+      "details": {
+        "item": {
+          "count": 5,
+          "id": "minecraft:lapis_lazuli"
+        }
+      }
+    },
+    {
+      "type": "minecolonies:item",
+      "details": {
+        "item": {
+          "count": 1,
+          "id": "minecraft:ender_pearl"
+        }
+      }
+    },
+    {
+      "type": "minecolonies:item",
+      "details": {
+        "item": {
+          "count": 1,
+          "id": "minecraft:paper"
+        }
+      }
+    },
+    {
+      "type": "minecolonies:happiness",
+      "details": {
+        "days": 7,
+        "qty": 1,
+        "target": 0
+      }
+    }
+  ],
+  "triggers": [
+    {
+      "type": "minecolonies:random",
+      "rarity": 1000000
+    },
+    {
+      "type": "minecolonies:state",
+      "state": {
+        "match": {
+          "type": "minecolonies:enchanter",
+          "level": 2
+        },
+        "path": "buildingManager/buildings"
+      }
+    },
+    {
+      "type": "minecolonies:citizen",
+      "state": {
+        "match": {
+          "job": {
+            "type": "minecolonies:enchanter"
+          }
+        }
+      }
+    }
+  ]
+}
