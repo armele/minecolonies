@@ -889,6 +889,7 @@
   "com.minecolonies.coremod.tooltype.hoe": "Hoe",
   "com.minecolonies.coremod.tooltype.sword": "Sword",
   "com.minecolonies.coremod.tooltype.bow": "Bow",
+  "com.minecolonies.coremod.tooltype.crossbow": "Crossbow",
   "com.minecolonies.coremod.tooltype.fishingrod": "Fishing Rod",
   "com.minecolonies.coremod.tooltype.shears": "Shears",
   "com.minecolonies.coremod.tooltype.shield": "Shield",
@@ -1904,6 +1905,7 @@
   "death.attack.entity.minecolonies.training": "%s got killed during training",
   "death.attack.entity.minecolonies.guard": "%s was defeated by a Guard",
   "death.attack.entity.minecolonies.guardpvp": "%s was skewered by a Guard",
+  "death.attack.entity.minecolonies.pierce": "%s armor got pierced!",
 
   "item.minecolonies.shieldmaidenegg": "Shieldmaiden Spawn Egg",
   "item.minecolonies.norsemenarcheregg": "Archer Norseman Spawn Egg",
@@ -2304,6 +2306,9 @@
   "com.minecolonies.job.beekeeper": "Beekeeper",
   "com.minecolonies.job.smelter": "Smelter",
   "com.minecolonies.job.druid": "Druid",
+  "com.minecolonies.job.huscarl": "Huscarl",
+  "com.minecolonies.job.marksman": "Marksman",
+
   "com.minecolonies.job.alchemist": "Alchemist",
 
   "com.minecolonies.building.miner": "Mine",
@@ -2379,6 +2384,9 @@
   "com.minecolonies.building.largequarry": "Large Quarry",
   "com.minecolonies.coremod.gui.quarry.desc": "To start the Quarry construct a Mine, hire a Quarrier and assign the Quarrier to the Quarry",
   "com.minecolonies.coremod.gui.workerhuts.druid": "Druid",
+  "com.minecolonies.coremod.gui.workerhuts.huscarl": "Huscarl",
+  "com.minecolonies.coremod.gui.workerhuts.marksman": "Marksman",
+
   "item.minecolonies.mistletoe": "Mistletoe",
   "item.minecolonies.magicpotion": "Magic Potion",
 
@@ -2428,6 +2436,8 @@
   "minecolonies:netherworker.job.desc": "Wanders into the Nether to gather a wide range of materials. A very dangerous job!.",
   "minecolonies:alchemist.job.desc": "Brews Potions, plants Netherwart and harvests Mistletoes",
   "minecolonies:stablemaster.job.desc": "Raises horses and trains and prepares them for combat use.",
+  "minecolonies:huscarl.job.desc": "Cuts through armor with every strike. Fragile up close. Hits hard, but can't equip a shield.",
+  "minecolonies:marksman.job.desc": "Pierces armor from a distance. Deadly in the open, but at a lower speed than archers.",
 
   "minecolonies:builder.skills.desc": "Affects placement and breaking speed.",
   "minecolonies:deliveryman.skills.desc": "Affects walking speed and concurrent request fulfillment capacity.",
@@ -2866,6 +2876,7 @@
   "com.minecolonies.core.item.food.tooltip.tier.3": "This food will make your citizens happy for sure!",
 
   "com.minecolonies.core.gui.restaurant.foodquality": "Eaten up to Residence level: %d",
+  "com.minecolonies.core.gui.restaurant.foodconsumption": "Citizens in this dining hall consume between %d and %d of this daily.",
   "com.minecolonies.coremod.gui.townhall.happiness.desc.food": "Didn't have at least a tier 2 meal recently",
   "com.minecolonies.coremod.gui.townhall.happiness.desc.greatfood": "Had a tier 3 meal recently.",
   "com.minecolonies.coremod.gui.townhall.happiness.food": "Food Factor",
@@ -2958,7 +2969,7 @@
   "death.attack.entity.minecolonies.campdrownedchiefpirate": "%s was put to a watery grave by a drowned Pirate Chief",
   "com.minecolonies.core.gui.banner.patreon": "Patreon exclusive",
   "item.minecolonies.colonymap": "Colony Map",
-  "com.minecolonies.core.gui.restaurant.vanillafoodquality": "Citizens get only 25% nutrition from this food!",
+  "com.minecolonies.core.gui.restaurant.vanillafoodquality": "Citizens prefer more sophisticated food!",
   "com.minecolonies.core.restaurant.poormenu": "The dining hall menu is lacking variety and is unlikely to satisfy citizens. Please consider adding more Minecolonies food options to improve happiness.",
   "com.minecolonies.core.restaurant.poorrestaurant": "My dining hall needs an upgrade to meet the expectations of my guests. It currently falls short of their standards!",
   "com.minecolonies.core.poor.menu.warning": "A menu lacking quality food may not satisfy your citizens!",
@@ -3048,5 +3059,6 @@
   "com.minecolonies.core.gui.residence.warning.5": "Warning: Your colony may struggle to feed residents at this level. Consider expanding food production and your Dining Hall menu first.",
 
   "com.minecolonies.core.gui.build.confirm.title": "Are you sure you want to upgrade the building?",
-  "com.minecolonies.core.gui.teleport.confirm.title": "Are you sure you want to teleport now?"
+  "com.minecolonies.core.gui.teleport.confirm.title": "Are you sure you want to teleport now?",
+  "com.minecolonies.core.menu.ingredients": "Ingredients"
 }
