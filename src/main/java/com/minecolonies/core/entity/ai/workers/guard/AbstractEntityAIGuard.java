@@ -698,6 +698,13 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
             lastGuardActionPos = worker.blockPosition();
         }
 
+        if (job.getCitizen().getCitizenDiseaseHandler().isSick())
+        {
+            worker.removeEffect(GLOW_EFFECT);
+            buildingGuards.setTempNextPatrolPoint(buildingGuards.getPosition());
+            return patrol();
+        }
+
         if (rallyLocation != null || buildingGuards.getTask().equals(GuardTaskSetting.FOLLOW))
         {
             worker.addEffect(new MobEffectInstance(GLOW_EFFECT, GLOW_EFFECT_DURATION, 0, false, false));
