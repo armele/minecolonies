@@ -222,6 +222,12 @@ public final class MinecoloniesAPIProxy implements IMinecoloniesAPI
     }
 
     @Override
+    public Registry<HappinessRegistry.HappinessFactorEntry> getHappinessFactorRegistry()
+    {
+        return apiInstance.getHappinessFactorRegistry();
+    }
+
+    @Override
     public void onRegistryNewRegistry(final NewRegistryEvent event)
     {
         apiInstance.onRegistryNewRegistry(event);

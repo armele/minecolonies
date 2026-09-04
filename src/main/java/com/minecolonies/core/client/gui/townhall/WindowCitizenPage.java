@@ -6,6 +6,7 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.colony.ICitizenDataView;
+import com.minecolonies.api.entity.citizen.happiness.HappinessRegistry;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSkillHandler;
@@ -249,7 +250,8 @@ public class WindowCitizenPage extends AbstractWindowTownHall
                 final Image image = rowPane.findPaneOfTypeByID("icon", Image.class);
 
                 final Text label = rowPane.findPaneOfTypeByID("name", Text.class);
-                label.setText(Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_NAME + entry.getKey()));
+                final HappinessRegistry.HappinessFactorEntry definition = HappinessRegistry.getFactorByModifierId(entry.getKey());
+                label.setText(definition == null ? Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_NAME + entry.getKey()) : definition.getDisplayName());
 
                 if (value > 1.0)
                 {
@@ -267,7 +269,8 @@ public class WindowCitizenPage extends AbstractWindowTownHall
                 {
                     image.setImage(ResourceLocation.parse(UNHAPPY_ICON), false);
                 }
-                PaneBuilders.tooltipBuilder().hoverPane(label).append(Component.translatableEscape("com.minecolonies.coremod.gui.townhall.happiness.desc." + entry.getKey())).build();
+                PaneBuilders.tooltipBuilder().hoverPane(label)
+                  .append(definition == null ? Component.translatableEscape("com.minecolonies.coremod.gui.townhall.happiness.desc." + entry.getKey()) : definition.getDescription()).build();
             }
         });
     }

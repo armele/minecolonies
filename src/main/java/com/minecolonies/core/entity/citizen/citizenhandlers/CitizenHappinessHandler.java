@@ -7,7 +7,6 @@ import com.minecolonies.api.colony.interactionhandling.InteractionValidatorRegis
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenFoodHandler;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenHappinessHandler;
 import com.minecolonies.api.entity.citizen.happiness.*;
-import com.minecolonies.api.util.Tuple;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import net.minecraft.core.HolderLookup;
@@ -51,35 +50,13 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
      */
     public CitizenHappinessHandler(final ICitizenData data)
     {
-        // Add static modifiers. These modifiers are on/off.
-        addModifier(new StaticHappinessModifier(SCHOOL, 1.0, new DynamicHappinessSupplier(SCHOOL_FUNCTION)));
-        addModifier(new StaticHappinessModifier(SECURITY, 4.0, new DynamicHappinessSupplier(SECURITY_FUNCTION)));
-        addModifier(new StaticHappinessModifier(SOCIAL, 2.0, new DynamicHappinessSupplier(SOCIAL_FUNCTION)));
-        addModifier(new StaticHappinessModifier(MYSTICAL_SITE, 1.0, new DynamicHappinessSupplier(MYSTICAL_SITE_FUNCTION)));
-        addModifier(new StaticHappinessModifier(FOOD, 3.0, new DynamicHappinessSupplier(FOOD_FUNCTION)));
-
-        // Add time based modifiers. These modifiers change their value over time.
-        addModifier(new TimeBasedHappinessModifier(HOMELESSNESS,
-          3.0,
-          new DynamicHappinessSupplier(HOUSING_FUNCTION),
-         new Tuple<>(COMPLAIN_DAYS_WITHOUT_HOUSE, 0.75), new Tuple<>(DEMANDS_DAYS_WITHOUT_HOUSE, 0.5)));
-
-        addModifier(new TimeBasedHappinessModifier(UNEMPLOYMENT,
-          2.0,
-          new DynamicHappinessSupplier(UNEMPLOYMENT_FUNCTION),
-          new Tuple<>(COMPLAIN_DAYS_WITHOUT_JOB, 0.75), new Tuple<>(DEMANDS_DAYS_WITHOUT_JOB, 0.5)));
-
-        addModifier(new TimeBasedHappinessModifier(HEALTH,
-          2.0,
-          new DynamicHappinessSupplier(HEALTH_FUNCTION),
-          new Tuple<>(COMPLAIN_DAYS_SICK, 0.5), new Tuple<>(DEMANDS_CURE_SICK, 0.1)));
-
-        addModifier(new TimeBasedHappinessModifier(IDLEATJOB,
-          1.0,
-          new DynamicHappinessSupplier(IDLEATJOB_FUNCTION),
-          new Tuple<>(IDLE_AT_JOB_COMPLAINS_DAYS, 0.5), new Tuple<>(IDLE_AT_JOB_DEMANDS_DAYS, 0.1)));
-
-        addModifier(new TimeBasedHappinessModifier(SLEPTTONIGHT, 1.5, new DynamicHappinessSupplier(SLEPTTONIGHT_FUNCTION), (modifier, d) -> true, new Tuple<>(0, 2d), new Tuple<>(2, 1.6d), new Tuple<>(3, 1d)));
+        for (final HappinessFactorEntry definition : HappinessRegistry.getHappinessFactorRegistry())
+        {
+            if (definition.isDefaultFactor())
+            {
+                addModifier(definition.createModifier());
+            }
+        }
     }
 
     /**
@@ -173,7 +150,7 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
                 {
                     happinessFactors.get(id).read(provider, compoundTag, persist);
                 }
-                else if (VALID_HAPPINESS_MODIFIERS.contains(id))
+                else
                 {
                     final IHappinessModifier modifier = HappinessRegistry.loadFrom(provider, compoundTag, persist);
                     if (modifier != null)

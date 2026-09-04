@@ -3,6 +3,7 @@ package com.minecolonies.api.entity.citizen.happiness;
 import com.minecolonies.api.colony.ICitizenData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +70,10 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
         final CompoundTag supplierCompound = compoundNBT.getCompound(TAG_SUPPLIER);
         if (supplierCompound.contains(TAG_ID))
         {
-            supplier = new DynamicHappinessSupplier();
+            final ResourceLocation supplierId = ResourceLocation.tryParse(supplierCompound.getString(TAG_ID));
+            supplier = supplierId != null && HappinessRegistry.getHappinessFactorRegistry().containsKey(supplierId)
+                         ? new RegisteredHappinessSupplier()
+                         : new DynamicHappinessSupplier();
         }
         else
         {

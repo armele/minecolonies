@@ -8,9 +8,12 @@ import com.minecolonies.api.util.constant.NbtTagConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -20,6 +23,125 @@ import java.util.function.Supplier;
  */
 public class HappinessRegistry
 {
+    /** Registry key for complete happiness factor definitions. */
+    public static final ResourceKey<Registry<HappinessFactorEntry>> HAPPINESS_FACTORS =
+      ResourceKey.createRegistryKey(new ResourceLocation(Constants.MOD_ID, "happiness_factors"));
+
+    /**
+     * Get the happiness factor definition registry.
+     *
+     * @return the happiness factor registry.
+     */
+    public static Registry<HappinessFactorEntry> getHappinessFactorRegistry()
+    {
+        return IMinecoloniesAPI.getInstance().getHappinessFactorRegistry();
+    }
+
+    /**
+     * Find the definition which owns a modifier instance ID.
+     *
+     * @param modifierId modifier instance ID.
+     * @return its definition, or {@code null} when none is registered.
+     */
+    @Nullable
+    public static HappinessFactorEntry getFactorByModifierId(final String modifierId)
+    {
+        final Registry<HappinessFactorEntry> registry = getHappinessFactorRegistry();
+        if (registry == null)
+        {
+            return null;
+        }
+
+        for (final HappinessFactorEntry entry : registry)
+        {
+            if (entry.getModifierId().equals(modifierId))
+            {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Complete definition of a logical happiness factor.
+     */
+    public static class HappinessFactorEntry
+    {
+        private final String modifierId;
+        private final boolean defaultFactor;
+        private final Supplier<IHappinessModifier> modifierFactory;
+        private final Function<ICitizenData, Double> calculation;
+        private final Component displayName;
+        private final Component description;
+
+        /**
+         * Creates a happiness factor definition.
+         *
+         * @param modifierId modifier instance ID used in citizen data.
+         * @param defaultFactor whether the factor is installed on every citizen.
+         * @param modifierFactory factory producing a new modifier for one citizen.
+         * @param calculation authoritative server-side factor calculation.
+         * @param displayName factor name shown in the UI.
+         * @param description factor description shown in the UI.
+         */
+        public HappinessFactorEntry(
+          final String modifierId,
+          final boolean defaultFactor,
+          final Supplier<IHappinessModifier> modifierFactory,
+          final Function<ICitizenData, Double> calculation,
+          final Component displayName,
+          final Component description)
+        {
+            this.modifierId = modifierId;
+            this.defaultFactor = defaultFactor;
+            this.modifierFactory = modifierFactory;
+            this.calculation = calculation;
+            this.displayName = displayName;
+            this.description = description;
+        }
+
+        /** @return the modifier instance ID. */
+        public String getModifierId()
+        {
+            return modifierId;
+        }
+
+        /** @return whether this definition is installed on every citizen. */
+        public boolean isDefaultFactor()
+        {
+            return defaultFactor;
+        }
+
+        /** @return a new, independent modifier instance. */
+        public IHappinessModifier createModifier()
+        {
+            return modifierFactory.get();
+        }
+
+        /**
+         * Calculate this factor for a citizen.
+         *
+         * @param citizen citizen calculation context, which also exposes its colony.
+         * @return current base factor.
+         */
+        public double calculate(final ICitizenData citizen)
+        {
+            return calculation.apply(citizen);
+        }
+
+        /** @return display name component. */
+        public Component getDisplayName()
+        {
+            return displayName;
+        }
+
+        /** @return description component. */
+        public Component getDescription()
+        {
+            return description;
+        }
+    }
+
     /**
      * Get the reward registry.
      *
@@ -70,33 +192,34 @@ public class HappinessRegistry
      * @param persist  whether we're reading from persisted data or from networking.
      * @return the modifier instance.
      */
+    @Nullable
     public static IHappinessModifier loadFrom(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compound, final boolean persist)
     {
-        final ResourceLocation modifierType = compound.contains(NbtTagConstants.TAG_MODIFIER_TYPE)
-                                                ? ResourceLocation.parse(compound.getString(NbtTagConstants.TAG_MODIFIER_TYPE))
-                                                : new ResourceLocation(Constants.MOD_ID, "null");
-        final IHappinessModifier modifier = getHappinessTypeRegistry().get(modifierType).create();
-
-        if (modifier != null)
+        final ResourceLocation modifierType = ResourceLocation.tryParse(compound.getString(NbtTagConstants.TAG_MODIFIER_TYPE));
+        if (modifierType == null || !getHappinessTypeRegistry().containsKey(modifierType))
         {
-            try
+            Log.getLogger().warn("Unknown Happiness Modifier type '{}', its state cannot be restored.", modifierType);
+            return null;
+        }
+
+        try
+        {
+            final HappinessFactorTypeEntry type = getHappinessTypeRegistry().get(modifierType);
+            final IHappinessModifier modifier = type == null ? null : type.create();
+            if (modifier == null)
             {
-                modifier.read(provider, compound, persist);
-            }
-            catch (final RuntimeException ex)
-            {
-                Log.getLogger()
-                  .error(String.format("A Happiness Modifier %s has thrown an exception during loading, its state cannot be restored. Report this to the mod author",
-                    modifierType), ex);
+                Log.getLogger().warn("Happiness Modifier type '{}' has no usable factory, its state cannot be restored.", modifierType);
                 return null;
             }
-        }
-        else
-        {
-            Log.getLogger().warn(String.format("Unknown Happiness Modifier type '%s' or missing constructor of proper format.", modifierType));
-        }
 
-        return modifier;
+            modifier.read(provider, compound, persist);
+            return modifier;
+        }
+        catch (final RuntimeException ex)
+        {
+            Log.getLogger().error("A Happiness Modifier of type '{}' threw during loading; its state cannot be restored.", modifierType, ex);
+            return null;
+        }
     }
 
     /**

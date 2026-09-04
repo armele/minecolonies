@@ -144,6 +144,7 @@ public class MineColonies
         ModQuestInitializer.DEFERRED_REGISTER_ANSWER_RESULT.register(modBus);
         ModHappinessFactorTypeInitializer.DEFERRED_REGISTER_HAPPINESS_FACTOR.register(modBus);
         ModHappinessFactorTypeInitializer.DEFERRED_REGISTER_HAPPINESS_FUNCTION.register(modBus);
+        ModHappinessFactorTypeInitializer.DEFERRED_REGISTER_HAPPINESS_FACTORS.register(modBus);
         ModDataComponents.REGISTRY.register(modBus);
 
         ModCreativeTabs.TAB_REG.register(modBus);

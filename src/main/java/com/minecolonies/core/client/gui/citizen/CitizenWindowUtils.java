@@ -8,6 +8,7 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
+import com.minecolonies.api.entity.citizen.happiness.HappinessRegistry;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
@@ -415,9 +416,11 @@ public class CitizenWindowUtils
             label.setSize(136, 11);
             label.setPosition(70, yPos);
             label.setColors(BLACK);
-            label.setText(Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_NAME + name));
+            final HappinessRegistry.HappinessFactorEntry definition = HappinessRegistry.getFactorByModifierId(name);
+            label.setText(definition == null ? Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_NAME + name) : definition.getDisplayName());
             window.addChild(label);
-            PaneBuilders.tooltipBuilder().hoverPane(label).append(Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_DESCRIPTION + name)).build();
+            PaneBuilders.tooltipBuilder().hoverPane(label)
+              .append(definition == null ? Component.translatableEscape(PARTIAL_HAPPINESS_MODIFIER_DESCRIPTION + name) : definition.getDescription()).build();
 
             if (value > 1.0)
             {

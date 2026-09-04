@@ -99,6 +99,7 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     private Registry<QuestRegistries.DialogueAnswerEntry>              questDialogueAnswerRegistry;
     private Registry<HappinessRegistry.HappinessFactorTypeEntry>       happinessFactorTypeRegistry;
     private Registry<HappinessRegistry.HappinessFunctionEntry>         happinessFunctionRegistry;
+    private Registry<HappinessRegistry.HappinessFactorEntry>           happinessFactorRegistry;
     private Registry<EquipmentTypeEntry>                               equipmentTypeRegistry;
 
     private EventBus eventBus = new DefaultEventBus();
@@ -244,6 +245,7 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
         questDialogueAnswerRegistry = event.create(syncedRegistry(QUEST_ANSWER_RESULTS));
         happinessFactorTypeRegistry = event.create(syncedRegistry(HAPPINESS_FACTOR_TYPES));
         happinessFunctionRegistry = event.create(syncedRegistry(HAPPINESS_FUNCTION));
+        happinessFactorRegistry = event.create(syncedRegistry(HappinessRegistry.HAPPINESS_FACTORS));
         equipmentTypeRegistry = event.create(syncedRegistry(EQUIPMENT_TYPES));
     }
 
@@ -321,6 +323,12 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
     public Registry<HappinessRegistry.HappinessFunctionEntry> getHappinessFunctionRegistry()
     {
         return happinessFunctionRegistry;
+    }
+
+    @Override
+    public Registry<HappinessRegistry.HappinessFactorEntry> getHappinessFactorRegistry()
+    {
+        return happinessFactorRegistry;
     }
 
     @Override

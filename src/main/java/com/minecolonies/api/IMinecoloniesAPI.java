@@ -100,6 +100,13 @@ public interface IMinecoloniesAPI
 
     Registry<HappinessRegistry.HappinessFunctionEntry> getHappinessFunctionRegistry();
 
+    /**
+     * Get the registry of complete happiness factor definitions.
+     *
+     * @return the happiness factor registry.
+     */
+    Registry<HappinessRegistry.HappinessFactorEntry> getHappinessFactorRegistry();
+
     void onRegistryNewRegistry(NewRegistryEvent event);
 
     Registry<EquipmentTypeEntry> getEquipmentTypeRegistry();
